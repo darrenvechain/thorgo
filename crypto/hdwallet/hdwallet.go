@@ -82,42 +82,42 @@ func (w *Wallet) Child(index uint32) *Wallet {
 	return w.Derive(path)
 }
 
-// GetPrivateKey returns the ECDSA private key of the account.
-func (w *Wallet) GetPrivateKey() (*ecdsa.PrivateKey, error) {
+// PrivateKey returns the ECDSA private key of the account.
+func (w *Wallet) PrivateKey() (*ecdsa.PrivateKey, error) {
 	return w.derivePrivateKey(w.path)
 }
 
 // MustGetPrivateKey returns the ECDSA private key of the account.
 func (w *Wallet) MustGetPrivateKey() *ecdsa.PrivateKey {
-	privateKey, err := w.GetPrivateKey()
+	privateKey, err := w.PrivateKey()
 	if err != nil {
 		panic(err)
 	}
 	return privateKey
 }
 
-// GetPublicKey returns the ECDSA public key of the account.
-func (w *Wallet) GetPublicKey() (*ecdsa.PublicKey, error) {
+// PublicKey returns the ECDSA public key of the account.
+func (w *Wallet) PublicKey() (*ecdsa.PublicKey, error) {
 	return w.derivePublicKey(w.path)
 }
 
 // MustGetPublicKey returns the ECDSA public key of the account.
 func (w *Wallet) MustGetPublicKey() *ecdsa.PublicKey {
-	publicKey, err := w.GetPublicKey()
+	publicKey, err := w.PublicKey()
 	if err != nil {
 		panic(err)
 	}
 	return publicKey
 }
 
-// GetAddress returns the address of the current master key.
-func (w *Wallet) GetAddress() (common.Address, error) {
+// Address returns the address of the current master key.
+func (w *Wallet) Address() (common.Address, error) {
 	return w.deriveAddress(w.path)
 }
 
 // MustGetAddress returns the address of the current master key.
 func (w *Wallet) MustGetAddress() common.Address {
-	addr, err := w.GetAddress()
+	addr, err := w.Address()
 	if err != nil {
 		panic(err)
 	}
