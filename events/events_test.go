@@ -5,13 +5,20 @@ import (
 
 	"github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/client"
-	"github.com/darrenvechain/thorgo/solo"
+	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	thorClient, _ = client.FromURL(solo.URL)
+	thorClient *client.Client
 )
+
+func TestMain(m *testing.M) {
+	var cancel func()
+	thorClient, cancel = testcontainer.NewSolo()
+	defer cancel()
+	m.Run()
+}
 
 // TestEventByBlockRangeASC fetches events by block range in ascending order
 func TestEventByBlockRangeASC(t *testing.T) {

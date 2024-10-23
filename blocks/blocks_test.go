@@ -4,14 +4,23 @@ import (
 	"testing"
 
 	"github.com/darrenvechain/thorgo/client"
+	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/solo"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	thorClient, _ = client.FromURL(solo.URL)
-	blocks        = New(thorClient)
+	thorClient *client.Client
+	blocks     *Blocks
 )
+
+func TestMain(m *testing.M) {
+	var cancel func()
+	thorClient, cancel = testcontainer.NewSolo()
+	defer cancel()
+	blocks = New(thorClient)
+	m.Run()
+}
 
 // TestGetBestBlock fetches the best block from the network
 func TestGetBestBlock(t *testing.T) {

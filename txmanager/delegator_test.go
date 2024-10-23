@@ -8,7 +8,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/builtins"
 	"github.com/darrenvechain/thorgo/crypto/tx"
@@ -122,9 +121,6 @@ func TestNewUrlDelegator(t *testing.T) {
 }
 
 func TestNewDelegatedManager(t *testing.T) {
-	thor, err := thorgo.FromURL("http://localhost:8669")
-	assert.NoError(t, err)
-
 	origin := txmanager.FromPK(solo.Keys()[0], thor)
 	gasPayer := txmanager.NewDelegator(solo.Keys()[1])
 	manager := txmanager.NewDelegatedManager(thor, origin, gasPayer)

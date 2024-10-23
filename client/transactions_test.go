@@ -1,4 +1,4 @@
-package client
+package client_test
 
 import (
 	"math/big"
@@ -21,7 +21,7 @@ func TestClient_SendTransaction(t *testing.T) {
 	txBody := new(tx.Builder).
 		Gas(3_000_000).
 		GasPriceCoef(255).
-		ChainTag(client.ChainTag()).
+		ChainTag(thorClient.ChainTag()).
 		Expiration(100000000).
 		BlockRef(tx.NewBlockRef(0)).
 		Nonce(tx.Nonce()).
@@ -34,11 +34,11 @@ func TestClient_SendTransaction(t *testing.T) {
 
 	signedTx := txBody.WithSignature(signature)
 
-	res, err := client.SendTransaction(signedTx)
+	res, err := thorClient.SendTransaction(signedTx)
 	assert.NoError(t, err)
 	assert.Equal(t, signedTx.ID().String(), res.ID.String())
 
-	tx, err := client.PendingTransaction(signedTx.ID())
+	tx, err := thorClient.PendingTransaction(signedTx.ID())
 	assert.NoError(t, err)
 	assert.Equal(t, signedTx.ID().String(), tx.ID.String())
 }

@@ -7,14 +7,22 @@ import (
 	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
+	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/darrenvechain/thorgo/txmanager"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	thor, _ = thorgo.FromURL("http://localhost:8669")
+	thor *thorgo.Thor
 )
+
+func TestMain(m *testing.M) {
+	client, cancel := testcontainer.NewSolo()
+	defer cancel()
+	thor = thorgo.NewFromClient(client)
+	m.Run()
+}
 
 var (
 	// PKManager should implement accounts.TxManager

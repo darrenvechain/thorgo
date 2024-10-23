@@ -17,8 +17,8 @@ type Thor struct {
 	Client *client.Client
 }
 
-func FromURL(url string) (*Thor, error) {
-	c, err := client.FromURL(url)
+func NewFromURL(url string) (*Thor, error) {
+	c, err := client.NewFromURL(url)
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +26,7 @@ func FromURL(url string) (*Thor, error) {
 	return &Thor{Client: c, Blocks: blocks.New(c)}, nil
 }
 
-func FromClient(c *client.Client) *Thor {
+func NewFromClient(c *client.Client) *Thor {
 	return &Thor{Client: c, Blocks: blocks.New(c)}
 }
 

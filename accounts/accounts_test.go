@@ -7,6 +7,7 @@ import (
 	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/builtins"
 	"github.com/darrenvechain/thorgo/client"
+	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/solo"
 	"github.com/darrenvechain/thorgo/txmanager"
 	"github.com/ethereum/go-ethereum/common"
@@ -14,12 +15,22 @@ import (
 )
 
 var (
-	thorClient, _ = client.FromURL(solo.URL)
-	thor          = thorgo.FromClient(thorClient)
-	vtho          = builtins.VTHO
-	vthoContract  = vtho.Load(thor)
-	account1      = txmanager.FromPK(solo.Keys()[0], thor)
+	thorClient   *client.Client
+	thor         *thorgo.Thor
+	vthoContract *accounts.Contract
+	vtho         = builtins.VTHO
+	account1     *txmanager.PKManager
 )
+
+func TestMain(m *testing.M) {
+	var cancel func()
+	thorClient, cancel = testcontainer.NewSolo()
+	defer cancel()
+	thor = thorgo.NewFromClient(thorClient)
+	vthoContract = vtho.Load(thor)
+	account1 = txmanager.FromPK(solo.Keys()[0], thor)
+	m.Run()
+}
 
 // TestGetAccount fetches a thor solo account and checks if the balance and energy are greater than 0
 func TestGetAccount(t *testing.T) {

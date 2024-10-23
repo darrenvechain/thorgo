@@ -1,6 +1,7 @@
 package transactions_test
 
 import (
+	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"math/big"
 	"testing"
 
@@ -14,11 +15,19 @@ import (
 )
 
 var (
-	thorClient, _ = client.FromURL(solo.URL)
-	thor          = thorgo.FromClient(thorClient)
-	account1      = txmanager.FromPK(solo.Keys()[0], thor)
-	account2      = txmanager.FromPK(solo.Keys()[1], thor)
+	thorClient *client.Client
+	thor       *thorgo.Thor
+	account1   = txmanager.FromPK(solo.Keys()[0], thor)
+	account2   = txmanager.FromPK(solo.Keys()[1], thor)
 )
+
+func TestMain(m *testing.M) {
+	var cancel func()
+	thorClient, cancel = testcontainer.NewSolo()
+	defer cancel()
+	thor = thorgo.NewFromClient(thorClient)
+	m.Run()
+}
 
 // TestTransactions demonstrates how to build, sign, send, and wait for a transaction
 func TestTransactions(t *testing.T) {

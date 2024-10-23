@@ -21,7 +21,7 @@ func New(url string, client *http.Client) (*Client, error) {
 	return newClient(url, client)
 }
 
-func FromURL(url string) (*Client, error) {
+func NewFromURL(url string) (*Client, error) {
 	return New(url, &http.Client{})
 }
 

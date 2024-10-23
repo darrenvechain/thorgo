@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/darrenvechain/thorgo/client"
+	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/solo"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -12,22 +13,20 @@ import (
 
 var thor *Thor
 
-func init() {
-	var err error
-	thor, err = FromURL(solo.URL)
-	if err != nil {
-		panic(err)
-	}
+func TestMain(t *testing.M) {
+	clt, cancel := testcontainer.NewSolo()
+	defer cancel()
+	thor = NewFromClient(clt)
+	t.Run()
 }
 
 func TestBadURL(t *testing.T) {
-	_, err := FromURL("http://localhost:80")
+	_, err := NewFromURL("http://localhost:80")
 	assert.Error(t, err)
 }
 
 func TestFromClient(t *testing.T) {
-	c, _ := client.FromURL(solo.URL)
-	thor := FromClient(c)
+	thor := NewFromClient(thor.Client)
 	assert.NotNil(t, thor)
 	assert.Equal(t, solo.ChainTag(), thor.Client.ChainTag())
 }

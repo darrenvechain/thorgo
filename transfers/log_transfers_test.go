@@ -5,14 +5,22 @@ import (
 
 	blocks2 "github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/client"
-	"github.com/darrenvechain/thorgo/solo"
+	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	thorClient, _ = client.FromURL(solo.URL)
-	blocks        = blocks2.New(thorClient)
+	thorClient *client.Client
+	blocks     *blocks2.Blocks
 )
+
+func TestMain(m *testing.M) {
+	var cancel func()
+	thorClient, cancel = testcontainer.NewSolo()
+	defer cancel()
+	blocks = blocks2.New(thorClient)
+	m.Run()
+}
 
 // TestTransfersByBlockRangeASC fetches transfers by block range in ascending order
 func TestTransfersByBlockRangeASC(t *testing.T) {

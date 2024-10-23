@@ -17,13 +17,10 @@ go_version_check:
 		fi \
 	fi
 
-thor_solo:| #@ Start a thor solo node if it's not running
-	@docker compose up -d --wait
-
-test:| go_version_check thor_solo #@ Run the tests
+test:| go_version_check #@ Run the tests
 	@go test -cover $(PACKAGES)
 
-test-coverage:| go_version_check thor_solo #@ Run the tests with coverage
+test-coverage:| go_version_check #@ Run the tests with coverage
 	@go test -race -coverprofile=coverage.out -covermode=atomic $(PACKAGES)
 	@go tool cover -html=coverage.out
 

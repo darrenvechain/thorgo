@@ -1,15 +1,17 @@
-package client
+package client_test
 
 import (
-	"github.com/darrenvechain/thorgo/solo"
+	"testing"
+
+	"github.com/darrenvechain/thorgo/client"
+	"github.com/darrenvechain/thorgo/internal/testcontainer"
 )
 
-var client *Client
+var thorClient *client.Client
 
-func init() {
-	var err error
-	client, err = FromURL(solo.URL)
-	if err != nil {
-		panic(err)
-	}
+func TestMain(m *testing.M) {
+	var cancel func()
+	thorClient, cancel = testcontainer.NewSolo()
+	defer cancel()
+	m.Run()
 }
