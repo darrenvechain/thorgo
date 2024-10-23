@@ -1,13 +1,13 @@
 package transactions_test
 
 import (
-	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"math/big"
 	"testing"
 
 	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/client"
 	"github.com/darrenvechain/thorgo/crypto/tx"
+	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/solo"
 	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/darrenvechain/thorgo/txmanager"
