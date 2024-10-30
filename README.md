@@ -25,6 +25,11 @@ To install the Thor GO SDK, run the following command:
 go get github.com/darrenvechain/thorgo
 ``` 
 
+
+## CLIs
+
+- [thorgen](./cmd/thorgen/README.md): A command line tool that generates Go smart contract wrappers for VeChainThor blockchain.
+
 ## Packages
 
 ### thorgo
