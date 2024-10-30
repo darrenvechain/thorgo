@@ -14,7 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
-// Contract represents a smart contract on the blockchain.
+// Contract is a generic representation of a smart contract.
 type Contract struct {
 	client   *client.Client
 	revision *common.Hash
@@ -235,11 +235,7 @@ func (c *Contract) DecodeEvents(logs []client.EventLog) ([]Event, error) {
 			return nil, err
 		}
 
-		data, err := hexutil.Decode(log.Data)
-		if err != nil {
-			return nil, err
-		}
-		err = eventABI.Inputs.UnpackIntoMap(values, data)
+		err = eventABI.Inputs.UnpackIntoMap(values, log.Data)
 		if err != nil {
 			return nil, err
 		}
@@ -251,4 +247,26 @@ func (c *Contract) DecodeEvents(logs []client.EventLog) ([]Event, error) {
 		})
 	}
 	return decoded, nil
+}
+
+// UnpackLog unpacks a retrieved log into the provided output structure.
+func (c *Contract) UnpackLog(out interface{}, event string, log client.EventLog) error {
+	if len(log.Topics) == 0 {
+		return errors.New("anonymous events are not supported")
+	}
+	if log.Topics[0] != c.ABI.Events[event].ID {
+		return errors.New("event signature mismatch")
+	}
+	if len(log.Data) > 0 {
+		if err := c.ABI.UnpackIntoInterface(out, event, log.Data); err != nil {
+			return err
+		}
+	}
+	var indexed abi.Arguments
+	for _, arg := range c.ABI.Events[event].Inputs {
+		if arg.Indexed {
+			indexed = append(indexed, arg)
+		}
+	}
+	return abi.ParseTopics(out, indexed, log.Topics[1:])
 }
