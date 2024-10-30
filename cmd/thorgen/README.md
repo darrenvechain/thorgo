@@ -54,7 +54,7 @@ thorgen \
 ### 4. Contract Wrapper - ABI URL
 
 ```bash
-thorgen \ 
+thorgen \
     --abi https://raw.githubusercontent.com/vechain/b32/refs/heads/master/ABIs/VeBetterDAO-b3tr.json \
     --pkg main \
     --out b3tr-erc20.go \
