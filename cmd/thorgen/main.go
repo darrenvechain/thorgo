@@ -84,8 +84,8 @@ type hhArtifact struct {
 }
 
 func readPathOrURL(path string) ([]byte, error) {
-	if strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://") {
-		req, err := http.Get(path)
+	if strings.HasPrefix(path, "https://") {
+		req, err := http.Get(path) // #nosec
 		if err != nil {
 			return nil, fmt.Errorf("failed to fetch %s: %v", path, err)
 		}

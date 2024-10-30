@@ -6,8 +6,8 @@ import (
 
 type FilterRange struct {
 	Unit *string `json:"unit,omitempty"`
-	From *uint64 `json:"from,omitempty"`
-	To   *uint64 `json:"to,omitempty"`
+	From *int64  `json:"from,omitempty"`
+	To   *int64  `json:"to,omitempty"`
 }
 
 type FilterOptions struct {
