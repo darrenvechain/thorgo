@@ -37,7 +37,7 @@ func (f *Filter) Asc() *Filter {
 }
 
 // BlockRange sets the block range for the transfer filter.
-func (f *Filter) BlockRange(from int64, to int64) *Filter {
+func (f *Filter) BlockRange(from uint64, to uint64) *Filter {
 	f.request.Range = &client.FilterRange{
 		From: &from,
 		To:   &to,
@@ -47,7 +47,7 @@ func (f *Filter) BlockRange(from int64, to int64) *Filter {
 }
 
 // TimeRange sets the time range for the transfer filter.
-func (f *Filter) TimeRange(from int64, to int64) *Filter {
+func (f *Filter) TimeRange(from uint64, to uint64) *Filter {
 	f.request.Range = &client.FilterRange{
 		From: &from,
 		To:   &to,

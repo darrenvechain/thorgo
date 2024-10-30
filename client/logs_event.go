@@ -2,12 +2,13 @@ package client
 
 import (
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 type EventLog struct {
 	Address *common.Address `json:"address,omitempty"`
 	Topics  []common.Hash   `json:"topics"`
-	Data    string          `json:"data"`
+	Data    hexutil.Bytes   `json:"data"`
 	Meta    LogMeta         `json:"meta"`
 }
 
