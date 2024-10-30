@@ -184,71 +184,93 @@ var (
 	{{end}}
 
 	{{range .Events}}
+
+		{{ $indexedArgCount := 0 }}
+        {{ range .Normalized.Inputs }}
+            {{- if .Indexed }}
+                {{ $indexedArgCount = add $indexedArgCount 1 }}
+            {{ end }}
+        {{ end }}
+
         // {{$contract.Type}}{{.Normalized.Name}} represents a {{.Normalized.Name}} event raised by the {{$contract.Type}} contract.
 		type {{$contract.Type}}{{.Normalized.Name}} struct { {{- range .Normalized.Inputs }}
 			{{capitalise .Name}} {{if .Indexed}}{{bindtopictype .Type $structs}}{{else}}{{bindtype .Type $structs}}{{end}}{{- end }}
 			Log client.EventLog
 		}
 
-        type {{$contract.Type}}{{.Normalized.Name}}Criteria struct {
-            {{- range .Normalized.Inputs }}
-                {{- if .Indexed }}
-                    {{- $type := bindtype .Type $structs }}
-                    {{capitalise .Name}} {{if (eq (slice $type 0 1) "*")}}{{$type}} `abi:"{{.Name}}"`{{else}}*{{$type}} `abi:"{{.Name}}"`{{end}}
-                {{- end }}{{- end }}
-        }
+
+        {{ if gt $indexedArgCount 0 }}
+            type {{$contract.Type}}{{.Normalized.Name}}Criteria struct {
+                {{- range .Normalized.Inputs }}
+                    {{- if .Indexed }}
+                        {{- $type := bindtype .Type $structs }}
+                        {{capitalise .Name}} {{if (eq (slice $type 0 1) "*")}}{{$type}} `abi:"{{.Name}}"`{{else}}*{{$type}} `abi:"{{.Name}}"`{{end}}
+                    {{- end }}{{- end }}
+            }
+        {{ end }}
 
 		// Filter{{.Normalized.Name}} is a free log retrieval operation binding the contract event 0x{{printf "%x" .Original.ID}}.
 		//
 		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}} *{{$contract.Type}}) Filter{{.Normalized.Name}}(opts *client.FilterOptions, rang *client.FilterRange, criteria []{{$contract.Type}}{{.Normalized.Name}}Criteria) ([]{{$contract.Type}}{{.Normalized.Name}}, error) {
+		func (_{{$contract.Type}} *{{$contract.Type}}) Filter{{.Normalized.Name}}({{ if gt $indexedArgCount 0 }}criteria []{{$contract.Type}}{{.Normalized.Name}}Criteria, {{ end }}opts *client.FilterOptions, rang *client.FilterRange) ([]{{$contract.Type}}{{.Normalized.Name}}, error) {
 			topicHash := _{{$contract.Type}}.contract.ABI.Events["{{.Normalized.Name}}"].ID
 
-			criteriaSet := make([]client.EventCriteria, len(criteria))
-			for i, c := range criteria {
-			    crteria := client.EventCriteria{
-            		Address: &_{{$contract.Type}}.contract.Address,
-            		Topic0:  &topicHash,
-            	}
-            	{{- range $index, $element := .Normalized.Inputs }}
-                    {{- if .Indexed }}
-                        if c.{{capitalise .Name}} != nil {
-                            {{- $type := bindtype .Type $structs }}
-                            {{- if (eq (slice $type 0 1) "*") }}
-                                matcher := c.{{capitalise .Name}}
-                            {{- else }}
-                                matcher := *c.{{capitalise .Name}}
-                            {{- end }}
-                            topics, err := abi.MakeTopics([]interface{}{matcher})
-                            if err != nil {
-                            	return nil, err
+            {{ if gt $indexedArgCount 0 }}
+                criteriaSet := make([]client.EventCriteria, len(criteria))
+                for i, c := range criteria {
+                    crteria := client.EventCriteria{
+                        Address: &_{{$contract.Type}}.contract.Address,
+                        Topic0:  &topicHash,
+                    }
+                    {{- range $index, $element := .Normalized.Inputs }}
+                        {{- if .Indexed }}
+                            if c.{{capitalise .Name}} != nil {
+                                {{- $type := bindtype .Type $structs }}
+                                {{- if (eq (slice $type 0 1) "*") }}
+                                    matcher := c.{{capitalise .Name}}
+                                {{- else }}
+                                    matcher := *c.{{capitalise .Name}}
+                                {{- end }}
+                                topics, err := abi.MakeTopics([]interface{}{matcher})
+                                if err != nil {
+                                    return nil, err
+                                }
+
+                                {{- if eq $index 0}}
+                                    crteria.Topic1 = &topics[0][0]
+                                {{- end}}
+                                {{- if eq $index 1}}
+                                    crteria.Topic2 = &topics[0][0]
+                                {{- end}}
+                                {{- if eq $index 2}}
+                                    crteria.Topic3 = &topics[0][0]
+                                {{- end}}
+                                {{- if eq $index 3}}
+                                    crteria.Topic4 = &topics[0][0]
+                                {{- end}}
                             }
-
-                            {{- if eq $index 0}}
-                                crteria.Topic1 = &topics[0][0]
-                            {{- end}}
-                            {{- if eq $index 1}}
-                                crteria.Topic2 = &topics[0][0]
-                            {{- end}}
-                            {{- if eq $index 2}}
-                                crteria.Topic3 = &topics[0][0]
-                            {{- end}}
-                            {{- if eq $index 3}}
-                                crteria.Topic4 = &topics[0][0]
-                            {{- end}}
-                        }
+                        {{- end }}
                     {{- end }}
-                {{- end }}
 
-                criteriaSet[i] = crteria
-			}
+                    criteriaSet[i] = crteria
+                }
 
-            if len(criteriaSet) == 0 {
-                criteriaSet = append(criteriaSet, client.EventCriteria{
-                    Address: &_{{$contract.Type}}.contract.Address,
-                    Topic0: &topicHash, // Add Topic0 here
-                })
-            }
+                if len(criteriaSet) == 0 {
+                    criteriaSet = append(criteriaSet, client.EventCriteria{
+                        Address: &_{{$contract.Type}}.contract.Address,
+                        Topic0: &topicHash, // Add Topic0 here
+                    })
+                }
+            {{ else }}
+                criteriaSet := []client.EventCriteria{
+                    client.EventCriteria{
+                        Address: &_{{$contract.Type}}.contract.Address,
+                        Topic0: &topicHash,
+                    },
+                }
+            {{ end }}
+
+
 
 			filter := &client.EventFilter{
             		Range: rang,
