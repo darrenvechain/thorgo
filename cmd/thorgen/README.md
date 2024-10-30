@@ -26,7 +26,17 @@ Prints the command usage and options.
 thorgen help
 ```
 
-### 2. Contract Wrapper - ABI and BIN
+### 2. Contract Wrapper - ABI URL
+
+```bash
+thorgen \
+    --abi https://raw.githubusercontent.com/vechain/b32/refs/heads/master/ABIs/VeBetterDAO-b3tr.json \
+    --pkg main \
+    --out b3tr-erc20.go \
+    --type B3tr
+```
+
+### 3. Contract Wrapper - ABI and BIN
 
 Generates a Go smart contract wrapper for the given contract address.
 
@@ -39,7 +49,7 @@ thorgen \
     --type YourContract
 ```
 
-### 3. Contract Wrapper - Hardhat Artifact
+### 4. Contract Wrapper - Hardhat Artifact
 
 Generates a Go smart contract wrapper for the given hardhat artifact.
 
@@ -49,14 +59,4 @@ thorgen \
     --pkg main \
     --out your-contract-wrapper.go \
     --type YourContract
-```
-
-### 4. Contract Wrapper - ABI URL
-
-```bash
-thorgen \
-    --abi https://raw.githubusercontent.com/vechain/b32/refs/heads/master/ABIs/VeBetterDAO-b3tr.json \
-    --pkg main \
-    --out b3tr-erc20.go \
-    --type B3tr
 ```
