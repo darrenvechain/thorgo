@@ -3,13 +3,10 @@ module github.com/darrenvechain/thorgo
 go 1.22.4
 
 require (
-	github.com/ethereum/go-ethereum v1.14.11
-	github.com/stretchr/testify v1.9.0
-)
-
-require (
 	github.com/btcsuite/btcd v0.24.2
 	github.com/btcsuite/btcd/btcutil v1.1.6
+	github.com/ethereum/go-ethereum v1.14.11
+	github.com/stretchr/testify v1.9.0
 	github.com/testcontainers/testcontainers-go v0.34.0
 	github.com/tyler-smith/go-bip39 v1.1.0
 	github.com/urfave/cli/v2 v2.25.7
