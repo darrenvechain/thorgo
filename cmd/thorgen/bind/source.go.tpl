@@ -4,22 +4,20 @@
 package {{.Package}}
 
 import (
+	"context"
 	"errors"
 	"math/big"
 	"strings"
 
-	ethereum "github.com/ethereum/go-ethereum"
+	"github.com/darrenvechain/thorgo"
+	"github.com/darrenvechain/thorgo/accounts"
+	"github.com/darrenvechain/thorgo/client"
+	"github.com/darrenvechain/thorgo/crypto/tx"
+	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/event"
-	"github.com/darrenvechain/thorgo"
-	"github.com/darrenvechain/thorgo/accounts"
-	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/darrenvechain/thorgo/crypto/tx"
-	"github.com/darrenvechain/thorgo/client"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -27,11 +25,8 @@ var (
 	_ = errors.New
 	_ = big.NewInt
 	_ = strings.NewReader
-	_ = ethereum.NotFound
 	_ = bind.Bind
 	_ = common.Big1
-	_ = types.BloomLookup
-	_ = event.NewSubscription
 	_ = abi.ConvertType
 	_ = hexutil.MustDecode
 )
@@ -144,7 +139,7 @@ var (
 		// {{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.ID}}.
 		//
 		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}(opts *bind.CallOpts {{range .Normalized.Inputs}}, {{.Name}} {{bindtype .Type $structs}} {{end}}) ({{if .Structured}}struct{ {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};{{end}} },{{else}}{{range .Normalized.Outputs}}{{bindtype .Type $structs}},{{end}}{{end}} error) {
+		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}({{range .Normalized.Inputs}} {{.Name}} {{bindtype .Type $structs}}, {{end}}) ({{if .Structured}}struct{ {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};{{end}} },{{else}}{{range .Normalized.Outputs}}{{bindtype .Type $structs}},{{end}}{{end}} error) {
 			var out []interface{}
 			err := _{{$contract.Type}}.Call(&out, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
 			{{if .Structured}}
@@ -270,8 +265,6 @@ var (
                 }
             {{ end }}
 
-
-
 			filter := &client.EventFilter{
             		Range: rang,
             		Options: opts,
@@ -303,5 +296,133 @@ var (
 
 			return events, nil
 		}
+
+        // Watch{{.Normalized.Name}} listens for on chain events binding the contract event 0x{{printf "%x" .Original.ID}}.
+        //
+        // Solidity: {{.Original.String}}
+        func (_{{$contract.Type}} *{{$contract.Type}}) Watch{{.Normalized.Name}}({{ if gt $indexedArgCount 0 }}criteria []{{$contract.Type}}{{.Normalized.Name}}Criteria, {{ end }} ctx context.Context) (chan *{{$contract.Type}}{{.Normalized.Name}}, error) {
+            topicHash := _{{$contract.Type}}.contract.ABI.Events["{{.Normalized.Name}}"].ID
+
+            {{ if gt $indexedArgCount 0 }}
+                criteriaSet := make([]client.EventCriteria, len(criteria))
+                for i, c := range criteria {
+                    crteria := client.EventCriteria{
+                        Address: &_{{$contract.Type}}.contract.Address,
+                        Topic0:  &topicHash,
+                    }
+                    {{- range $index, $element := .Normalized.Inputs }}
+                        {{- if .Indexed }}
+                            if c.{{capitalise .Name}} != nil {
+                                {{- $type := bindtype .Type $structs }}
+                                {{- if (eq (slice $type 0 1) "*") }}
+                                    matcher := c.{{capitalise .Name}}
+                                {{- else }}
+                                    matcher := *c.{{capitalise .Name}}
+                                {{- end }}
+                                topics, err := abi.MakeTopics([]interface{}{matcher})
+                                if err != nil {
+                                    return nil, err
+                                }
+
+                                {{- if eq $index 0}}
+                                    crteria.Topic1 = &topics[0][0]
+                                {{- end}}
+                                {{- if eq $index 1}}
+                                    crteria.Topic2 = &topics[0][0]
+                                {{- end}}
+                                {{- if eq $index 2}}
+                                    crteria.Topic3 = &topics[0][0]
+                                {{- end}}
+                                {{- if eq $index 3}}
+                                    crteria.Topic4 = &topics[0][0]
+                                {{- end}}
+                            }
+                        {{- end }}
+                    {{- end }}
+
+                    criteriaSet[i] = crteria
+                }
+
+                if len(criteriaSet) == 0 {
+                    criteriaSet = append(criteriaSet, client.EventCriteria{
+                        Address: &_{{$contract.Type}}.contract.Address,
+                        Topic0: &topicHash, // Add Topic0 here
+                    })
+                }
+            {{ else }}
+                criteriaSet := []client.EventCriteria{
+                    client.EventCriteria{
+                        Address: &_{{$contract.Type}}.contract.Address,
+                        Topic0: &topicHash,
+                    },
+                }
+            {{ end }}
+
+            eventChan := make(chan *{{$contract.Type}}{{.Normalized.Name}}, 100)
+            blockSub := _{{$contract.Type}}.thor.Blocks.Subscribe(ctx)
+
+            go func() {
+                defer close(eventChan)
+
+                for {
+                    select {
+                    case block := <-blockSub:
+                        // for range in block txs
+                        for _, tx := range block.Transactions {
+                            for index, outputs := range tx.Outputs {
+                                for _, event := range outputs.Events {
+                                    if event.Address == _B3tr.contract.Address {
+                                        if event.Topics[0] == topicHash {
+                                            for _, c := range criteriaSet {
+                                                matches := true
+                                                if c.Topic1 != nil && *c.Topic1 != event.Topics[1] {
+                                                    matches = false
+                                                }
+                                                if c.Topic2 != nil && *c.Topic2 != event.Topics[2] {
+                                                    matches = false
+                                                }
+                                                if c.Topic3 != nil && *c.Topic3 != event.Topics[3] {
+                                                    matches = false
+                                                }
+                                                if c.Topic4 != nil && *c.Topic4 != event.Topics[4] {
+                                                    matches = false
+                                                }
+
+                                                if matches {
+                                                    log := client.EventLog{
+                                                        Address: &_B3tr.contract.Address,
+                                                        Topics:  event.Topics,
+                                                        Data:    event.Data,
+                                                        Meta: client.LogMeta{
+                                                            BlockID:     block.ID,
+                                                            BlockNumber: block.Number,
+                                                            BlockTime:   block.Timestamp,
+                                                            TxID:        tx.ID,
+                                                            TxOrigin:    tx.Origin,
+                                                            ClauseIndex: int64(index),
+                                                        },
+                                                    }
+
+                                                    ev := new({{$contract.Type}}{{.Normalized.Name}})
+                                                    if err := _{{$contract.Type}}.contract.UnpackLog(ev, "{{.Normalized.Name}}", log); err != nil {
+                                                        continue
+                                                    }
+                                                    ev.Log = log
+                                                    eventChan <- ev
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    case <-ctx.Done():
+                        return
+                    }
+                }
+            }()
+
+            return eventChan, nil
+        }
 	{{end}}
 {{end}}

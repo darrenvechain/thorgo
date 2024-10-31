@@ -57,6 +57,22 @@ type BlockTransaction struct {
 }
 
 type ExpandedBlock struct {
-	Block
+	Number       int64              `json:"number"`
+	ID           common.Hash        `json:"id"`
+	Size         int64              `json:"size"`
+	ParentID     common.Hash        `json:"parentID"`
+	Timestamp    int64              `json:"timestamp"`
+	GasLimit     int64              `json:"gasLimit"`
+	Beneficiary  common.Address     `json:"beneficiary"`
+	GasUsed      int64              `json:"gasUsed"`
+	TotalScore   int64              `json:"totalScore"`
+	TxsRoot      common.Hash        `json:"txsRoot"`
+	TxsFeatures  int64              `json:"txsFeatures"`
+	StateRoot    common.Hash        `json:"stateRoot"`
+	ReceiptsRoot common.Hash        `json:"receiptsRoot"`
+	Com          bool               `json:"com"`
+	Signer       common.Address     `json:"signer"`
+	IsTrunk      bool               `json:"isTrunk"`
+	IsFinalized  bool               `json:"isFinalized"`
 	Transactions []BlockTransaction `json:"transactions"`
 }

@@ -1,21 +1,93 @@
 package blocks
 
 import (
+	"context"
 	"fmt"
+	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/darrenvechain/thorgo/client"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/google/uuid"
 )
 
+type subscriber struct {
+	sub chan *client.ExpandedBlock
+	ctx context.Context
+}
+
 type Blocks struct {
-	client *client.Client
-	best   atomic.Value
+	client      *client.Client
+	best        atomic.Value
+	subscribers sync.Map // Using sync.Map for concurrent access
 }
 
 func New(c *client.Client) *Blocks {
-	return &Blocks{client: c}
+	b := &Blocks{client: c}
+	go b.poll()
+	return b
+}
+
+// poll sends the expanded block to all active subscribers.
+func (b *Blocks) poll() {
+	var previous *client.ExpandedBlock
+	var err error
+	backoff := 5 * time.Second
+
+	for {
+		previous, err = b.Expanded("best")
+		if err != nil {
+			time.Sleep(backoff)
+			continue
+		}
+		break
+	}
+
+	for {
+		nextBlockTime := time.Unix(previous.Timestamp, 0).Add(10 * time.Second)
+		now := time.Now().UTC()
+		if now.Before(nextBlockTime) {
+			time.Sleep(nextBlockTime.Add(100 * time.Millisecond).Sub(now))
+		}
+
+		next, err := b.Expanded("best")
+		if err != nil {
+			time.Sleep(2 * time.Second)
+			continue
+		}
+		if previous.ID != next.ID {
+			b.subscribers.Range(func(key, value interface{}) bool {
+				sub := value.(subscriber)
+				select {
+				case <-sub.ctx.Done():
+					b.subscribers.Delete(key)
+					close(sub.sub)
+					return false
+				default:
+					sub.sub <- next
+				}
+				return true
+			})
+			previous = next
+		} else {
+			// Sleep for a second if the block hasn't changed.
+			time.Sleep(1 * time.Second)
+			continue
+		}
+
+	}
+}
+
+// Subscribe adds a new subscriber to the block stream.
+// The subscriber will receive the latest block produced.
+// The subscriber will be removed when the context is done.
+func (b *Blocks) Subscribe(ctx context.Context) <-chan *client.ExpandedBlock {
+	sub := make(chan *client.ExpandedBlock)
+	id := uuid.New().String()
+	s := subscriber{sub: sub, ctx: ctx}
+	b.subscribers.Store(id, s)
+	return sub
 }
 
 // ByID returns the block by the given ID.
@@ -66,28 +138,10 @@ func (b *Blocks) Expanded(revision string) (*client.ExpandedBlock, error) {
 
 // Ticker waits for the next block to be produced
 // Returns the next block
-func (b *Blocks) Ticker() (*client.Block, error) {
-	best, err := b.Best()
-	if err != nil {
-		return nil, err
-	}
-
-	// Sleep until the current block + 10 seconds
-	predictedTime := time.Unix(best.Timestamp, 0).Add(10 * time.Second)
-	time.Sleep(time.Until(predictedTime))
-
-	ticker := time.NewTicker(1 * time.Second)
-	timeout := time.NewTimer(30 * time.Second)
-
-	for {
-		select {
-		case <-ticker.C:
-			nextBlock, err := b.client.Block(fmt.Sprintf("%d", best.Number+1))
-			if err == nil {
-				return nextBlock, nil
-			}
-		case <-timeout.C:
-			return nil, fmt.Errorf("timed out waiting for next block")
-		}
-	}
+func (b *Blocks) Ticker() (*client.ExpandedBlock, error) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	sub := b.Subscribe(ctx)
+	blk := <-sub
+	return blk, nil
 }

@@ -56,7 +56,7 @@ type Output struct {
 type Event struct {
 	Address common.Address `json:"address"`
 	Topics  []common.Hash  `json:"topics"`
-	Data    string         `json:"data"`
+	Data    hexutil.Bytes  `json:"data"`
 }
 
 type ReceiptMeta struct {
