@@ -17,29 +17,21 @@ type Client struct {
 	genesisBlock *Block
 }
 
-func New(url string, client *http.Client) (*Client, error) {
+func New(url string, client *http.Client) *Client {
 	return newClient(url, client)
 }
 
-func NewFromURL(url string) (*Client, error) {
+func NewFromURL(url string) *Client {
 	return New(url, &http.Client{})
 }
 
-func newClient(url string, client *http.Client) (*Client, error) {
+func newClient(url string, client *http.Client) *Client {
 	url = strings.TrimSuffix(url, "/")
 
-	c := &Client{
+	return &Client{
 		client: client,
 		url:    url,
 	}
-
-	block, err := c.Block("0")
-	if err != nil {
-		return nil, err
-	}
-	c.genesisBlock = block
-
-	return c, nil
 }
 
 // Account fetches the account information for the given address.
@@ -49,8 +41,8 @@ func (c *Client) Account(addr common.Address) (*Account, error) {
 }
 
 // AccountAt fetches the account information for an address at the given revision.
-func (c *Client) AccountAt(addr common.Address, revision common.Hash) (*Account, error) {
-	url := "/accounts/" + addr.Hex() + "?revision=" + revision.Hex()
+func (c *Client) AccountAt(addr common.Address, revision Revision) (*Account, error) {
+	url := "/accounts/" + addr.Hex() + "?revision=" + revision.value
 	return httpGet(c, url, &Account{})
 }
 
@@ -69,8 +61,8 @@ func (c *Client) Inspect(body InspectRequest) ([]InspectResponse, error) {
 }
 
 // InspectAt will send an array of clauses to the node to simulate the execution of the clauses at the given revision.
-func (c *Client) InspectAt(body InspectRequest, revision common.Hash) ([]InspectResponse, error) {
-	url := "/accounts/*?revision=" + revision.Hex()
+func (c *Client) InspectAt(body InspectRequest, revision Revision) ([]InspectResponse, error) {
+	url := "/accounts/*?revision=" + revision.value
 	response := make([]InspectResponse, 0)
 	_, err := httpPost(c, url, body, &response)
 	if err != nil {
@@ -86,8 +78,8 @@ func (c *Client) AccountCode(addr common.Address) (*AccountCode, error) {
 }
 
 // AccountCodeAt fetches the code for the account at the given address and revision.
-func (c *Client) AccountCodeAt(addr common.Address, revision common.Hash) (*AccountCode, error) {
-	url := "/accounts/" + addr.Hex() + "/code?revision=" + revision.Hex()
+func (c *Client) AccountCodeAt(addr common.Address, revision Revision) (*AccountCode, error) {
+	url := "/accounts/" + addr.Hex() + "/code?revision=" + revision.value
 	return httpGet(c, url, &AccountCode{})
 }
 
@@ -101,9 +93,9 @@ func (c *Client) AccountStorage(addr common.Address, key common.Hash) (*AccountS
 func (c *Client) AccountStorageAt(
 	addr common.Address,
 	key common.Hash,
-	revision common.Hash,
+	revision Revision,
 ) (*AccountStorage, error) {
-	url := "/accounts/" + addr.Hex() + "/storage/" + key.Hex() + "?revision=" + revision.Hex()
+	url := "/accounts/" + addr.Hex() + "/storage/" + key.Hex() + "?revision=" + revision.value
 	return httpGet(c, url, &AccountStorage{})
 }
 
@@ -119,8 +111,15 @@ func (c *Client) BestBlock() (*Block, error) {
 }
 
 // GenesisBlock returns the genesis block.
-func (c *Client) GenesisBlock() *Block {
-	return c.genesisBlock
+func (c *Client) GenesisBlock() (*Block, error) {
+	if c.genesisBlock == nil {
+		block, err := c.Block("0")
+		if err != nil {
+			return nil, err
+		}
+		c.genesisBlock = block
+	}
+	return c.genesisBlock, nil
 }
 
 // ExpandedBlock fetches the block at the given revision with all the transactions expanded.
@@ -130,8 +129,12 @@ func (c *Client) ExpandedBlock(revision string) (*ExpandedBlock, error) {
 }
 
 // ChainTag returns the chain tag of the genesis block.
-func (c *Client) ChainTag() byte {
-	return c.genesisBlock.ChainTag()
+func (c *Client) ChainTag() (byte, error) {
+	gen, err := c.GenesisBlock()
+	if err != nil {
+		return 0, err
+	}
+	return gen.ChainTag(), nil
 }
 
 // SendTransaction sends a transaction to the node.

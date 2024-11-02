@@ -20,15 +20,12 @@ func TestMain(t *testing.M) {
 	t.Run()
 }
 
-func TestBadURL(t *testing.T) {
-	_, err := NewFromURL("http://localhost:80")
-	assert.Error(t, err)
-}
-
 func TestFromClient(t *testing.T) {
 	thor := NewFromClient(thor.Client)
 	assert.NotNil(t, thor)
-	assert.Equal(t, solo.ChainTag(), thor.Client.ChainTag())
+	tag, err := thor.Client.ChainTag()
+	assert.NoError(t, err)
+	assert.Equal(t, solo.ChainTag(), tag)
 }
 
 func TestBlock(t *testing.T) {

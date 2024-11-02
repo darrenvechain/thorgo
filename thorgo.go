@@ -17,13 +17,9 @@ type Thor struct {
 	Client *client.Client
 }
 
-func NewFromURL(url string) (*Thor, error) {
-	c, err := client.NewFromURL(url)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Thor{Client: c, Blocks: blocks.New(c)}, nil
+func New(url string) *Thor {
+	c := client.NewFromURL(url)
+	return &Thor{Client: c, Blocks: blocks.New(c)}
 }
 
 func NewFromClient(c *client.Client) *Thor {
@@ -41,7 +37,7 @@ func (t *Thor) Transaction(hash common.Hash) *transactions.Visitor {
 	return transactions.New(t.Client, hash)
 }
 
-// Transactor creates a new transaction builder which makes it easier to build, simulate, build and send transactions.
+// Transactor creates a new transaction builder which makes it easier to build, simulate and send transactions.
 func (t *Thor) Transactor(clauses []*tx.Clause) *transactions.Transactor {
 	return transactions.NewTransactor(t.Client, clauses)
 }

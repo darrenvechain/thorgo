@@ -25,7 +25,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/darrenvechain/thorgo/cmd/thorgen/bind"
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common/compiler"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -101,10 +100,10 @@ func thorgen(c *cli.Context) error {
 	if c.String(pkgFlag.Name) == "" {
 		utils.Fatalf("No destination package specified (--pkg)")
 	}
-	var lang bind.Lang
+	var lang Lang
 	switch c.String(langFlag.Name) {
 	case "go":
-		lang = bind.LangGo
+		lang = LangGo
 	default:
 		utils.Fatalf("Unsupported destination language \"%s\" (--lang)", c.String(langFlag.Name))
 	}
@@ -228,7 +227,7 @@ func thorgen(c *cli.Context) error {
 		}
 	}
 	// Generate the contract binding
-	code, err := bind.Bind(types, abis, bins, sigs, c.String(pkgFlag.Name), lang, libs, aliases)
+	code, err := Bind(types, abis, bins, sigs, c.String(pkgFlag.Name), lang, libs, aliases)
 	if err != nil {
 		utils.Fatalf("failed to generate ABI binding: %v", err)
 	}

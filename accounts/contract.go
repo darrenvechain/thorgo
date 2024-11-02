@@ -16,10 +16,9 @@ import (
 
 // Contract is a generic representation of a smart contract.
 type Contract struct {
-	client   *client.Client
-	revision *common.Hash
-	ABI      *abi.ABI
-	Address  common.Address
+	client  *client.Client
+	ABI     *abi.ABI
+	Address common.Address
 }
 
 // NewContract creates a new contract instance.
@@ -28,21 +27,19 @@ func NewContract(
 	address common.Address,
 	abi *abi.ABI,
 ) *Contract {
-	return &Contract{client: client, Address: address, ABI: abi, revision: nil}
-}
-
-// NewContractAt creates a new contract instance at a specific revision. It should be used to query historical contract states.
-func NewContractAt(
-	client *client.Client,
-	address common.Address,
-	abi *abi.ABI,
-	revision *common.Hash,
-) *Contract {
-	return &Contract{client: client, Address: address, ABI: abi, revision: revision}
+	return &Contract{client: client, Address: address, ABI: abi}
 }
 
 // Call executes a read-only contract call.
-func (c *Contract) Call(method string, value interface{}, args ...interface{}) error {
+func (c *Contract) Call(method string, results *[]interface{}, args ...interface{}) error {
+	return c.CallAt(client.RevisionBest(), method, results, args...)
+}
+
+// CallAt executes a read-only contract call at a specific revision.
+func (c *Contract) CallAt(revision client.Revision, method string, results *[]interface{}, args ...interface{}) error {
+	if results == nil {
+		results = new([]interface{})
+	}
 	packed, err := c.ABI.Pack(method, args...)
 	if err != nil {
 		return fmt.Errorf("failed to pack method %s: %w", method, err)
@@ -51,12 +48,7 @@ func (c *Contract) Call(method string, value interface{}, args ...interface{}) e
 	request := client.InspectRequest{
 		Clauses: []*tx.Clause{clause},
 	}
-	var response []client.InspectResponse
-	if c.revision == nil {
-		response, err = c.client.Inspect(request)
-	} else {
-		response, err = c.client.InspectAt(request, *c.revision)
-	}
+	response, err := c.client.InspectAt(request, revision)
 	if err != nil {
 		return fmt.Errorf("failed to inspect contract: %w", err)
 	}
@@ -71,11 +63,13 @@ func (c *Contract) Call(method string, value interface{}, args ...interface{}) e
 	if err != nil {
 		return fmt.Errorf("failed to decode data: %w", err)
 	}
-	err = c.ABI.UnpackIntoInterface(value, method, decoded)
-	if err != nil {
-		return fmt.Errorf("failed to unpack method %s: %w", method, err)
+	if len(*results) == 0 {
+		res, err := c.ABI.Unpack(method, decoded)
+		*results = res
+		return err
 	}
-	return nil
+	res := *results
+	return c.ABI.UnpackIntoInterface(res[0], method, decoded)
 }
 
 // DecodeCall decodes the result of a contract call, for example, decoding a clause's 'data'.
@@ -111,13 +105,27 @@ func (c *Contract) AsClause(method string, args ...interface{}) (*tx.Clause, err
 	return tx.NewClause(&c.Address).WithData(packed).WithValue(big.NewInt(0)), nil
 }
 
+// AsClauseWithVET returns a transaction clause for the given method, value, and arguments.
+func (c *Contract) AsClauseWithVET(vet *big.Int, method string, args ...interface{}) (*tx.Clause, error) {
+	packed, err := c.ABI.Pack(method, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to pack method %s: %w", method, err)
+	}
+	return tx.NewClause(&c.Address).WithData(packed).WithValue(vet), nil
+}
+
 type TxManager interface {
 	SendClauses(clauses []*tx.Clause) (common.Hash, error)
 }
 
 // Send executes a transaction with a single clause.
 func (c *Contract) Send(manager TxManager, method string, args ...interface{}) (*transactions.Visitor, error) {
-	clause, err := c.AsClause(method, args...)
+	return c.SendWithVET(manager, big.NewInt(0), method, args...)
+}
+
+// SendWithVET executes a transaction with a single clause and a value.
+func (c *Contract) SendWithVET(manager TxManager, vet *big.Int, method string, args ...interface{}) (*transactions.Visitor, error) {
+	clause, err := c.AsClauseWithVET(vet, method, args...)
 	if err != nil {
 		return &transactions.Visitor{}, fmt.Errorf("failed to pack method %s: %w", method, err)
 	}

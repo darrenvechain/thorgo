@@ -29,6 +29,8 @@ var (
 	_ = common.Big1
 	_ = abi.ConvertType
 	_ = hexutil.MustDecode
+	_ = context.Background
+	_ = tx.NewClause
 )
 
 {{$structs := .Structs}}
@@ -55,21 +57,8 @@ var (
 		Bin: "0x{{.InputBin}}",
 		{{end}}
 	}
-	// {{.Type}}ABI is the input ABI used to generate the binding from.
-	// Deprecated: Use {{.Type}}MetaData.ABI instead.
-	var {{.Type}}ABI = {{.Type}}MetaData.ABI
-
-	{{if $contract.FuncSigs}}
-		// Deprecated: Use {{.Type}}MetaData.Sigs instead.
-		// {{.Type}}FuncSigs maps the 4-byte function signature to its string representation.
-		var {{.Type}}FuncSigs = {{.Type}}MetaData.Sigs
-	{{end}}
 
     {{if .InputBin}}
-        // {{.Type}}Bin is the compiled bytecode used for deploying new contracts.
-        // Deprecated: Use {{.Type}}MetaData.Bin instead.
-        var {{.Type}}Bin = {{.Type}}MetaData.Bin
-
         // Deploy{{.Type}} deploys a new Ethereum contract, binding an instance of {{.Type}} to it.
         func Deploy{{.Type}}(thor *thorgo.Thor, sender accounts.TxManager{{range .Constructor.Inputs}}, {{.Name}} {{bindtype .Type $structs}}{{end}}) (common.Hash, *{{.Type}}, error) {
             parsed, err := {{.Type}}MetaData.GetAbi()
@@ -82,7 +71,7 @@ var (
 
             {{range $pattern, $name := .Libraries}}
                 {{decapitalise $name}}Addr, _, _, _ := Deploy{{capitalise $name}}(auth, backend)
-                {{$contract.Type}}Bin = strings.ReplaceAll({{$contract.Type}}Bin, "__${{$pattern}}$__", {{decapitalise $name}}Addr.String()[2:])
+                {{$contract.Type}}MetaData.Bin = strings.ReplaceAll({{$contract.Type}}Bin, "__${{$pattern}}$__", {{decapitalise $name}}Addr.String()[2:])
             {{end}}
 
             bytes, err := hexutil.Decode({{.Type}}MetaData.Bin)
@@ -103,11 +92,20 @@ var (
         }
     {{end}}
 
-	// {{.Type}} is an auto generated Go binding around an Ethereum contract.
+	// {{.Type}} is an auto generated Go binding around an Ethereum contract, allowing you to query and create clauses.
 	type {{.Type}} struct {
 		thor     *thorgo.Thor // Thor connection to use
 		contract *accounts.Contract // Generic contract wrapper for the low level calls
 	}
+
+	// {{.Type}}Transactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
+    type {{.Type}}Transactor struct {
+            {{.Type}}
+    		thor     *thorgo.Thor // Thor connection to use
+    		contract *accounts.Contract // Generic contract wrapper for the low level calls
+    		manager accounts.TxManager // TxManager to use
+    }
+
 
 	// New{{.Type}} creates a new instance of {{.Type}}, bound to a specific deployed contract.
 	func New{{.Type}}(address common.Address, thor *thorgo.Thor) (*{{.Type}}, error) {
@@ -122,26 +120,51 @@ var (
 		return &{{.Type}}{ thor: thor, contract: contract }, nil
 	}
 
+	// New{{.Type}}Transactor creates a new instance of {{.Type}}Transactor, bound to a specific deployed contract.
+    func New{{.Type}}Transactor(address common.Address, thor *thorgo.Thor, manager accounts.TxManager) (*{{.Type}}Transactor, error) {
+        parsed, err := {{.Type}}MetaData.GetAbi()
+        if err != nil {
+            return nil, err
+        }
+        contract := thor.Account(address).Contract(parsed)
+        if err != nil {
+            return nil, err
+        }
+        return &{{.Type}}Transactor{ {{.Type}}{ thor: thor, contract: contract }, thor, contract, manager }, nil
+    }
+
+	// Address returns the address of the contract.
+	func (_{{$contract.Type}} *{{$contract.Type}}) Address() common.Address {
+        return _{{$contract.Type}}.contract.Address
+    }
+
 	// Call invokes the (constant) contract method with params as input values and
 	// sets the output to result. The result type might be a single field for simple
 	// returns, a slice of interfaces for anonymous returns and a struct for named
 	// returns.
-	func (_{{$contract.Type}} *{{$contract.Type}}) Call(result *[]interface{}, method string, params ...interface{}) error {
-		return _{{$contract.Type}}.contract.Call(method, result, params)
+	func (_{{$contract.Type}} *{{$contract.Type}}) Call(revision client.Revision, result *[]interface{}, method string, params ...interface{}) error {
+		return _{{$contract.Type}}.contract.Call(method, result, params...)
 	}
 
 	// Transact invokes the (paid) contract method with params as input values.
-	func (_{{$contract.Type}} *{{$contract.Type}}) Transact(sender accounts.TxManager, method string, params ...interface{}) (*transactions.Visitor, error) {
-		return _{{$contract.Type}}.contract.Send(sender, method, params)
+	func (_{{$contract.Type}}Transactor *{{$contract.Type}}Transactor) Transact(vetValue *big.Int, method string, params ...interface{}) (*transactions.Visitor, error) {
+		return _{{$contract.Type}}Transactor.contract.SendWithVET(_{{$contract.Type}}Transactor.manager, vetValue, method, params...)
 	}
 
 	{{range .Calls}}
 		// {{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.ID}}.
 		//
 		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}({{range .Normalized.Inputs}} {{.Name}} {{bindtype .Type $structs}}, {{end}}) ({{if .Structured}}struct{ {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};{{end}} },{{else}}{{range .Normalized.Outputs}}{{bindtype .Type $structs}},{{end}}{{end}} error) {
+		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}({{range .Normalized.Inputs}} {{.Name}} {{bindtype .Type $structs}}, {{end}} revision ...client.Revision) ({{if .Structured}}struct{ {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};{{end}} },{{else}}{{range .Normalized.Outputs}}{{bindtype .Type $structs}},{{end}}{{end}} error) {
+		    var rev client.Revision
+		    if len(revision) > 0 {
+                rev = revision[0]
+            } else {
+                rev = client.RevisionBest()
+            }
+
 			var out []interface{}
-			err := _{{$contract.Type}}.Call(&out, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
+			err := _{{$contract.Type}}.Call(rev, &out, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
 			{{if .Structured}}
 			outstruct := new(struct{ {{range .Normalized.Outputs}} {{.Name}} {{bindtype .Type $structs}}; {{end}} })
 			if err != nil {
@@ -166,15 +189,27 @@ var (
 		// {{.Normalized.Name}} is a paid mutator transaction binding the contract method 0x{{printf "%x" .Original.ID}}.
 		//
 		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}(sender accounts.TxManager {{range .Normalized.Inputs}}, {{.Name}} {{bindtype .Type $structs}} {{end}}) (*transactions.Visitor, error) {
-			return _{{$contract.Type}}.contract.Send(sender, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
+		func (_{{$contract.Type}}Transactor *{{$contract.Type}}Transactor) {{.Normalized.Name}}({{range .Normalized.Inputs}} {{.Name}} {{bindtype .Type $structs}}, {{end}} vetValue ... *big.Int) (*transactions.Visitor, error) {
+		    var val *big.Int
+		    if len(vetValue) > 0 {
+                val = vetValue[0]
+            } else {
+                val = big.NewInt(0)
+            }
+			return _{{$contract.Type}}Transactor.Transact( val, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
 		}
 
 		// {{.Normalized.Name}}AsClause is a transaction clause generator 0x{{printf "%x" .Original.ID}}.
 		//
 		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}AsClause({{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}}, {{end}}) (*tx.Clause, error) {
-			return _{{$contract.Type}}.contract.AsClause("{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
+		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}AsClause({{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}}, {{end}} vetValue ... *big.Int) (*tx.Clause, error) {
+            var val *big.Int
+            if len(vetValue) > 0 {
+                val = vetValue[0]
+            } else {
+                val = big.NewInt(0)
+            }
+			return _{{$contract.Type}}.contract.AsClauseWithVET(val, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
 		}
 	{{end}}
 
@@ -304,7 +339,13 @@ var (
             topicHash := _{{$contract.Type}}.contract.ABI.Events["{{.Normalized.Name}}"].ID
 
             {{ if gt $indexedArgCount 0 }}
-                criteriaSet := make([]client.EventCriteria, len(criteria))
+            criteriaSet := make([]client.EventCriteria, len(criteria))
+            {{ else }}
+            criteriaSet := make([]client.EventCriteria, 0)
+            {{ end }}
+
+            {{ if gt $indexedArgCount 0 }}
+
                 for i, c := range criteria {
                     crteria := client.EventCriteria{
                         Address: &_{{$contract.Type}}.contract.Address,
@@ -342,20 +383,6 @@ var (
 
                     criteriaSet[i] = crteria
                 }
-
-                if len(criteriaSet) == 0 {
-                    criteriaSet = append(criteriaSet, client.EventCriteria{
-                        Address: &_{{$contract.Type}}.contract.Address,
-                        Topic0: &topicHash, // Add Topic0 here
-                    })
-                }
-            {{ else }}
-                criteriaSet := []client.EventCriteria{
-                    client.EventCriteria{
-                        Address: &_{{$contract.Type}}.contract.Address,
-                        Topic0: &topicHash,
-                    },
-                }
             {{ end }}
 
             eventChan := make(chan *{{$contract.Type}}{{.Normalized.Name}}, 100)
@@ -371,48 +398,47 @@ var (
                         for _, tx := range block.Transactions {
                             for index, outputs := range tx.Outputs {
                                 for _, event := range outputs.Events {
-                                    if event.Address == _B3tr.contract.Address {
-                                        if event.Topics[0] == topicHash {
-                                            for _, c := range criteriaSet {
-                                                matches := true
-                                                if c.Topic1 != nil && *c.Topic1 != event.Topics[1] {
-                                                    matches = false
-                                                }
-                                                if c.Topic2 != nil && *c.Topic2 != event.Topics[2] {
-                                                    matches = false
-                                                }
-                                                if c.Topic3 != nil && *c.Topic3 != event.Topics[3] {
-                                                    matches = false
-                                                }
-                                                if c.Topic4 != nil && *c.Topic4 != event.Topics[4] {
-                                                    matches = false
-                                                }
-
-                                                if matches {
-                                                    log := client.EventLog{
-                                                        Address: &_B3tr.contract.Address,
-                                                        Topics:  event.Topics,
-                                                        Data:    event.Data,
-                                                        Meta: client.LogMeta{
-                                                            BlockID:     block.ID,
-                                                            BlockNumber: block.Number,
-                                                            BlockTime:   block.Timestamp,
-                                                            TxID:        tx.ID,
-                                                            TxOrigin:    tx.Origin,
-                                                            ClauseIndex: int64(index),
-                                                        },
-                                                    }
-
-                                                    ev := new({{$contract.Type}}{{.Normalized.Name}})
-                                                    if err := _{{$contract.Type}}.contract.UnpackLog(ev, "{{.Normalized.Name}}", log); err != nil {
-                                                        continue
-                                                    }
-                                                    ev.Log = log
-                                                    eventChan <- ev
-                                                }
-                                            }
+                                    if event.Address != _{{$contract.Type}}.contract.Address {
+                                        continue
+                                    }
+                                    if topicHash != event.Topics[0] {
+                                        continue
+                                    }
+                                    for _, c := range criteriaSet {
+                                        if c.Topic1 != nil && *c.Topic1 != event.Topics[1] {
+                                            continue
+                                        }
+                                        if c.Topic2 != nil && *c.Topic2 != event.Topics[2] {
+                                            continue
+                                        }
+                                        if c.Topic3 != nil && *c.Topic3 != event.Topics[3] {
+                                            continue
+                                        }
+                                        if c.Topic4 != nil && *c.Topic4 != event.Topics[4] {
+                                            continue
                                         }
                                     }
+
+                                    log := client.EventLog{
+                                        Address: &_{{$contract.Type}}.contract.Address,
+                                        Topics:  event.Topics,
+                                        Data:    event.Data,
+                                        Meta: client.LogMeta{
+                                            BlockID:     block.ID,
+                                            BlockNumber: block.Number,
+                                            BlockTime:   block.Timestamp,
+                                            TxID:        tx.ID,
+                                            TxOrigin:    tx.Origin,
+                                            ClauseIndex: int64(index),
+                                        },
+                                    }
+
+                                    ev := new({{$contract.Type}}{{.Normalized.Name}})
+                                    if err := _{{$contract.Type}}.contract.UnpackLog(ev, "{{.Normalized.Name}}", log); err != nil {
+                                        continue
+                                    }
+                                    ev.Log = log
+                                    eventChan <- ev
                                 }
                             }
                         }

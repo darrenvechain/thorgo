@@ -75,7 +75,6 @@ func (b *Blocks) poll() {
 			time.Sleep(1 * time.Second)
 			continue
 		}
-
 	}
 }
 

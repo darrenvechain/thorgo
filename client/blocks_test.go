@@ -21,7 +21,8 @@ func TestClient_BestBlock(t *testing.T) {
 }
 
 func TestClient_GenesisBlock(t *testing.T) {
-	block := thorClient.GenesisBlock()
+	block, err := thorClient.GenesisBlock()
+	assert.NoError(t, err)
 	assert.NotNil(t, block)
 }
 
@@ -32,8 +33,7 @@ func TestClient_ExpandedBlock(t *testing.T) {
 }
 
 func TestClient_ExpandedBlockWithTxs(t *testing.T) {
-	c, err := client.NewFromURL("https://mainnet.vechain.org")
-	assert.NoError(t, err)
+	c := client.NewFromURL("https://mainnet.vechain.org")
 
 	blk, err := c.ExpandedBlock("0x0125fb07988ff3c36b261b5f7227688c1c0473c4873825ac299bc256ea991b0f")
 	assert.NoError(t, err)
@@ -44,7 +44,8 @@ func TestClient_ExpandedBlockWithTxs(t *testing.T) {
 }
 
 func TestClient_ChainTag(t *testing.T) {
-	chainTag := thorClient.ChainTag()
+	chainTag, err := thorClient.ChainTag()
+	assert.NoError(t, err)
 	assert.Equal(t, solo.ChainTag(), chainTag)
 }
 

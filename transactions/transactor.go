@@ -118,7 +118,10 @@ func (t *Transactor) Simulate(caller common.Address) (Simulation, error) {
 // Build constructs the transaction, applying defaults where necessary.
 func (t *Transactor) Build(caller common.Address) (*tx.Transaction, error) {
 	initial := t.builder.Build()
-	chainTag := t.client.ChainTag()
+	chainTag, err := t.client.ChainTag()
+	if err != nil && initial.ChainTag() == 0 {
+		return nil, fmt.Errorf("failed to get chain tag: %w", err)
+	}
 
 	builder := new(tx.Builder).
 		GasPriceCoef(initial.GasPriceCoef()).

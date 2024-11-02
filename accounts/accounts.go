@@ -12,7 +12,7 @@ import (
 type Visitor struct {
 	client   *client.Client
 	account  common.Address
-	revision *common.Hash
+	revision *client.Revision
 }
 
 func New(c *client.Client, account common.Address) *Visitor {
@@ -20,7 +20,7 @@ func New(c *client.Client, account common.Address) *Visitor {
 }
 
 // Revision sets the optional revision for the API calls.
-func (a *Visitor) Revision(revision common.Hash) *Visitor {
+func (a *Visitor) Revision(revision client.Revision) *Visitor {
 	a.revision = &revision
 	return a
 }
@@ -78,5 +78,5 @@ func (a *Visitor) Call(calldata []byte) (*client.InspectResponse, error) {
 
 // Contract returns a new Contract instance.
 func (a *Visitor) Contract(abi *abi.ABI) *Contract {
-	return NewContractAt(a.client, a.account, abi, a.revision)
+	return NewContract(a.client, a.account, abi)
 }

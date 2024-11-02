@@ -18,10 +18,13 @@ func TestClient_SendTransaction(t *testing.T) {
 	vetClause := tx.NewClause(&account2Addr).
 		WithValue(big.NewInt(1000))
 
+	tag, err := thorClient.ChainTag()
+	assert.NoError(t, err)
+
 	txBody := new(tx.Builder).
 		Gas(3_000_000).
 		GasPriceCoef(255).
-		ChainTag(thorClient.ChainTag()).
+		ChainTag(tag).
 		Expiration(100000000).
 		BlockRef(tx.NewBlockRef(0)).
 		Nonce(tx.Nonce()).

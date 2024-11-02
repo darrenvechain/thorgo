@@ -42,11 +42,5 @@ func NewSolo() (*client.Client, func()) {
 		os.Exit(1)
 	}
 
-	clt, err := client.NewFromURL("http://" + endpoint)
-	if err != nil {
-		slog.Error("failed to create thor client", "error", err)
-		os.Exit(1)
-	}
-
-	return clt, cancel
+	return client.NewFromURL("http://" + endpoint), cancel
 }

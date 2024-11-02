@@ -13,30 +13,30 @@ import (
 
 func TestContract_Call(t *testing.T) {
 	// name
-	var name string
-	err := vthoContract.Call("name", &name)
+	var name []interface{}
+	err := vthoRaw.Call("name", &name)
 	assert.NoError(t, err)
-	assert.Equal(t, "VeThor", name)
+	assert.Equal(t, "VeThor", name[0])
 
 	// symbol
-	var symbol string
-	err = vthoContract.Call("symbol", &symbol)
+	var symbol []interface{}
+	err = vthoRaw.Call("symbol", &symbol)
 	assert.NoError(t, err)
-	assert.Equal(t, "VTHO", symbol)
+	assert.Equal(t, "VTHO", symbol[0])
 
 	// decimals
-	var decimals uint8
-	err = vthoContract.Call("decimals", &decimals)
+	var decimals []interface{}
+	err = vthoRaw.Call("decimals", &decimals)
 	assert.NoError(t, err)
-	assert.Equal(t, uint8(18), decimals)
+	assert.Equal(t, uint8(18), decimals[0])
 }
 
 func TestContract_DecodeCall(t *testing.T) {
-	packed, err := vtho.ABI.Pack("balanceOf", account1.Address())
+	packed, err := vthoRaw.ABI.Pack("balanceOf", account1.Address())
 	assert.NoError(t, err)
 
 	balance := new(big.Int)
-	err = vthoContract.DecodeCall(packed, &balance)
+	err = vthoRaw.DecodeCall(packed, &balance)
 	assert.NoError(t, err)
 	assert.Greater(t, balance.Uint64(), uint64(0))
 }
@@ -46,17 +46,17 @@ func TestContract_AsClause(t *testing.T) {
 	assert.NoError(t, err)
 
 	// transfer clause
-	clause, err := vthoContract.AsClause("transfer", receiver.Address(), big.NewInt(1000))
+	clause, err := vthoRaw.AsClause("transfer", receiver.Address(), big.NewInt(1000))
 	assert.NoError(t, err)
 	assert.Equal(t, clause.Value(), big.NewInt(0))
-	assert.Equal(t, clause.To().Hex(), vtho.Address.Hex())
+	assert.Equal(t, clause.To().Hex(), vthoContract.Address().Hex())
 }
 
 func TestContract_Send(t *testing.T) {
 	receiver, err := txmanager.GeneratePK(thor)
 	assert.NoError(t, err)
 
-	tx, err := vthoContract.Send(account1, "transfer", receiver.Address(), big.NewInt(1000))
+	tx, err := vthoRaw.Send(account1, "transfer", receiver.Address(), big.NewInt(1000))
 	assert.NoError(t, err)
 
 	receipt, err := tx.Wait()
@@ -68,14 +68,14 @@ func TestContract_EventCriteria(t *testing.T) {
 	receiver, err := txmanager.GeneratePK(thor)
 	assert.NoError(t, err)
 
-	tx, err := vthoContract.Send(account1, "transfer", receiver.Address(), big.NewInt(1000))
+	tx, err := vthoRaw.Send(account1, "transfer", receiver.Address(), big.NewInt(1000))
 	assert.NoError(t, err)
 
 	receipt, _ := tx.Wait()
 	assert.False(t, receipt.Reverted)
 
 	// event criteria - match the newly created receiver
-	criteria, err := vthoContract.EventCriteria("Transfer", nil, receiver.Address())
+	criteria, err := vthoRaw.EventCriteria("Transfer", nil, receiver.Address())
 	assert.NoError(t, err)
 
 	// fetch events
@@ -83,15 +83,15 @@ func TestContract_EventCriteria(t *testing.T) {
 	assert.NoError(t, err)
 
 	// decode events
-	decodedEvs, err := vthoContract.DecodeEvents(transfers)
+	decodedEvs, err := vthoRaw.DecodeEvents(transfers)
 	assert.NoError(t, err)
 
 	ev := decodedEvs[0]
 	assert.Equal(t, "Transfer", ev.Name)
-	assert.NotNil(t, ev.Args["from"])
-	assert.NotNil(t, ev.Args["to"])
-	assert.NotNil(t, ev.Args["value"])
-	assert.IsType(t, common.Address{}, ev.Args["from"])
-	assert.IsType(t, common.Address{}, ev.Args["to"])
-	assert.IsType(t, &big.Int{}, ev.Args["value"])
+	assert.NotNil(t, ev.Args["_from"])
+	assert.NotNil(t, ev.Args["_to"])
+	assert.NotNil(t, ev.Args["_value"])
+	assert.IsType(t, common.Address{}, ev.Args["_from"])
+	assert.IsType(t, common.Address{}, ev.Args["_to"])
+	assert.IsType(t, &big.Int{}, ev.Args["_value"])
 }
