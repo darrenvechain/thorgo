@@ -60,7 +60,7 @@ var (
 
     {{if .InputBin}}
         // Deploy{{.Type}} deploys a new Ethereum contract, binding an instance of {{.Type}} to it.
-        func Deploy{{.Type}}(thor *thorgo.Thor, sender accounts.TxManager{{range .Constructor.Inputs}}, {{.Name}} {{bindtype .Type $structs}}{{end}}) (common.Hash, *{{.Type}}, error) {
+        func Deploy{{.Type}}(thor *thorgo.Thor, sender accounts.TxManager{{range .Constructor.Inputs}}, {{.Name}} {{bindtype .Type $structs}}{{end}}) (common.Hash, *{{.Type}}Transactor, error) {
             parsed, err := {{.Type}}MetaData.GetAbi()
             if err != nil {
                 return common.Hash{}, nil, err
@@ -68,27 +68,19 @@ var (
             if parsed == nil {
                 return common.Hash{}, nil, errors.New("GetABI returned nil")
             }
-
             {{range $pattern, $name := .Libraries}}
                 {{decapitalise $name}}Addr, _, _, _ := Deploy{{capitalise $name}}(auth, backend)
                 {{$contract.Type}}MetaData.Bin = strings.ReplaceAll({{$contract.Type}}Bin, "__${{$pattern}}$__", {{decapitalise $name}}Addr.String()[2:])
             {{end}}
-
             bytes, err := hexutil.Decode({{.Type}}MetaData.Bin)
             if err != nil {
                 return common.Hash{}, nil, err
             }
-
-
             contract, txID, err := thor.Deployer(bytes, parsed).Deploy(sender{{range .Constructor.Inputs}}, {{.Name}}{{end}})
             if err != nil {
                 return common.Hash{}, nil, err
             }
-
-            return txID, &{{.Type}}{
-                thor:     thor,
-                contract: contract,
-            }, nil
+            return txID, &{{.Type}}Transactor{ {{.Type}}{ thor: thor, contract: contract }, sender }, nil
         }
     {{end}}
 
@@ -101,8 +93,6 @@ var (
 	// {{.Type}}Transactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
     type {{.Type}}Transactor struct {
             {{.Type}}
-    		thor     *thorgo.Thor // Thor connection to use
-    		contract *accounts.Contract // Generic contract wrapper for the low level calls
     		manager accounts.TxManager // TxManager to use
     }
 
@@ -130,7 +120,7 @@ var (
         if err != nil {
             return nil, err
         }
-        return &{{.Type}}Transactor{ {{.Type}}{ thor: thor, contract: contract }, thor, contract, manager }, nil
+        return &{{.Type}}Transactor{ {{.Type}}{ thor: thor, contract: contract }, manager }, nil
     }
 
 	// Address returns the address of the contract.
@@ -288,7 +278,7 @@ var (
                 if len(criteriaSet) == 0 {
                     criteriaSet = append(criteriaSet, client.EventCriteria{
                         Address: &_{{$contract.Type}}.contract.Address,
-                        Topic0: &topicHash, // Add Topic0 here
+                        Topic0: &topicHash,
                     })
                 }
             {{ else }}
@@ -394,7 +384,6 @@ var (
                 for {
                     select {
                     case block := <-blockSub:
-                        // for range in block txs
                         for _, tx := range block.Transactions {
                             for index, outputs := range tx.Outputs {
                                 for _, event := range outputs.Events {
