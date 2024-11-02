@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/darrenvechain/thorgo"
-	"github.com/darrenvechain/thorgo/client"
+	"github.com/darrenvechain/thorgo/api"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/solo"
@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	thorClient *client.Client
+	thorClient *api.Client
 	thor       *thorgo.Thor
 	account1   = txmanager.FromPK(solo.Keys()[0], thor)
 	account2   = txmanager.FromPK(solo.Keys()[1], thor)

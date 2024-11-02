@@ -11,7 +11,7 @@ import (
 
 	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/accounts"
-	"github.com/darrenvechain/thorgo/client"
+	"github.com/darrenvechain/thorgo/api"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -87,7 +87,7 @@ func (_Energy *Energy) Address() common.Address {
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (_Energy *Energy) Call(revision client.Revision, result *[]interface{}, method string, params ...interface{}) error {
+func (_Energy *Energy) Call(revision api.Revision, result *[]interface{}, method string, params ...interface{}) error {
 	return _Energy.contract.Call(method, result, params...)
 }
 
@@ -99,12 +99,12 @@ func (_EnergyTransactor *EnergyTransactor) Transact(vetValue *big.Int, method st
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
 //
 // Solidity: function allowance(address _owner, address _spender) view returns(uint256 remaining)
-func (_Energy *Energy) Allowance(_owner common.Address, _spender common.Address, revision ...client.Revision) (*big.Int, error) {
-	var rev client.Revision
+func (_Energy *Energy) Allowance(_owner common.Address, _spender common.Address, revision ...api.Revision) (*big.Int, error) {
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}
@@ -122,12 +122,12 @@ func (_Energy *Energy) Allowance(_owner common.Address, _spender common.Address,
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
 // Solidity: function balanceOf(address _owner) view returns(uint256 balance)
-func (_Energy *Energy) BalanceOf(_owner common.Address, revision ...client.Revision) (*big.Int, error) {
-	var rev client.Revision
+func (_Energy *Energy) BalanceOf(_owner common.Address, revision ...api.Revision) (*big.Int, error) {
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}
@@ -145,12 +145,12 @@ func (_Energy *Energy) BalanceOf(_owner common.Address, revision ...client.Revis
 // Decimals is a free data retrieval call binding the contract method 0x313ce567.
 //
 // Solidity: function decimals() pure returns(uint8)
-func (_Energy *Energy) Decimals(revision ...client.Revision) (uint8, error) {
-	var rev client.Revision
+func (_Energy *Energy) Decimals(revision ...api.Revision) (uint8, error) {
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}
@@ -168,12 +168,12 @@ func (_Energy *Energy) Decimals(revision ...client.Revision) (uint8, error) {
 // Name is a free data retrieval call binding the contract method 0x06fdde03.
 //
 // Solidity: function name() pure returns(string)
-func (_Energy *Energy) Name(revision ...client.Revision) (string, error) {
-	var rev client.Revision
+func (_Energy *Energy) Name(revision ...api.Revision) (string, error) {
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}
@@ -191,12 +191,12 @@ func (_Energy *Energy) Name(revision ...client.Revision) (string, error) {
 // Symbol is a free data retrieval call binding the contract method 0x95d89b41.
 //
 // Solidity: function symbol() pure returns(string)
-func (_Energy *Energy) Symbol(revision ...client.Revision) (string, error) {
-	var rev client.Revision
+func (_Energy *Energy) Symbol(revision ...api.Revision) (string, error) {
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}
@@ -214,12 +214,12 @@ func (_Energy *Energy) Symbol(revision ...client.Revision) (string, error) {
 // TotalBurned is a free data retrieval call binding the contract method 0xd89135cd.
 //
 // Solidity: function totalBurned() view returns(uint256)
-func (_Energy *Energy) TotalBurned(revision ...client.Revision) (*big.Int, error) {
-	var rev client.Revision
+func (_Energy *Energy) TotalBurned(revision ...api.Revision) (*big.Int, error) {
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}
@@ -237,12 +237,12 @@ func (_Energy *Energy) TotalBurned(revision ...client.Revision) (*big.Int, error
 // TotalSupply is a free data retrieval call binding the contract method 0x18160ddd.
 //
 // Solidity: function totalSupply() view returns(uint256)
-func (_Energy *Energy) TotalSupply(revision ...client.Revision) (*big.Int, error) {
-	var rev client.Revision
+func (_Energy *Energy) TotalSupply(revision ...api.Revision) (*big.Int, error) {
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}
@@ -365,8 +365,8 @@ func (_Energy *Energy) TransferFromAsClause(_from common.Address, _to common.Add
 type EnergyApproval struct {
 	Owner   common.Address
 	Spender common.Address
-	Value   *big.Int
-	Log     client.EventLog
+	Value *big.Int
+	Log   api.EventLog
 }
 
 type EnergyApprovalCriteria struct {
@@ -377,12 +377,12 @@ type EnergyApprovalCriteria struct {
 // FilterApproval is a free log retrieval operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
 //
 // Solidity: event Approval(address indexed _owner, address indexed _spender, uint256 _value)
-func (_Energy *Energy) FilterApproval(criteria []EnergyApprovalCriteria, opts *client.FilterOptions, rang *client.FilterRange) ([]EnergyApproval, error) {
+func (_Energy *Energy) FilterApproval(criteria []EnergyApprovalCriteria, opts *api.FilterOptions, rang *api.FilterRange) ([]EnergyApproval, error) {
 	topicHash := _Energy.contract.ABI.Events["Approval"].ID
 
-	criteriaSet := make([]client.EventCriteria, len(criteria))
+	criteriaSet := make([]api.EventCriteria, len(criteria))
 	for i, c := range criteria {
-		crteria := client.EventCriteria{
+		crteria := api.EventCriteria{
 			Address: &_Energy.contract.Address,
 			Topic0:  &topicHash,
 		}
@@ -407,13 +407,13 @@ func (_Energy *Energy) FilterApproval(criteria []EnergyApprovalCriteria, opts *c
 	}
 
 	if len(criteriaSet) == 0 {
-		criteriaSet = append(criteriaSet, client.EventCriteria{
+		criteriaSet = append(criteriaSet, api.EventCriteria{
 			Address: &_Energy.contract.Address,
 			Topic0:  &topicHash, // Add Topic0 here
 		})
 	}
 
-	filter := &client.EventFilter{
+	filter := &api.EventFilter{
 		Range:    rang,
 		Options:  opts,
 		Criteria: &criteriaSet,
@@ -451,9 +451,9 @@ func (_Energy *Energy) FilterApproval(criteria []EnergyApprovalCriteria, opts *c
 func (_Energy *Energy) WatchApproval(criteria []EnergyApprovalCriteria, ctx context.Context) (chan *EnergyApproval, error) {
 	topicHash := _Energy.contract.ABI.Events["Approval"].ID
 
-	criteriaSet := make([]client.EventCriteria, len(criteria))
+	criteriaSet := make([]api.EventCriteria, len(criteria))
 	for i, c := range criteria {
-		crteria := client.EventCriteria{
+		crteria := api.EventCriteria{
 			Address: &_Energy.contract.Address,
 			Topic0:  &topicHash,
 		}
@@ -511,11 +511,11 @@ func (_Energy *Energy) WatchApproval(criteria []EnergyApprovalCriteria, ctx cont
 								}
 							}
 
-							log := client.EventLog{
+							log := api.EventLog{
 								Address: &_Energy.contract.Address,
 								Topics:  event.Topics,
 								Data:    event.Data,
-								Meta: client.LogMeta{
+								Meta: api.LogMeta{
 									BlockID:     block.ID,
 									BlockNumber: block.Number,
 									BlockTime:   block.Timestamp,
@@ -548,7 +548,7 @@ type EnergyTransfer struct {
 	From  common.Address
 	To    common.Address
 	Value *big.Int
-	Log   client.EventLog
+	Log   api.EventLog
 }
 
 type EnergyTransferCriteria struct {
@@ -559,12 +559,12 @@ type EnergyTransferCriteria struct {
 // FilterTransfer is a free log retrieval operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
 //
 // Solidity: event Transfer(address indexed _from, address indexed _to, uint256 _value)
-func (_Energy *Energy) FilterTransfer(criteria []EnergyTransferCriteria, opts *client.FilterOptions, rang *client.FilterRange) ([]EnergyTransfer, error) {
+func (_Energy *Energy) FilterTransfer(criteria []EnergyTransferCriteria, opts *api.FilterOptions, rang *api.FilterRange) ([]EnergyTransfer, error) {
 	topicHash := _Energy.contract.ABI.Events["Transfer"].ID
 
-	criteriaSet := make([]client.EventCriteria, len(criteria))
+	criteriaSet := make([]api.EventCriteria, len(criteria))
 	for i, c := range criteria {
-		crteria := client.EventCriteria{
+		crteria := api.EventCriteria{
 			Address: &_Energy.contract.Address,
 			Topic0:  &topicHash,
 		}
@@ -589,13 +589,13 @@ func (_Energy *Energy) FilterTransfer(criteria []EnergyTransferCriteria, opts *c
 	}
 
 	if len(criteriaSet) == 0 {
-		criteriaSet = append(criteriaSet, client.EventCriteria{
+		criteriaSet = append(criteriaSet, api.EventCriteria{
 			Address: &_Energy.contract.Address,
 			Topic0:  &topicHash, // Add Topic0 here
 		})
 	}
 
-	filter := &client.EventFilter{
+	filter := &api.EventFilter{
 		Range:    rang,
 		Options:  opts,
 		Criteria: &criteriaSet,
@@ -633,9 +633,9 @@ func (_Energy *Energy) FilterTransfer(criteria []EnergyTransferCriteria, opts *c
 func (_Energy *Energy) WatchTransfer(criteria []EnergyTransferCriteria, ctx context.Context) (chan *EnergyTransfer, error) {
 	topicHash := _Energy.contract.ABI.Events["Transfer"].ID
 
-	criteriaSet := make([]client.EventCriteria, len(criteria))
+	criteriaSet := make([]api.EventCriteria, len(criteria))
 	for i, c := range criteria {
-		crteria := client.EventCriteria{
+		crteria := api.EventCriteria{
 			Address: &_Energy.contract.Address,
 			Topic0:  &topicHash,
 		}
@@ -693,11 +693,11 @@ func (_Energy *Energy) WatchTransfer(criteria []EnergyTransferCriteria, ctx cont
 								}
 							}
 
-							log := client.EventLog{
+							log := api.EventLog{
 								Address: &_Energy.contract.Address,
 								Topics:  event.Topics,
 								Data:    event.Data,
-								Meta: client.LogMeta{
+								Meta: api.LogMeta{
 									BlockID:     block.ID,
 									BlockNumber: block.Number,
 									BlockTime:   block.Timestamp,

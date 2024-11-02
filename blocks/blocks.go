@@ -7,23 +7,23 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/darrenvechain/thorgo/client"
+	"github.com/darrenvechain/thorgo/api"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/google/uuid"
 )
 
 type subscriber struct {
-	sub chan *client.ExpandedBlock
+	sub chan *api.ExpandedBlock
 	ctx context.Context
 }
 
 type Blocks struct {
-	client      *client.Client
+	client      *api.Client
 	best        atomic.Value
 	subscribers sync.Map // Using sync.Map for concurrent access
 }
 
-func New(c *client.Client) *Blocks {
+func New(c *api.Client) *Blocks {
 	b := &Blocks{client: c}
 	go b.poll()
 	return b
@@ -31,7 +31,7 @@ func New(c *client.Client) *Blocks {
 
 // poll sends the expanded block to all active subscribers.
 func (b *Blocks) poll() {
-	var previous *client.ExpandedBlock
+	var previous *api.ExpandedBlock
 	var err error
 	backoff := 5 * time.Second
 
@@ -81,8 +81,8 @@ func (b *Blocks) poll() {
 // Subscribe adds a new subscriber to the block stream.
 // The subscriber will receive the latest block produced.
 // The subscriber will be removed when the context is done.
-func (b *Blocks) Subscribe(ctx context.Context) <-chan *client.ExpandedBlock {
-	sub := make(chan *client.ExpandedBlock)
+func (b *Blocks) Subscribe(ctx context.Context) <-chan *api.ExpandedBlock {
+	sub := make(chan *api.ExpandedBlock)
 	id := uuid.New().String()
 	s := subscriber{sub: sub, ctx: ctx}
 	b.subscribers.Store(id, s)
@@ -90,14 +90,14 @@ func (b *Blocks) Subscribe(ctx context.Context) <-chan *client.ExpandedBlock {
 }
 
 // ByID returns the block by the given ID.
-func (b *Blocks) ByID(id common.Hash) (*client.Block, error) {
+func (b *Blocks) ByID(id common.Hash) (*api.Block, error) {
 	return b.client.Block(id.Hex())
 }
 
 // Best returns the latest block on chain.
-func (b *Blocks) Best() (block *client.Block, err error) {
+func (b *Blocks) Best() (block *api.Block, err error) {
 	// Load the best block from the cache.
-	if best, ok := b.best.Load().(*client.Block); ok {
+	if best, ok := b.best.Load().(*api.Block); ok {
 		// Convert the timestamp to UTC time.
 		bestTime := time.Unix(best.Timestamp, 0).UTC()
 		if time.Since(bestTime) < 10*time.Second {
@@ -115,29 +115,29 @@ func (b *Blocks) Best() (block *client.Block, err error) {
 }
 
 // Finalized returns the finalized block.
-func (b *Blocks) Finalized() (*client.Block, error) {
+func (b *Blocks) Finalized() (*api.Block, error) {
 	return b.client.Block("finalized")
 }
 
 // Justified returns the justified block.
-func (b *Blocks) Justified() (*client.Block, error) {
+func (b *Blocks) Justified() (*api.Block, error) {
 	return b.client.Block("justified")
 }
 
 // ByNumber returns the block by the given number.
-func (b *Blocks) ByNumber(number uint64) (*client.Block, error) {
+func (b *Blocks) ByNumber(number uint64) (*api.Block, error) {
 	return b.client.Block(fmt.Sprintf("%d", number))
 }
 
 // Expanded returns the expanded block information.
 // This includes the transactions and receipts.
-func (b *Blocks) Expanded(revision string) (*client.ExpandedBlock, error) {
+func (b *Blocks) Expanded(revision string) (*api.ExpandedBlock, error) {
 	return b.client.ExpandedBlock(revision)
 }
 
 // Ticker waits for the next block to be produced
 // Returns the next block
-func (b *Blocks) Ticker() (*client.ExpandedBlock, error) {
+func (b *Blocks) Ticker() (*api.ExpandedBlock, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	sub := b.Subscribe(ctx)

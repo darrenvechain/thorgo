@@ -3,7 +3,7 @@ package transfers
 import (
 	"errors"
 
-	"github.com/darrenvechain/thorgo/client"
+	"github.com/darrenvechain/thorgo/api"
 )
 
 var (
@@ -14,12 +14,12 @@ var (
 )
 
 type Filter struct {
-	client  *client.Client
-	request *client.TransferFilter
+	client  *api.Client
+	request *api.TransferFilter
 }
 
-func New(c *client.Client, criteria []client.TransferCriteria) *Filter {
-	return &Filter{client: c, request: &client.TransferFilter{
+func New(c *api.Client, criteria []api.TransferCriteria) *Filter {
+	return &Filter{client: c, request: &api.TransferFilter{
 		Criteria: &criteria,
 	}}
 }
@@ -38,7 +38,7 @@ func (f *Filter) Asc() *Filter {
 
 // BlockRange sets the block range for the transfer filter.
 func (f *Filter) BlockRange(from int64, to int64) *Filter {
-	f.request.Range = &client.FilterRange{
+	f.request.Range = &api.FilterRange{
 		From: &from,
 		To:   &to,
 		Unit: &block,
@@ -48,7 +48,7 @@ func (f *Filter) BlockRange(from int64, to int64) *Filter {
 
 // TimeRange sets the time range for the transfer filter.
 func (f *Filter) TimeRange(from int64, to int64) *Filter {
-	f.request.Range = &client.FilterRange{
+	f.request.Range = &api.FilterRange{
 		From: &from,
 		To:   &to,
 		Unit: &time,
@@ -57,11 +57,11 @@ func (f *Filter) TimeRange(from int64, to int64) *Filter {
 }
 
 // Apply sends the transfer filter to the node and returns the results.
-func (f *Filter) Apply(offset int64, limit int64) ([]client.TransferLog, error) {
+func (f *Filter) Apply(offset int64, limit int64) ([]api.TransferLog, error) {
 	if limit > 256 {
 		return nil, errors.New("limit must be less than or equal to 256")
 	}
-	f.request.Options = &client.FilterOptions{
+	f.request.Options = &api.FilterOptions{
 		Offset: &offset,
 		Limit:  &limit,
 	}

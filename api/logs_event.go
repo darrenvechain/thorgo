@@ -1,4 +1,4 @@
-package client
+package api
 
 import (
 	"github.com/ethereum/go-ethereum/common"

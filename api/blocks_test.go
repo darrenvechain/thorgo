@@ -1,9 +1,9 @@
-package client_test
+package api_test
 
 import (
 	"testing"
 
-	"github.com/darrenvechain/thorgo/client"
+	"github.com/darrenvechain/thorgo/api"
 	"github.com/darrenvechain/thorgo/solo"
 	"github.com/stretchr/testify/assert"
 )
@@ -33,7 +33,7 @@ func TestClient_ExpandedBlock(t *testing.T) {
 }
 
 func TestClient_ExpandedBlockWithTxs(t *testing.T) {
-	c := client.NewFromURL("https://mainnet.vechain.org")
+	c := api.NewFromURL("https://mainnet.vechain.org")
 
 	blk, err := c.ExpandedBlock("0x0125fb07988ff3c36b261b5f7227688c1c0473c4873825ac299bc256ea991b0f")
 	assert.NoError(t, err)

@@ -11,7 +11,7 @@ import (
 
 	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/accounts"
-	"github.com/darrenvechain/thorgo/client"
+	"github.com/darrenvechain/thorgo/api"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -87,7 +87,7 @@ func (_Prototype *Prototype) Address() common.Address {
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (_Prototype *Prototype) Call(revision client.Revision, result *[]interface{}, method string, params ...interface{}) error {
+func (_Prototype *Prototype) Call(revision api.Revision, result *[]interface{}, method string, params ...interface{}) error {
 	return _Prototype.contract.Call(method, result, params...)
 }
 
@@ -99,12 +99,12 @@ func (_PrototypeTransactor *PrototypeTransactor) Transact(vetValue *big.Int, met
 // Balance is a free data retrieval call binding the contract method 0x6d8c859a.
 //
 // Solidity: function balance(address _self, uint256 _blockNumber) view returns(uint256)
-func (_Prototype *Prototype) Balance(_self common.Address, _blockNumber *big.Int, revision ...client.Revision) (*big.Int, error) {
-	var rev client.Revision
+func (_Prototype *Prototype) Balance(_self common.Address, _blockNumber *big.Int, revision ...api.Revision) (*big.Int, error) {
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}
@@ -122,15 +122,15 @@ func (_Prototype *Prototype) Balance(_self common.Address, _blockNumber *big.Int
 // CreditPlan is a free data retrieval call binding the contract method 0x80df45b4.
 //
 // Solidity: function creditPlan(address _self) view returns(uint256 credit, uint256 recoveryRate)
-func (_Prototype *Prototype) CreditPlan(_self common.Address, revision ...client.Revision) (struct {
+func (_Prototype *Prototype) CreditPlan(_self common.Address, revision ...api.Revision) (struct {
 	Credit       *big.Int
 	RecoveryRate *big.Int
 }, error) {
-	var rev client.Revision
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}
@@ -154,12 +154,12 @@ func (_Prototype *Prototype) CreditPlan(_self common.Address, revision ...client
 // CurrentSponsor is a free data retrieval call binding the contract method 0x23d8c7db.
 //
 // Solidity: function currentSponsor(address _self) view returns(address)
-func (_Prototype *Prototype) CurrentSponsor(_self common.Address, revision ...client.Revision) (common.Address, error) {
-	var rev client.Revision
+func (_Prototype *Prototype) CurrentSponsor(_self common.Address, revision ...api.Revision) (common.Address, error) {
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}
@@ -177,12 +177,12 @@ func (_Prototype *Prototype) CurrentSponsor(_self common.Address, revision ...cl
 // Energy is a free data retrieval call binding the contract method 0x1e95be45.
 //
 // Solidity: function energy(address _self, uint256 _blockNumber) view returns(uint256)
-func (_Prototype *Prototype) Energy(_self common.Address, _blockNumber *big.Int, revision ...client.Revision) (*big.Int, error) {
-	var rev client.Revision
+func (_Prototype *Prototype) Energy(_self common.Address, _blockNumber *big.Int, revision ...api.Revision) (*big.Int, error) {
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}
@@ -200,12 +200,12 @@ func (_Prototype *Prototype) Energy(_self common.Address, _blockNumber *big.Int,
 // HasCode is a free data retrieval call binding the contract method 0x9538c4b3.
 //
 // Solidity: function hasCode(address _self) view returns(bool)
-func (_Prototype *Prototype) HasCode(_self common.Address, revision ...client.Revision) (bool, error) {
-	var rev client.Revision
+func (_Prototype *Prototype) HasCode(_self common.Address, revision ...api.Revision) (bool, error) {
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}
@@ -223,12 +223,12 @@ func (_Prototype *Prototype) HasCode(_self common.Address, revision ...client.Re
 // IsSponsor is a free data retrieval call binding the contract method 0xd87333ac.
 //
 // Solidity: function isSponsor(address _self, address _sponsor) view returns(bool)
-func (_Prototype *Prototype) IsSponsor(_self common.Address, _sponsor common.Address, revision ...client.Revision) (bool, error) {
-	var rev client.Revision
+func (_Prototype *Prototype) IsSponsor(_self common.Address, _sponsor common.Address, revision ...api.Revision) (bool, error) {
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}
@@ -246,12 +246,12 @@ func (_Prototype *Prototype) IsSponsor(_self common.Address, _sponsor common.Add
 // IsUser is a free data retrieval call binding the contract method 0x02d43dc8.
 //
 // Solidity: function isUser(address _self, address _user) view returns(bool)
-func (_Prototype *Prototype) IsUser(_self common.Address, _user common.Address, revision ...client.Revision) (bool, error) {
-	var rev client.Revision
+func (_Prototype *Prototype) IsUser(_self common.Address, _user common.Address, revision ...api.Revision) (bool, error) {
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}
@@ -269,12 +269,12 @@ func (_Prototype *Prototype) IsUser(_self common.Address, _user common.Address, 
 // Master is a free data retrieval call binding the contract method 0x9ed153c0.
 //
 // Solidity: function master(address _self) view returns(address)
-func (_Prototype *Prototype) Master(_self common.Address, revision ...client.Revision) (common.Address, error) {
-	var rev client.Revision
+func (_Prototype *Prototype) Master(_self common.Address, revision ...api.Revision) (common.Address, error) {
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}
@@ -292,12 +292,12 @@ func (_Prototype *Prototype) Master(_self common.Address, revision ...client.Rev
 // StorageFor is a free data retrieval call binding the contract method 0x04e7a457.
 //
 // Solidity: function storageFor(address _self, bytes32 _key) view returns(bytes32)
-func (_Prototype *Prototype) StorageFor(_self common.Address, _key [32]byte, revision ...client.Revision) ([32]byte, error) {
-	var rev client.Revision
+func (_Prototype *Prototype) StorageFor(_self common.Address, _key [32]byte, revision ...api.Revision) ([32]byte, error) {
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}
@@ -315,12 +315,12 @@ func (_Prototype *Prototype) StorageFor(_self common.Address, _key [32]byte, rev
 // UserCredit is a free data retrieval call binding the contract method 0xc9c4fc41.
 //
 // Solidity: function userCredit(address _self, address _user) view returns(uint256)
-func (_Prototype *Prototype) UserCredit(_self common.Address, _user common.Address, revision ...client.Revision) (*big.Int, error) {
-	var rev client.Revision
+func (_Prototype *Prototype) UserCredit(_self common.Address, _user common.Address, revision ...api.Revision) (*big.Int, error) {
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}

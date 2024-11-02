@@ -40,10 +40,10 @@ go get github.com/darrenvechain/thorgo
   contracts. It also supports simulating, building, and sending transactions, as well as interacting with smart
   contracts for reading and transacting.
 
-### client
+### api
 
-- `github.com/darrenvechain/thorgo/client`
-- The `client` package provides raw API access to the VechainThor blockchain. It allows developers to query the
+- `github.com/darrenvechain/thorgo/api`
+- The `api` package provides raw API access to the VechainThor blockchain. It allows developers to query the
   blockchain directly without the need for higher-level abstractions provided by `thorgo`.
 
 ### txmanager
@@ -109,7 +109,6 @@ import (
 )
 
 func main() {
-    // Create a new client
     thor := thorgo.New(solo.URL)
   
     // Get an accounts balance

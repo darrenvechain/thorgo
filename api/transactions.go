@@ -1,4 +1,4 @@
-package client
+package api
 
 import (
 	"github.com/darrenvechain/thorgo/crypto/tx"

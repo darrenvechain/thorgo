@@ -3,14 +3,14 @@ package events
 import (
 	"testing"
 
+	"github.com/darrenvechain/thorgo/api"
 	"github.com/darrenvechain/thorgo/blocks"
-	"github.com/darrenvechain/thorgo/client"
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	thorClient *client.Client
+	thorClient *api.Client
 )
 
 func TestMain(m *testing.M) {
@@ -23,7 +23,7 @@ func TestMain(m *testing.M) {
 // TestEventByBlockRangeASC fetches events by block range in ascending order
 func TestEventByBlockRangeASC(t *testing.T) {
 	// Don't apply any criteria, just get all events
-	events, err := New(thorClient, []client.EventCriteria{}).
+	events, err := New(thorClient, []api.EventCriteria{}).
 		BlockRange(0, 1).
 		Asc().
 		Apply(0, 100)
@@ -38,7 +38,7 @@ func TestEventsByTimeRangeDESC(t *testing.T) {
 	best, err := blocks.New(thorClient).Best()
 	assert.NoError(t, err)
 
-	events, err := New(thorClient, []client.EventCriteria{}).
+	events, err := New(thorClient, []api.EventCriteria{}).
 		TimeRange(genesis.Timestamp, best.Timestamp).
 		Desc().
 		Apply(0, 100)

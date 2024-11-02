@@ -5,12 +5,12 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/darrenvechain/thorgo/client"
+	"github.com/darrenvechain/thorgo/api"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-func NewSolo() (*client.Client, func()) {
+func NewSolo() (*api.Client, func()) {
 	ctx := context.Background()
 	cmd := []string{"solo", "-api-addr", "0.0.0.0:8669", "-api-cors", "*", "-on-demand"}
 
@@ -42,5 +42,5 @@ func NewSolo() (*client.Client, func()) {
 		os.Exit(1)
 	}
 
-	return client.NewFromURL("http://" + endpoint), cancel
+	return api.NewFromURL("http://" + endpoint), cancel
 }

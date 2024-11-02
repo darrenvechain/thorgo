@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/darrenvechain/thorgo/client"
+	"github.com/darrenvechain/thorgo/api"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -16,14 +16,14 @@ import (
 
 // Contract is a generic representation of a smart contract.
 type Contract struct {
-	client  *client.Client
+	client  *api.Client
 	ABI     *abi.ABI
 	Address common.Address
 }
 
 // NewContract creates a new contract instance.
 func NewContract(
-	client *client.Client,
+	client *api.Client,
 	address common.Address,
 	abi *abi.ABI,
 ) *Contract {
@@ -32,11 +32,11 @@ func NewContract(
 
 // Call executes a read-only contract call.
 func (c *Contract) Call(method string, results *[]interface{}, args ...interface{}) error {
-	return c.CallAt(client.RevisionBest(), method, results, args...)
+	return c.CallAt(api.RevisionBest(), method, results, args...)
 }
 
 // CallAt executes a read-only contract call at a specific revision.
-func (c *Contract) CallAt(revision client.Revision, method string, results *[]interface{}, args ...interface{}) error {
+func (c *Contract) CallAt(revision api.Revision, method string, results *[]interface{}, args ...interface{}) error {
 	if results == nil {
 		results = new([]interface{})
 	}
@@ -45,7 +45,7 @@ func (c *Contract) CallAt(revision client.Revision, method string, results *[]in
 		return fmt.Errorf("failed to pack method %s: %w", method, err)
 	}
 	clause := tx.NewClause(&c.Address).WithData(packed).WithValue(big.NewInt(0))
-	request := client.InspectRequest{
+	request := api.InspectRequest{
 		Clauses: []*tx.Clause{clause},
 	}
 	response, err := c.client.InspectAt(request, revision)
@@ -150,12 +150,12 @@ func (c *Contract) SendWithVET(manager TxManager, vet *big.Int, method string, a
 //	criteria, err := contract.EventCriteria("Transfer", nil, &to)
 //
 // Returns an EventCriteria object and any error encountered.
-func (c *Contract) EventCriteria(name string, matchers ...interface{}) (client.EventCriteria, error) {
+func (c *Contract) EventCriteria(name string, matchers ...interface{}) (api.EventCriteria, error) {
 	ev, ok := c.ABI.Events[name]
 	if !ok {
-		return client.EventCriteria{}, fmt.Errorf("event %s not found", name)
+		return api.EventCriteria{}, fmt.Errorf("event %s not found", name)
 	}
-	criteria := client.EventCriteria{
+	criteria := api.EventCriteria{
 		Address: &c.Address,
 		Topic0:  &ev.ID,
 	}
@@ -168,13 +168,13 @@ func (c *Contract) EventCriteria(name string, matchers ...interface{}) (client.E
 			continue
 		}
 		if !ev.Inputs[i].Indexed {
-			return client.EventCriteria{}, errors.New("can't match non-indexed event inputs")
+			return api.EventCriteria{}, errors.New("can't match non-indexed event inputs")
 		}
 		topics, err := abi.MakeTopics(
 			[]interface{}{matchers[i]},
 		)
 		if err != nil {
-			return client.EventCriteria{}, err
+			return api.EventCriteria{}, err
 		}
 
 		switch i + 1 {
@@ -195,7 +195,7 @@ func (c *Contract) EventCriteria(name string, matchers ...interface{}) (client.E
 type Event struct {
 	Name string
 	Args map[string]interface{}
-	Log  client.EventLog
+	Log  api.EventLog
 }
 
 // DecodeEvents parses logs into a slice of decoded events.
@@ -218,7 +218,7 @@ type Event struct {
 //	}
 //
 // This function returns a slice of decoded event objects and any error encountered.
-func (c *Contract) DecodeEvents(logs []client.EventLog) ([]Event, error) {
+func (c *Contract) DecodeEvents(logs []api.EventLog) ([]Event, error) {
 	var decoded []Event
 	for _, log := range logs {
 		if len(log.Topics) < 2 {
@@ -258,7 +258,7 @@ func (c *Contract) DecodeEvents(logs []client.EventLog) ([]Event, error) {
 }
 
 // UnpackLog unpacks a retrieved log into the provided output structure.
-func (c *Contract) UnpackLog(out interface{}, event string, log client.EventLog) error {
+func (c *Contract) UnpackLog(out interface{}, event string, log api.EventLog) error {
 	if len(log.Topics) == 0 {
 		return errors.New("anonymous events are not supported")
 	}

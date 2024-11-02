@@ -1,14 +1,14 @@
 package transactions
 
 import (
-	"github.com/darrenvechain/thorgo/client"
+	"github.com/darrenvechain/thorgo/api"
 )
 
 // Simulation represents the result of a transaction simulation.
 type Simulation struct {
 	consumedGas  uint64
 	reverted     bool
-	outputs      []client.InspectResponse
+	outputs      []api.InspectResponse
 	vmError      string
 	intrinsicGas uint64
 }
@@ -29,7 +29,7 @@ func (s *Simulation) Reverted() bool {
 	return s.reverted
 }
 
-func (s *Simulation) Outputs() []client.InspectResponse {
+func (s *Simulation) Outputs() []api.InspectResponse {
 	return s.outputs
 }
 

@@ -11,7 +11,7 @@ import (
 
 	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/accounts"
-	"github.com/darrenvechain/thorgo/client"
+	"github.com/darrenvechain/thorgo/api"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -87,7 +87,7 @@ func (_Executor *Executor) Address() common.Address {
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (_Executor *Executor) Call(revision client.Revision, result *[]interface{}, method string, params ...interface{}) error {
+func (_Executor *Executor) Call(revision api.Revision, result *[]interface{}, method string, params ...interface{}) error {
 	return _Executor.contract.Call(method, result, params...)
 }
 
@@ -99,12 +99,12 @@ func (_ExecutorTransactor *ExecutorTransactor) Transact(vetValue *big.Int, metho
 // ApproverCount is a free data retrieval call binding the contract method 0x128e9be6.
 //
 // Solidity: function approverCount() view returns(uint8)
-func (_Executor *Executor) ApproverCount(revision ...client.Revision) (uint8, error) {
-	var rev client.Revision
+func (_Executor *Executor) ApproverCount(revision ...api.Revision) (uint8, error) {
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}
@@ -122,15 +122,15 @@ func (_Executor *Executor) ApproverCount(revision ...client.Revision) (uint8, er
 // Approvers is a free data retrieval call binding the contract method 0x0a144391.
 //
 // Solidity: function approvers(address ) view returns(bytes32 identity, bool inPower)
-func (_Executor *Executor) Approvers(arg0 common.Address, revision ...client.Revision) (struct {
+func (_Executor *Executor) Approvers(arg0 common.Address, revision ...api.Revision) (struct {
 	Identity [32]byte
 	InPower  bool
 }, error) {
-	var rev client.Revision
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}
@@ -154,7 +154,7 @@ func (_Executor *Executor) Approvers(arg0 common.Address, revision ...client.Rev
 // Proposals is a free data retrieval call binding the contract method 0x32ed5b12.
 //
 // Solidity: function proposals(bytes32 ) view returns(uint64 timeProposed, address proposer, uint8 quorum, uint8 approvalCount, bool executed, address target, bytes data)
-func (_Executor *Executor) Proposals(arg0 [32]byte, revision ...client.Revision) (struct {
+func (_Executor *Executor) Proposals(arg0 [32]byte, revision ...api.Revision) (struct {
 	TimeProposed  uint64
 	Proposer      common.Address
 	Quorum        uint8
@@ -163,11 +163,11 @@ func (_Executor *Executor) Proposals(arg0 [32]byte, revision ...client.Revision)
 	Target        common.Address
 	Data          []byte
 }, error) {
-	var rev client.Revision
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}
@@ -201,12 +201,12 @@ func (_Executor *Executor) Proposals(arg0 [32]byte, revision ...client.Revision)
 // VotingContracts is a free data retrieval call binding the contract method 0xfa06792b.
 //
 // Solidity: function votingContracts(address ) view returns(bool)
-func (_Executor *Executor) VotingContracts(arg0 common.Address, revision ...client.Revision) (bool, error) {
-	var rev client.Revision
+func (_Executor *Executor) VotingContracts(arg0 common.Address, revision ...api.Revision) (bool, error) {
+	var rev api.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = client.RevisionBest()
+		rev = api.RevisionBest()
 	}
 
 	var out []interface{}
@@ -406,8 +406,8 @@ func (_Executor *Executor) RevokeApproverAsClause(_approver common.Address, vetV
 // ExecutorApprover represents a Approver event raised by the Executor contract.
 type ExecutorApprover struct {
 	Approver common.Address
-	Action   [32]byte
-	Log      client.EventLog
+	Action [32]byte
+	Log    api.EventLog
 }
 
 type ExecutorApproverCriteria struct {
@@ -417,12 +417,12 @@ type ExecutorApproverCriteria struct {
 // FilterApprover is a free log retrieval operation binding the contract event 0x770115cde75e60f17b265d7e0c5e39c57abf243bc316c7e5c2f8d851771da6ac.
 //
 // Solidity: event Approver(address indexed approver, bytes32 action)
-func (_Executor *Executor) FilterApprover(criteria []ExecutorApproverCriteria, opts *client.FilterOptions, rang *client.FilterRange) ([]ExecutorApprover, error) {
+func (_Executor *Executor) FilterApprover(criteria []ExecutorApproverCriteria, opts *api.FilterOptions, rang *api.FilterRange) ([]ExecutorApprover, error) {
 	topicHash := _Executor.contract.ABI.Events["Approver"].ID
 
-	criteriaSet := make([]client.EventCriteria, len(criteria))
+	criteriaSet := make([]api.EventCriteria, len(criteria))
 	for i, c := range criteria {
-		crteria := client.EventCriteria{
+		crteria := api.EventCriteria{
 			Address: &_Executor.contract.Address,
 			Topic0:  &topicHash,
 		}
@@ -439,13 +439,13 @@ func (_Executor *Executor) FilterApprover(criteria []ExecutorApproverCriteria, o
 	}
 
 	if len(criteriaSet) == 0 {
-		criteriaSet = append(criteriaSet, client.EventCriteria{
+		criteriaSet = append(criteriaSet, api.EventCriteria{
 			Address: &_Executor.contract.Address,
 			Topic0:  &topicHash, // Add Topic0 here
 		})
 	}
 
-	filter := &client.EventFilter{
+	filter := &api.EventFilter{
 		Range:    rang,
 		Options:  opts,
 		Criteria: &criteriaSet,
@@ -483,9 +483,9 @@ func (_Executor *Executor) FilterApprover(criteria []ExecutorApproverCriteria, o
 func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ctx context.Context) (chan *ExecutorApprover, error) {
 	topicHash := _Executor.contract.ABI.Events["Approver"].ID
 
-	criteriaSet := make([]client.EventCriteria, len(criteria))
+	criteriaSet := make([]api.EventCriteria, len(criteria))
 	for i, c := range criteria {
-		crteria := client.EventCriteria{
+		crteria := api.EventCriteria{
 			Address: &_Executor.contract.Address,
 			Topic0:  &topicHash,
 		}
@@ -535,11 +535,11 @@ func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ct
 								}
 							}
 
-							log := client.EventLog{
+							log := api.EventLog{
 								Address: &_Executor.contract.Address,
 								Topics:  event.Topics,
 								Data:    event.Data,
-								Meta: client.LogMeta{
+								Meta: api.LogMeta{
 									BlockID:     block.ID,
 									BlockNumber: block.Number,
 									BlockTime:   block.Timestamp,
@@ -570,8 +570,8 @@ func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ct
 // ExecutorProposal represents a Proposal event raised by the Executor contract.
 type ExecutorProposal struct {
 	ProposalID [32]byte
-	Action     [32]byte
-	Log        client.EventLog
+	Action [32]byte
+	Log    api.EventLog
 }
 
 type ExecutorProposalCriteria struct {
@@ -581,12 +581,12 @@ type ExecutorProposalCriteria struct {
 // FilterProposal is a free log retrieval operation binding the contract event 0x7d9bcf5c6cdade398a64a03053a982851ccea20dc827dbc130754b9e78c7c31a.
 //
 // Solidity: event Proposal(bytes32 indexed proposalID, bytes32 action)
-func (_Executor *Executor) FilterProposal(criteria []ExecutorProposalCriteria, opts *client.FilterOptions, rang *client.FilterRange) ([]ExecutorProposal, error) {
+func (_Executor *Executor) FilterProposal(criteria []ExecutorProposalCriteria, opts *api.FilterOptions, rang *api.FilterRange) ([]ExecutorProposal, error) {
 	topicHash := _Executor.contract.ABI.Events["Proposal"].ID
 
-	criteriaSet := make([]client.EventCriteria, len(criteria))
+	criteriaSet := make([]api.EventCriteria, len(criteria))
 	for i, c := range criteria {
-		crteria := client.EventCriteria{
+		crteria := api.EventCriteria{
 			Address: &_Executor.contract.Address,
 			Topic0:  &topicHash,
 		}
@@ -603,13 +603,13 @@ func (_Executor *Executor) FilterProposal(criteria []ExecutorProposalCriteria, o
 	}
 
 	if len(criteriaSet) == 0 {
-		criteriaSet = append(criteriaSet, client.EventCriteria{
+		criteriaSet = append(criteriaSet, api.EventCriteria{
 			Address: &_Executor.contract.Address,
 			Topic0:  &topicHash, // Add Topic0 here
 		})
 	}
 
-	filter := &client.EventFilter{
+	filter := &api.EventFilter{
 		Range:    rang,
 		Options:  opts,
 		Criteria: &criteriaSet,
@@ -647,9 +647,9 @@ func (_Executor *Executor) FilterProposal(criteria []ExecutorProposalCriteria, o
 func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ctx context.Context) (chan *ExecutorProposal, error) {
 	topicHash := _Executor.contract.ABI.Events["Proposal"].ID
 
-	criteriaSet := make([]client.EventCriteria, len(criteria))
+	criteriaSet := make([]api.EventCriteria, len(criteria))
 	for i, c := range criteria {
-		crteria := client.EventCriteria{
+		crteria := api.EventCriteria{
 			Address: &_Executor.contract.Address,
 			Topic0:  &topicHash,
 		}
@@ -699,11 +699,11 @@ func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ct
 								}
 							}
 
-							log := client.EventLog{
+							log := api.EventLog{
 								Address: &_Executor.contract.Address,
 								Topics:  event.Topics,
 								Data:    event.Data,
-								Meta: client.LogMeta{
+								Meta: api.LogMeta{
 									BlockID:     block.ID,
 									BlockNumber: block.Number,
 									BlockTime:   block.Timestamp,
@@ -734,8 +734,8 @@ func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ct
 // ExecutorVotingContract represents a VotingContract event raised by the Executor contract.
 type ExecutorVotingContract struct {
 	ContractAddr common.Address
-	Action       [32]byte
-	Log          client.EventLog
+	Action [32]byte
+	Log    api.EventLog
 }
 
 type ExecutorVotingContractCriteria struct {
@@ -745,12 +745,12 @@ type ExecutorVotingContractCriteria struct {
 // FilterVotingContract is a free log retrieval operation binding the contract event 0xf4cb5443be666f872bc8a75293e99e2204a6573e5eb3d2d485d866f2e13c7ea4.
 //
 // Solidity: event VotingContract(address indexed contractAddr, bytes32 action)
-func (_Executor *Executor) FilterVotingContract(criteria []ExecutorVotingContractCriteria, opts *client.FilterOptions, rang *client.FilterRange) ([]ExecutorVotingContract, error) {
+func (_Executor *Executor) FilterVotingContract(criteria []ExecutorVotingContractCriteria, opts *api.FilterOptions, rang *api.FilterRange) ([]ExecutorVotingContract, error) {
 	topicHash := _Executor.contract.ABI.Events["VotingContract"].ID
 
-	criteriaSet := make([]client.EventCriteria, len(criteria))
+	criteriaSet := make([]api.EventCriteria, len(criteria))
 	for i, c := range criteria {
-		crteria := client.EventCriteria{
+		crteria := api.EventCriteria{
 			Address: &_Executor.contract.Address,
 			Topic0:  &topicHash,
 		}
@@ -767,13 +767,13 @@ func (_Executor *Executor) FilterVotingContract(criteria []ExecutorVotingContrac
 	}
 
 	if len(criteriaSet) == 0 {
-		criteriaSet = append(criteriaSet, client.EventCriteria{
+		criteriaSet = append(criteriaSet, api.EventCriteria{
 			Address: &_Executor.contract.Address,
 			Topic0:  &topicHash, // Add Topic0 here
 		})
 	}
 
-	filter := &client.EventFilter{
+	filter := &api.EventFilter{
 		Range:    rang,
 		Options:  opts,
 		Criteria: &criteriaSet,
@@ -811,9 +811,9 @@ func (_Executor *Executor) FilterVotingContract(criteria []ExecutorVotingContrac
 func (_Executor *Executor) WatchVotingContract(criteria []ExecutorVotingContractCriteria, ctx context.Context) (chan *ExecutorVotingContract, error) {
 	topicHash := _Executor.contract.ABI.Events["VotingContract"].ID
 
-	criteriaSet := make([]client.EventCriteria, len(criteria))
+	criteriaSet := make([]api.EventCriteria, len(criteria))
 	for i, c := range criteria {
-		crteria := client.EventCriteria{
+		crteria := api.EventCriteria{
 			Address: &_Executor.contract.Address,
 			Topic0:  &topicHash,
 		}
@@ -863,11 +863,11 @@ func (_Executor *Executor) WatchVotingContract(criteria []ExecutorVotingContract
 								}
 							}
 
-							log := client.EventLog{
+							log := api.EventLog{
 								Address: &_Executor.contract.Address,
 								Topics:  event.Topics,
 								Data:    event.Data,
-								Meta: client.LogMeta{
+								Meta: api.LogMeta{
 									BlockID:     block.ID,
 									BlockNumber: block.Number,
 									BlockTime:   block.Timestamp,

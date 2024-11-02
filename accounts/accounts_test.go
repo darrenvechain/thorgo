@@ -5,8 +5,8 @@ import (
 
 	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/accounts"
+	"github.com/darrenvechain/thorgo/api"
 	"github.com/darrenvechain/thorgo/builtins"
-	"github.com/darrenvechain/thorgo/client"
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/solo"
 	"github.com/darrenvechain/thorgo/txmanager"
@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	thorClient   *client.Client
+	thorClient   *api.Client
 	thor         *thorgo.Thor
 	vthoContract *builtins.Energy
 	vthoRaw      *accounts.Contract
@@ -49,7 +49,7 @@ func TestGetAccount(t *testing.T) {
 // TestGetAccountForRevision fetches a thor solo account for the genesis block
 // and checks if the balance and energy are greater than 0
 func TestGetAccountForRevision(t *testing.T) {
-	acc, err := accounts.New(thorClient, account1.Address()).Revision(client.RevisionID(solo.GenesisID())).Get()
+	acc, err := accounts.New(thorClient, account1.Address()).Revision(api.RevisionID(solo.GenesisID())).Get()
 
 	assert.NoError(t, err, "Account.httpGet should not return an error")
 	assert.NotNil(t, acc, "Account.httpGet should return an account")
@@ -71,7 +71,7 @@ func TestGetCode(t *testing.T) {
 // TestGetCodeForRevision fetches the code of the VTHO contract for the genesis block
 func TestGetCodeForRevision(t *testing.T) {
 	vtho, err := accounts.New(thorClient, vthoContract.Address()).
-		Revision(client.RevisionID(solo.GenesisID())).
+		Revision(api.RevisionID(solo.GenesisID())).
 		Code()
 
 	assert.NoError(t, err, "Account.Code should not return an error")
@@ -91,7 +91,7 @@ func TestGetStorage(t *testing.T) {
 // TestGetStorageForRevision fetches a storage position of the VTHO contract for the genesis block
 func TestGetStorageForRevision(t *testing.T) {
 	storage, err := accounts.New(thorClient, vthoContract.Address()).
-		Revision(client.RevisionID(solo.GenesisID())).
+		Revision(api.RevisionID(solo.GenesisID())).
 		Storage(common.Hash{})
 
 	assert.NoError(t, err, "Account.Storage should not return an error")
