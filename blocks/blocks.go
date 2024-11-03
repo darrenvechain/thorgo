@@ -50,31 +50,29 @@ func (b *Blocks) poll() {
 		if now.Before(nextBlockTime) {
 			time.Sleep(nextBlockTime.Add(100 * time.Millisecond).Sub(now))
 		}
-
 		next, err := b.Expanded("best")
 		if err != nil {
 			time.Sleep(2 * time.Second)
 			continue
 		}
-		if previous.ID != next.ID {
-			b.subscribers.Range(func(key, value interface{}) bool {
-				sub := value.(subscriber)
-				select {
-				case <-sub.ctx.Done():
-					b.subscribers.Delete(key)
-					close(sub.sub)
-					return false
-				default:
-					sub.sub <- next
-				}
-				return true
-			})
-			previous = next
-		} else {
-			// Sleep for a second if the block hasn't changed.
+		if next.ID == previous.ID {
 			time.Sleep(1 * time.Second)
 			continue
 		}
+
+		b.subscribers.Range(func(key, value interface{}) bool {
+			sub := value.(subscriber)
+			select {
+			case <-sub.ctx.Done():
+				b.subscribers.Delete(key)
+				close(sub.sub)
+				return false
+			default:
+				sub.sub <- next
+			}
+			return true
+		})
+		previous = next
 	}
 }
 

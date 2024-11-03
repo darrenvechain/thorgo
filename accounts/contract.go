@@ -11,7 +11,6 @@ import (
 	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 // Contract is a generic representation of a smart contract.
@@ -59,17 +58,13 @@ func (c *Contract) CallAt(revision api.Revision, method string, results *[]inter
 	if inspection.VmError != "" {
 		return errors.New(inspection.VmError)
 	}
-	decoded, err := hexutil.Decode(inspection.Data)
-	if err != nil {
-		return fmt.Errorf("failed to decode data: %w", err)
-	}
 	if len(*results) == 0 {
-		res, err := c.ABI.Unpack(method, decoded)
+		res, err := c.ABI.Unpack(method, inspection.Data)
 		*results = res
 		return err
 	}
 	res := *results
-	return c.ABI.UnpackIntoInterface(res[0], method, decoded)
+	return c.ABI.UnpackIntoInterface(res[0], method, inspection.Data)
 }
 
 // DecodeCall decodes the result of a contract call, for example, decoding a clause's 'data'.

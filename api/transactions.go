@@ -48,9 +48,9 @@ type Transfer struct {
 }
 
 type Output struct {
-	ContractAddress string     `json:"contractAddress"`
-	Events          []Event    `json:"events"`
-	Transfers       []Transfer `json:"transfers"`
+	ContractAddress *common.Address `json:"contractAddress"`
+	Events          []Event         `json:"events"`
+	Transfers       []Transfer      `json:"transfers"`
 }
 
 type Event struct {

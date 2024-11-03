@@ -46,10 +46,8 @@ type Executor struct {
 
 // ExecutorTransactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
 type ExecutorTransactor struct {
-	Executor
-	thor     *thorgo.Thor       // Thor connection to use
-	contract *accounts.Contract // Generic contract wrapper for the low level calls
-	manager  accounts.TxManager // TxManager to use
+	*Executor
+	manager accounts.TxManager // TxManager to use
 }
 
 // NewExecutor creates a new instance of Executor, bound to a specific deployed contract.
@@ -67,15 +65,11 @@ func NewExecutor(thor *thorgo.Thor) (*Executor, error) {
 
 // NewExecutorTransactor creates a new instance of ExecutorTransactor, bound to a specific deployed contract.
 func NewExecutorTransactor(thor *thorgo.Thor, manager accounts.TxManager) (*ExecutorTransactor, error) {
-	parsed, err := ExecutorMetaData.GetAbi()
+	base, err := NewExecutor(thor)
 	if err != nil {
 		return nil, err
 	}
-	contract := thor.Account(common.HexToAddress("0x0000000000000000000000004578656375746f72")).Contract(parsed)
-	if err != nil {
-		return nil, err
-	}
-	return &ExecutorTransactor{Executor{thor: thor, contract: contract}, thor, contract, manager}, nil
+	return &ExecutorTransactor{Executor: base, manager: manager}, nil
 }
 
 // Address returns the address of the contract.
@@ -406,8 +400,8 @@ func (_Executor *Executor) RevokeApproverAsClause(_approver common.Address, vetV
 // ExecutorApprover represents a Approver event raised by the Executor contract.
 type ExecutorApprover struct {
 	Approver common.Address
-	Action [32]byte
-	Log    api.EventLog
+	Action   [32]byte
+	Log      api.EventLog
 }
 
 type ExecutorApproverCriteria struct {
@@ -441,7 +435,7 @@ func (_Executor *Executor) FilterApprover(criteria []ExecutorApproverCriteria, o
 	if len(criteriaSet) == 0 {
 		criteriaSet = append(criteriaSet, api.EventCriteria{
 			Address: &_Executor.contract.Address,
-			Topic0:  &topicHash, // Add Topic0 here
+			Topic0:  &topicHash,
 		})
 	}
 
@@ -484,6 +478,7 @@ func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ct
 	topicHash := _Executor.contract.ABI.Events["Approver"].ID
 
 	criteriaSet := make([]api.EventCriteria, len(criteria))
+
 	for i, c := range criteria {
 		crteria := api.EventCriteria{
 			Address: &_Executor.contract.Address,
@@ -510,7 +505,6 @@ func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ct
 		for {
 			select {
 			case block := <-blockSub:
-				// for range in block txs
 				for _, tx := range block.Transactions {
 					for index, outputs := range tx.Outputs {
 						for _, event := range outputs.Events {
@@ -570,8 +564,8 @@ func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ct
 // ExecutorProposal represents a Proposal event raised by the Executor contract.
 type ExecutorProposal struct {
 	ProposalID [32]byte
-	Action [32]byte
-	Log    api.EventLog
+	Action     [32]byte
+	Log        api.EventLog
 }
 
 type ExecutorProposalCriteria struct {
@@ -605,7 +599,7 @@ func (_Executor *Executor) FilterProposal(criteria []ExecutorProposalCriteria, o
 	if len(criteriaSet) == 0 {
 		criteriaSet = append(criteriaSet, api.EventCriteria{
 			Address: &_Executor.contract.Address,
-			Topic0:  &topicHash, // Add Topic0 here
+			Topic0:  &topicHash,
 		})
 	}
 
@@ -648,6 +642,7 @@ func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ct
 	topicHash := _Executor.contract.ABI.Events["Proposal"].ID
 
 	criteriaSet := make([]api.EventCriteria, len(criteria))
+
 	for i, c := range criteria {
 		crteria := api.EventCriteria{
 			Address: &_Executor.contract.Address,
@@ -674,7 +669,6 @@ func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ct
 		for {
 			select {
 			case block := <-blockSub:
-				// for range in block txs
 				for _, tx := range block.Transactions {
 					for index, outputs := range tx.Outputs {
 						for _, event := range outputs.Events {
@@ -734,8 +728,8 @@ func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ct
 // ExecutorVotingContract represents a VotingContract event raised by the Executor contract.
 type ExecutorVotingContract struct {
 	ContractAddr common.Address
-	Action [32]byte
-	Log    api.EventLog
+	Action       [32]byte
+	Log          api.EventLog
 }
 
 type ExecutorVotingContractCriteria struct {
@@ -769,7 +763,7 @@ func (_Executor *Executor) FilterVotingContract(criteria []ExecutorVotingContrac
 	if len(criteriaSet) == 0 {
 		criteriaSet = append(criteriaSet, api.EventCriteria{
 			Address: &_Executor.contract.Address,
-			Topic0:  &topicHash, // Add Topic0 here
+			Topic0:  &topicHash,
 		})
 	}
 
@@ -812,6 +806,7 @@ func (_Executor *Executor) WatchVotingContract(criteria []ExecutorVotingContract
 	topicHash := _Executor.contract.ABI.Events["VotingContract"].ID
 
 	criteriaSet := make([]api.EventCriteria, len(criteria))
+
 	for i, c := range criteria {
 		crteria := api.EventCriteria{
 			Address: &_Executor.contract.Address,
@@ -838,7 +833,6 @@ func (_Executor *Executor) WatchVotingContract(criteria []ExecutorVotingContract
 		for {
 			select {
 			case block := <-blockSub:
-				// for range in block txs
 				for _, tx := range block.Transactions {
 					for index, outputs := range tx.Outputs {
 						for _, event := range outputs.Events {

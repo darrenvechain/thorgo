@@ -85,7 +85,7 @@ func TestGetStorage(t *testing.T) {
 
 	assert.NoError(t, err, "Account.Storage should not return an error")
 	assert.NotNil(t, storage, "Account.Storage should return a storage")
-	assert.Equal(t, common.Hash{}.Hex(), storage.Value)
+	assert.Equal(t, common.Hash{}, storage.Value)
 }
 
 // TestGetStorageForRevision fetches a storage position of the VTHO contract for the genesis block
@@ -96,5 +96,5 @@ func TestGetStorageForRevision(t *testing.T) {
 
 	assert.NoError(t, err, "Account.Storage should not return an error")
 	assert.NotNil(t, storage, "Account.Storage should return a storage")
-	assert.Equal(t, common.Hash{}.Hex(), storage.Value)
+	assert.Equal(t, common.Hash{}, storage.Value)
 }

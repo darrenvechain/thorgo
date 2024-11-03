@@ -13,11 +13,11 @@ type Account struct {
 }
 
 type AccountCode struct {
-	Code string `json:"code"`
+	Code hexutil.Bytes `json:"code"`
 }
 
 type AccountStorage struct {
-	Value string `json:"value"`
+	Value common.Hash `json:"value"`
 }
 
 type InspectRequest struct {
@@ -27,15 +27,15 @@ type InspectRequest struct {
 	ProvedWork *string         `json:"provedWork,omitempty"`
 	GasPayer   *common.Address `json:"gasPayer,omitempty"`
 	Expiration *uint64         `json:"expiration,omitempty"`
-	BlockRef   *string         `json:"blockRef,omitempty"`
+	BlockRef   *hexutil.Big    `json:"blockRef,omitempty"`
 	Clauses    []*tx.Clause    `json:"clauses"`
 }
 
 type InspectResponse struct {
-	Data      string     `json:"data"`
-	Events    []Event    `json:"events"`
-	Transfers []Transfer `json:"transfers"`
-	GasUsed   uint64     `json:"gasUsed"`
-	Reverted  bool       `json:"reverted"`
-	VmError   string     `json:"vmError"`
+	Data      hexutil.Bytes `json:"data"`
+	Events    []Event       `json:"events"`
+	Transfers []Transfer    `json:"transfers"`
+	GasUsed   uint64        `json:"gasUsed"`
+	Reverted  bool          `json:"reverted"`
+	VmError   string        `json:"vmError"`
 }

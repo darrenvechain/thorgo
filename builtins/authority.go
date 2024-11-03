@@ -46,10 +46,8 @@ type Authority struct {
 
 // AuthorityTransactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
 type AuthorityTransactor struct {
-	Authority
-	thor     *thorgo.Thor       // Thor connection to use
-	contract *accounts.Contract // Generic contract wrapper for the low level calls
-	manager  accounts.TxManager // TxManager to use
+	*Authority
+	manager accounts.TxManager // TxManager to use
 }
 
 // NewAuthority creates a new instance of Authority, bound to a specific deployed contract.
@@ -67,15 +65,11 @@ func NewAuthority(thor *thorgo.Thor) (*Authority, error) {
 
 // NewAuthorityTransactor creates a new instance of AuthorityTransactor, bound to a specific deployed contract.
 func NewAuthorityTransactor(thor *thorgo.Thor, manager accounts.TxManager) (*AuthorityTransactor, error) {
-	parsed, err := AuthorityMetaData.GetAbi()
+	base, err := NewAuthority(thor)
 	if err != nil {
 		return nil, err
 	}
-	contract := thor.Account(common.HexToAddress("0x0000000000000000000000417574686f72697479")).Contract(parsed)
-	if err != nil {
-		return nil, err
-	}
-	return &AuthorityTransactor{Authority{thor: thor, contract: contract}, thor, contract, manager}, nil
+	return &AuthorityTransactor{Authority: base, manager: manager}, nil
 }
 
 // Address returns the address of the contract.
@@ -258,8 +252,8 @@ func (_Authority *Authority) RevokeAsClause(_nodeMaster common.Address, vetValue
 // AuthorityCandidate represents a Candidate event raised by the Authority contract.
 type AuthorityCandidate struct {
 	NodeMaster common.Address
-	Action [32]byte
-	Log    api.EventLog
+	Action     [32]byte
+	Log        api.EventLog
 }
 
 type AuthorityCandidateCriteria struct {
@@ -293,7 +287,7 @@ func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriter
 	if len(criteriaSet) == 0 {
 		criteriaSet = append(criteriaSet, api.EventCriteria{
 			Address: &_Authority.contract.Address,
-			Topic0:  &topicHash, // Add Topic0 here
+			Topic0:  &topicHash,
 		})
 	}
 
@@ -336,6 +330,7 @@ func (_Authority *Authority) WatchCandidate(criteria []AuthorityCandidateCriteri
 	topicHash := _Authority.contract.ABI.Events["Candidate"].ID
 
 	criteriaSet := make([]api.EventCriteria, len(criteria))
+
 	for i, c := range criteria {
 		crteria := api.EventCriteria{
 			Address: &_Authority.contract.Address,
@@ -362,7 +357,6 @@ func (_Authority *Authority) WatchCandidate(criteria []AuthorityCandidateCriteri
 		for {
 			select {
 			case block := <-blockSub:
-				// for range in block txs
 				for _, tx := range block.Transactions {
 					for index, outputs := range tx.Outputs {
 						for _, event := range outputs.Events {

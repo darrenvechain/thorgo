@@ -92,7 +92,7 @@ var (
 
 	// {{.Type}}Transactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
     type {{.Type}}Transactor struct {
-            {{.Type}}
+            *{{.Type}}
     		manager accounts.TxManager // TxManager to use
     }
 
@@ -112,15 +112,11 @@ var (
 
 	// New{{.Type}}Transactor creates a new instance of {{.Type}}Transactor, bound to a specific deployed contract.
     func New{{.Type}}Transactor(address common.Address, thor *thorgo.Thor, manager accounts.TxManager) (*{{.Type}}Transactor, error) {
-        parsed, err := {{.Type}}MetaData.GetAbi()
+        base, err := New{{.Type}}(address, thor)
         if err != nil {
             return nil, err
         }
-        contract := thor.Account(address).Contract(parsed)
-        if err != nil {
-            return nil, err
-        }
-        return &{{.Type}}Transactor{ {{.Type}}{ thor: thor, contract: contract }, manager }, nil
+        return &{{.Type}}Transactor{ {{.Type}}: base, manager: manager }, nil
     }
 
 	// Address returns the address of the contract.
