@@ -14,8 +14,8 @@ func RevisionID(hash common.Hash) Revision {
 	return Revision{value: hash.Hex()}
 }
 
-func RevisionNumber(number int) Revision {
-	return Revision{value: strconv.Itoa(number)}
+func RevisionNumber(number int64) Revision {
+	return Revision{value: strconv.FormatInt(number, 10)}
 }
 
 func RevisionBest() Revision {

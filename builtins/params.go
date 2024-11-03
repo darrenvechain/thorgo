@@ -46,10 +46,8 @@ type Params struct {
 
 // ParamsTransactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
 type ParamsTransactor struct {
-	Params
-	thor     *thorgo.Thor       // Thor connection to use
-	contract *accounts.Contract // Generic contract wrapper for the low level calls
-	manager  accounts.TxManager // TxManager to use
+	*Params
+	manager accounts.TxManager // TxManager to use
 }
 
 // NewParams creates a new instance of Params, bound to a specific deployed contract.
@@ -67,15 +65,11 @@ func NewParams(thor *thorgo.Thor) (*Params, error) {
 
 // NewParamsTransactor creates a new instance of ParamsTransactor, bound to a specific deployed contract.
 func NewParamsTransactor(thor *thorgo.Thor, manager accounts.TxManager) (*ParamsTransactor, error) {
-	parsed, err := ParamsMetaData.GetAbi()
+	base, err := NewParams(thor)
 	if err != nil {
 		return nil, err
 	}
-	contract := thor.Account(common.HexToAddress("0x0000000000000000000000000000506172616d73")).Contract(parsed)
-	if err != nil {
-		return nil, err
-	}
-	return &ParamsTransactor{Params{thor: thor, contract: contract}, thor, contract, manager}, nil
+	return &ParamsTransactor{Params: base, manager: manager}, nil
 }
 
 // Address returns the address of the contract.
@@ -206,7 +200,7 @@ func (_Params *Params) FilterSet(criteria []ParamsSetCriteria, opts *api.FilterO
 	if len(criteriaSet) == 0 {
 		criteriaSet = append(criteriaSet, api.EventCriteria{
 			Address: &_Params.contract.Address,
-			Topic0:  &topicHash, // Add Topic0 here
+			Topic0:  &topicHash,
 		})
 	}
 
@@ -249,6 +243,7 @@ func (_Params *Params) WatchSet(criteria []ParamsSetCriteria, ctx context.Contex
 	topicHash := _Params.contract.ABI.Events["Set"].ID
 
 	criteriaSet := make([]api.EventCriteria, len(criteria))
+
 	for i, c := range criteria {
 		crteria := api.EventCriteria{
 			Address: &_Params.contract.Address,
@@ -275,7 +270,6 @@ func (_Params *Params) WatchSet(criteria []ParamsSetCriteria, ctx context.Contex
 		for {
 			select {
 			case block := <-blockSub:
-				// for range in block txs
 				for _, tx := range block.Transactions {
 					for index, outputs := range tx.Outputs {
 						for _, event := range outputs.Events {

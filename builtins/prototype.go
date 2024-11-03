@@ -46,10 +46,8 @@ type Prototype struct {
 
 // PrototypeTransactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
 type PrototypeTransactor struct {
-	Prototype
-	thor     *thorgo.Thor       // Thor connection to use
-	contract *accounts.Contract // Generic contract wrapper for the low level calls
-	manager  accounts.TxManager // TxManager to use
+	*Prototype
+	manager accounts.TxManager // TxManager to use
 }
 
 // NewPrototype creates a new instance of Prototype, bound to a specific deployed contract.
@@ -67,15 +65,11 @@ func NewPrototype(thor *thorgo.Thor) (*Prototype, error) {
 
 // NewPrototypeTransactor creates a new instance of PrototypeTransactor, bound to a specific deployed contract.
 func NewPrototypeTransactor(thor *thorgo.Thor, manager accounts.TxManager) (*PrototypeTransactor, error) {
-	parsed, err := PrototypeMetaData.GetAbi()
+	base, err := NewPrototype(thor)
 	if err != nil {
 		return nil, err
 	}
-	contract := thor.Account(common.HexToAddress("0x000000000000000000000050726f746f74797065")).Contract(parsed)
-	if err != nil {
-		return nil, err
-	}
-	return &PrototypeTransactor{Prototype{thor: thor, contract: contract}, thor, contract, manager}, nil
+	return &PrototypeTransactor{Prototype: base, manager: manager}, nil
 }
 
 // Address returns the address of the contract.

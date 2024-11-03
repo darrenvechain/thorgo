@@ -31,5 +31,12 @@ jobs:
           version: v1.59.1
           args: --timeout=30m --config=.golangci.yml
 
+      - name: Generate builtins
+        run: go generate ./...
+
+      - name: Check `builtins` directory
+        # if it has any changes in the 'builtins' dir after running `go generate`, echo an error and fail the workflow
+        run: git diff --exit-code builtins || (echo "\n\n\nbuiltins directory is not up to date, run 'go generate ./...' to update it" && exit 1)
+
       - name: Run tests
         run: make test

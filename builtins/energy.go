@@ -46,10 +46,8 @@ type Energy struct {
 
 // EnergyTransactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
 type EnergyTransactor struct {
-	Energy
-	thor     *thorgo.Thor       // Thor connection to use
-	contract *accounts.Contract // Generic contract wrapper for the low level calls
-	manager  accounts.TxManager // TxManager to use
+	*Energy
+	manager accounts.TxManager // TxManager to use
 }
 
 // NewEnergy creates a new instance of Energy, bound to a specific deployed contract.
@@ -67,15 +65,11 @@ func NewEnergy(thor *thorgo.Thor) (*Energy, error) {
 
 // NewEnergyTransactor creates a new instance of EnergyTransactor, bound to a specific deployed contract.
 func NewEnergyTransactor(thor *thorgo.Thor, manager accounts.TxManager) (*EnergyTransactor, error) {
-	parsed, err := EnergyMetaData.GetAbi()
+	base, err := NewEnergy(thor)
 	if err != nil {
 		return nil, err
 	}
-	contract := thor.Account(common.HexToAddress("0x0000000000000000000000000000456e65726779")).Contract(parsed)
-	if err != nil {
-		return nil, err
-	}
-	return &EnergyTransactor{Energy{thor: thor, contract: contract}, thor, contract, manager}, nil
+	return &EnergyTransactor{Energy: base, manager: manager}, nil
 }
 
 // Address returns the address of the contract.
@@ -365,8 +359,8 @@ func (_Energy *Energy) TransferFromAsClause(_from common.Address, _to common.Add
 type EnergyApproval struct {
 	Owner   common.Address
 	Spender common.Address
-	Value *big.Int
-	Log   api.EventLog
+	Value   *big.Int
+	Log     api.EventLog
 }
 
 type EnergyApprovalCriteria struct {
@@ -409,7 +403,7 @@ func (_Energy *Energy) FilterApproval(criteria []EnergyApprovalCriteria, opts *a
 	if len(criteriaSet) == 0 {
 		criteriaSet = append(criteriaSet, api.EventCriteria{
 			Address: &_Energy.contract.Address,
-			Topic0:  &topicHash, // Add Topic0 here
+			Topic0:  &topicHash,
 		})
 	}
 
@@ -452,6 +446,7 @@ func (_Energy *Energy) WatchApproval(criteria []EnergyApprovalCriteria, ctx cont
 	topicHash := _Energy.contract.ABI.Events["Approval"].ID
 
 	criteriaSet := make([]api.EventCriteria, len(criteria))
+
 	for i, c := range criteria {
 		crteria := api.EventCriteria{
 			Address: &_Energy.contract.Address,
@@ -486,7 +481,6 @@ func (_Energy *Energy) WatchApproval(criteria []EnergyApprovalCriteria, ctx cont
 		for {
 			select {
 			case block := <-blockSub:
-				// for range in block txs
 				for _, tx := range block.Transactions {
 					for index, outputs := range tx.Outputs {
 						for _, event := range outputs.Events {
@@ -591,7 +585,7 @@ func (_Energy *Energy) FilterTransfer(criteria []EnergyTransferCriteria, opts *a
 	if len(criteriaSet) == 0 {
 		criteriaSet = append(criteriaSet, api.EventCriteria{
 			Address: &_Energy.contract.Address,
-			Topic0:  &topicHash, // Add Topic0 here
+			Topic0:  &topicHash,
 		})
 	}
 
@@ -634,6 +628,7 @@ func (_Energy *Energy) WatchTransfer(criteria []EnergyTransferCriteria, ctx cont
 	topicHash := _Energy.contract.ABI.Events["Transfer"].ID
 
 	criteriaSet := make([]api.EventCriteria, len(criteria))
+
 	for i, c := range criteria {
 		crteria := api.EventCriteria{
 			Address: &_Energy.contract.Address,
@@ -668,7 +663,6 @@ func (_Energy *Energy) WatchTransfer(criteria []EnergyTransferCriteria, ctx cont
 		for {
 			select {
 			case block := <-blockSub:
-				// for range in block txs
 				for _, tx := range block.Transactions {
 					for index, outputs := range tx.Outputs {
 						for _, event := range outputs.Events {

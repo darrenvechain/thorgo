@@ -46,9 +46,9 @@ func (d *Deployer) Deploy(sender TxManager, args ...interface{}) (*Contract, com
 		return nil, txID, errors.New("contract deployment reverted")
 	}
 
-	address := common.HexToAddress(receipt.Outputs[0].ContractAddress)
+	address := receipt.Outputs[0].ContractAddress
 
-	return NewContract(d.client, address, d.abi), txID, nil
+	return NewContract(d.client, *address, d.abi), txID, nil
 }
 
 // AsClause returns the contract deployment clause.
