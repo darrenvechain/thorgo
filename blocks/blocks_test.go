@@ -26,6 +26,9 @@ func TestMain(m *testing.M) {
 
 // TestGetBestBlock fetches the best block from the network
 func TestBlocks_Best(t *testing.T) {
+	_, err := blocks.Ticker()
+	assert.NoError(t, err)
+
 	block, err := blocks.Best()
 	assert.NoError(t, err)
 	assert.NotNil(t, block)

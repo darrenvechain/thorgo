@@ -21,7 +21,7 @@ test:| go_version_check #@ Run the tests
 	@go test -cover $(PACKAGES)
 
 test-coverage:| go_version_check #@ Run the tests with coverage
-	@go test -race -coverprofile=coverage.out -covermode=atomic $(PACKAGES)
+	@go test -coverpkg=./... -race -coverprofile=coverage.out -covermode=atomic $(PACKAGES)
 	@go tool cover -html=coverage.out
 
 lint_command_check:

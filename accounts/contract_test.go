@@ -95,3 +95,36 @@ func TestContract_EventCriteria(t *testing.T) {
 	assert.IsType(t, common.Address{}, ev.Args["_to"])
 	assert.IsType(t, &big.Int{}, ev.Args["_value"])
 }
+
+func TestContract_UnpackLog(t *testing.T) {
+	receiver, err := txmanager.GeneratePK(thor)
+	assert.NoError(t, err)
+
+	tx, err := vthoRaw.Send(account1, "transfer", receiver.Address(), big.NewInt(1000))
+	assert.NoError(t, err)
+
+	receipt, _ := tx.Wait()
+	assert.False(t, receipt.Reverted)
+
+	// event criteria - match the newly created receiver
+	criteria, err := vthoRaw.EventCriteria("Transfer", nil, receiver.Address())
+	assert.NoError(t, err)
+
+	// fetch events
+	transfers, err := events.New(thorClient, []thorest.EventCriteria{criteria}).Apply(0, 100)
+	assert.NoError(t, err)
+	assert.Greater(t, len(transfers), 0)
+
+	// unpack log
+	type outStruct struct {
+		From  common.Address
+		To    common.Address
+		Value *big.Int
+	}
+	res := outStruct{}
+	err = vthoRaw.UnpackLog(&res, "Transfer", transfers[0])
+	assert.NoError(t, err)
+	assert.Equal(t, account1.Address(), res.From)
+	assert.Equal(t, receiver.Address().Hex(), res.To.Hex())
+	assert.Equal(t, big.NewInt(1000), res.Value)
+}

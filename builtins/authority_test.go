@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAuthority_FilterCandidate(t *testing.T) {
+func TestAuthority(t *testing.T) {
 	authority, err := NewAuthority(thor)
 	assert.NoError(t, err)
 

@@ -1,6 +1,7 @@
 package accounts_test
 
 import (
+	"math/big"
 	"testing"
 
 	"github.com/darrenvechain/thorgo"
@@ -35,7 +36,7 @@ func TestMain(m *testing.M) {
 }
 
 // TestGetAccount fetches a thor solo account and checks if the balance and energy are greater than 0
-func TestGetAccount(t *testing.T) {
+func TestVisitor_Get(t *testing.T) {
 	acc, err := accounts.New(thorClient, account1.Address()).Get()
 
 	assert.NoError(t, err, "Account.httpGet should not return an error")
@@ -48,7 +49,7 @@ func TestGetAccount(t *testing.T) {
 
 // TestGetAccountForRevision fetches a thor solo account for the genesis block
 // and checks if the balance and energy are greater than 0
-func TestGetAccountForRevision(t *testing.T) {
+func TestVisitor_Get_At(t *testing.T) {
 	acc, err := accounts.New(thorClient, account1.Address()).Revision(thorest.RevisionID(solo.GenesisID())).Get()
 
 	assert.NoError(t, err, "Account.httpGet should not return an error")
@@ -60,7 +61,7 @@ func TestGetAccountForRevision(t *testing.T) {
 }
 
 // TestGetCode fetches the code of the VTHO contract and checks if the code length is greater than 2 (0x)
-func TestGetCode(t *testing.T) {
+func TestVisitor_Code(t *testing.T) {
 	vtho, err := accounts.New(thorClient, vthoContract.Address()).Code()
 
 	assert.NoError(t, err, "Account.Code should not return an error")
@@ -69,7 +70,7 @@ func TestGetCode(t *testing.T) {
 }
 
 // TestGetCodeForRevision fetches the code of the VTHO contract for the genesis block
-func TestGetCodeForRevision(t *testing.T) {
+func TestVisitor_Code_At(t *testing.T) {
 	vtho, err := accounts.New(thorClient, vthoContract.Address()).
 		Revision(thorest.RevisionID(solo.GenesisID())).
 		Code()
@@ -80,7 +81,7 @@ func TestGetCodeForRevision(t *testing.T) {
 }
 
 // TestGetStorage fetches a storage position of the VTHO contract and checks if the value is empty
-func TestGetStorage(t *testing.T) {
+func TestVisitor_Storage(t *testing.T) {
 	storage, err := accounts.New(thorClient, vthoContract.Address()).Storage(common.Hash{})
 
 	assert.NoError(t, err, "Account.Storage should not return an error")
@@ -89,7 +90,7 @@ func TestGetStorage(t *testing.T) {
 }
 
 // TestGetStorageForRevision fetches a storage position of the VTHO contract for the genesis block
-func TestGetStorageForRevision(t *testing.T) {
+func TestVisitor_Storage_At(t *testing.T) {
 	storage, err := accounts.New(thorClient, vthoContract.Address()).
 		Revision(thorest.RevisionID(solo.GenesisID())).
 		Storage(common.Hash{})
@@ -97,4 +98,26 @@ func TestGetStorageForRevision(t *testing.T) {
 	assert.NoError(t, err, "Account.Storage should not return an error")
 	assert.NotNil(t, storage, "Account.Storage should return a storage")
 	assert.Equal(t, common.Hash{}, storage.Value)
+}
+
+func TestVisitor_Call(t *testing.T) {
+	clause, err := vthoRaw.AsClause("balanceOf", account1.Address())
+	assert.NoError(t, err)
+
+	res, err := accounts.New(thorClient, vthoContract.Address()).Call(clause.Data())
+	assert.NoError(t, err)
+	balance := new(big.Int).SetBytes(res.Data)
+	assert.Greater(t, balance.Uint64(), big.NewInt(0).Uint64())
+}
+
+func TestVisitor_Call_At(t *testing.T) {
+	clause, err := vthoRaw.AsClause("balanceOf", account1.Address())
+	assert.NoError(t, err)
+
+	res, err := accounts.New(thorClient, vthoContract.Address()).
+		Revision(thorest.RevisionID(solo.GenesisID())).
+		Call(clause.Data())
+	assert.NoError(t, err)
+	balance := new(big.Int).SetBytes(res.Data)
+	assert.Greater(t, balance.Uint64(), big.NewInt(0).Uint64())
 }
