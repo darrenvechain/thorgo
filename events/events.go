@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/darrenvechain/thorgo/api"
+	"github.com/darrenvechain/thorgo/thorest"
 )
 
 var (
@@ -12,12 +12,12 @@ var (
 )
 
 type Filter struct {
-	client  *api.Client
-	request *api.EventFilter
+	client  *thorest.Client
+	request *thorest.EventFilter
 }
 
-func New(c *api.Client, criteria []api.EventCriteria) *Filter {
-	return &Filter{client: c, request: &api.EventFilter{
+func New(c *thorest.Client, criteria []thorest.EventCriteria) *Filter {
+	return &Filter{client: c, request: &thorest.EventFilter{
 		Criteria: &criteria,
 	}}
 }
@@ -36,7 +36,7 @@ func (f *Filter) Asc() *Filter {
 
 // BlockRange sets the range of blocks to filter events.
 func (f *Filter) BlockRange(from int64, to int64) *Filter {
-	f.request.Range = &api.FilterRange{
+	f.request.Range = &thorest.FilterRange{
 		From: &from,
 		To:   &to,
 		Unit: &block,
@@ -46,7 +46,7 @@ func (f *Filter) BlockRange(from int64, to int64) *Filter {
 
 // TimeRange sets the range of time to filter events.
 func (f *Filter) TimeRange(from int64, to int64) *Filter {
-	f.request.Range = &api.FilterRange{
+	f.request.Range = &thorest.FilterRange{
 		From: &from,
 		To:   &to,
 		Unit: &time,
@@ -55,8 +55,8 @@ func (f *Filter) TimeRange(from int64, to int64) *Filter {
 }
 
 // Apply executes the filter and returns the events.
-func (f *Filter) Apply(offset int64, limit int64) ([]api.EventLog, error) {
-	f.request.Options = &api.FilterOptions{
+func (f *Filter) Apply(offset int64, limit int64) ([]thorest.EventLog, error) {
+	f.request.Options = &thorest.FilterOptions{
 		Offset: &offset,
 		Limit:  &limit,
 	}

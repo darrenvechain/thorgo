@@ -1,4 +1,4 @@
-package api
+package thorest
 
 import (
 	"github.com/darrenvechain/thorgo/crypto/tx"

@@ -5,21 +5,21 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/darrenvechain/thorgo/api"
 	"github.com/darrenvechain/thorgo/crypto/tx"
+	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 )
 
 type Deployer struct {
-	client   *api.Client
+	client   *thorest.Client
 	bytecode []byte
 	abi      *abi.ABI
 	value    *big.Int
 }
 
-func NewDeployer(client *api.Client, bytecode []byte, abi *abi.ABI) *Deployer {
+func NewDeployer(client *thorest.Client, bytecode []byte, abi *abi.ABI) *Deployer {
 	return &Deployer{client: client, bytecode: bytecode, abi: abi, value: big.NewInt(0)}
 }
 

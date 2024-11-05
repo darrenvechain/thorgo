@@ -11,8 +11,8 @@ import (
 
 	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/accounts"
-	"github.com/darrenvechain/thorgo/api"
 	"github.com/darrenvechain/thorgo/crypto/tx"
+	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -81,7 +81,7 @@ func (_Authority *Authority) Address() common.Address {
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (_Authority *Authority) Call(revision api.Revision, result *[]interface{}, method string, params ...interface{}) error {
+func (_Authority *Authority) Call(revision thorest.Revision, result *[]interface{}, method string, params ...interface{}) error {
 	return _Authority.contract.Call(method, result, params...)
 }
 
@@ -93,12 +93,12 @@ func (_AuthorityTransactor *AuthorityTransactor) Transact(vetValue *big.Int, met
 // Executor is a free data retrieval call binding the contract method 0xc34c08e5.
 //
 // Solidity: function executor() view returns(address)
-func (_Authority *Authority) Executor(revision ...api.Revision) (common.Address, error) {
-	var rev api.Revision
+func (_Authority *Authority) Executor(revision ...thorest.Revision) (common.Address, error) {
+	var rev thorest.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = api.RevisionBest()
+		rev = thorest.RevisionBest()
 	}
 
 	var out []interface{}
@@ -116,12 +116,12 @@ func (_Authority *Authority) Executor(revision ...api.Revision) (common.Address,
 // First is a free data retrieval call binding the contract method 0x3df4ddf4.
 //
 // Solidity: function first() view returns(address)
-func (_Authority *Authority) First(revision ...api.Revision) (common.Address, error) {
-	var rev api.Revision
+func (_Authority *Authority) First(revision ...thorest.Revision) (common.Address, error) {
+	var rev thorest.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = api.RevisionBest()
+		rev = thorest.RevisionBest()
 	}
 
 	var out []interface{}
@@ -139,17 +139,17 @@ func (_Authority *Authority) First(revision ...api.Revision) (common.Address, er
 // Get is a free data retrieval call binding the contract method 0xc2bc2efc.
 //
 // Solidity: function get(address _nodeMaster) view returns(bool listed, address endorsor, bytes32 identity, bool active)
-func (_Authority *Authority) Get(_nodeMaster common.Address, revision ...api.Revision) (struct {
+func (_Authority *Authority) Get(_nodeMaster common.Address, revision ...thorest.Revision) (struct {
 	Listed   bool
 	Endorsor common.Address
 	Identity [32]byte
 	Active   bool
 }, error) {
-	var rev api.Revision
+	var rev thorest.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = api.RevisionBest()
+		rev = thorest.RevisionBest()
 	}
 
 	var out []interface{}
@@ -177,12 +177,12 @@ func (_Authority *Authority) Get(_nodeMaster common.Address, revision ...api.Rev
 // Next is a free data retrieval call binding the contract method 0xab73e316.
 //
 // Solidity: function next(address _nodeMaster) view returns(address)
-func (_Authority *Authority) Next(_nodeMaster common.Address, revision ...api.Revision) (common.Address, error) {
-	var rev api.Revision
+func (_Authority *Authority) Next(_nodeMaster common.Address, revision ...thorest.Revision) (common.Address, error) {
+	var rev thorest.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = api.RevisionBest()
+		rev = thorest.RevisionBest()
 	}
 
 	var out []interface{}
@@ -253,7 +253,7 @@ func (_Authority *Authority) RevokeAsClause(_nodeMaster common.Address, vetValue
 type AuthorityCandidate struct {
 	NodeMaster common.Address
 	Action     [32]byte
-	Log        api.EventLog
+	Log        thorest.EventLog
 }
 
 type AuthorityCandidateCriteria struct {
@@ -263,12 +263,12 @@ type AuthorityCandidateCriteria struct {
 // FilterCandidate is a free log retrieval operation binding the contract event 0xe9e2ad484aeae75ba75479c19d2cbb784b98b2fe4b24dc80a4c8cf142d4c9294.
 //
 // Solidity: event Candidate(address indexed nodeMaster, bytes32 action)
-func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriteria, opts *api.FilterOptions, rang *api.FilterRange) ([]AuthorityCandidate, error) {
+func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriteria, opts *thorest.FilterOptions, rang *thorest.FilterRange) ([]AuthorityCandidate, error) {
 	topicHash := _Authority.contract.ABI.Events["Candidate"].ID
 
-	criteriaSet := make([]api.EventCriteria, len(criteria))
+	criteriaSet := make([]thorest.EventCriteria, len(criteria))
 	for i, c := range criteria {
-		crteria := api.EventCriteria{
+		crteria := thorest.EventCriteria{
 			Address: &_Authority.contract.Address,
 			Topic0:  &topicHash,
 		}
@@ -285,13 +285,13 @@ func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriter
 	}
 
 	if len(criteriaSet) == 0 {
-		criteriaSet = append(criteriaSet, api.EventCriteria{
+		criteriaSet = append(criteriaSet, thorest.EventCriteria{
 			Address: &_Authority.contract.Address,
 			Topic0:  &topicHash,
 		})
 	}
 
-	filter := &api.EventFilter{
+	filter := &thorest.EventFilter{
 		Range:    rang,
 		Options:  opts,
 		Criteria: &criteriaSet,
@@ -329,10 +329,10 @@ func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriter
 func (_Authority *Authority) WatchCandidate(criteria []AuthorityCandidateCriteria, ctx context.Context) (chan *AuthorityCandidate, error) {
 	topicHash := _Authority.contract.ABI.Events["Candidate"].ID
 
-	criteriaSet := make([]api.EventCriteria, len(criteria))
+	criteriaSet := make([]thorest.EventCriteria, len(criteria))
 
 	for i, c := range criteria {
-		crteria := api.EventCriteria{
+		crteria := thorest.EventCriteria{
 			Address: &_Authority.contract.Address,
 			Topic0:  &topicHash,
 		}
@@ -381,11 +381,11 @@ func (_Authority *Authority) WatchCandidate(criteria []AuthorityCandidateCriteri
 								}
 							}
 
-							log := api.EventLog{
+							log := thorest.EventLog{
 								Address: &_Authority.contract.Address,
 								Topics:  event.Topics,
 								Data:    event.Data,
-								Meta: api.LogMeta{
+								Meta: thorest.LogMeta{
 									BlockID:     block.ID,
 									BlockNumber: block.Number,
 									BlockTime:   block.Timestamp,

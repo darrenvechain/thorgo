@@ -4,8 +4,8 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/darrenvechain/thorgo/api"
 	"github.com/darrenvechain/thorgo/events"
+	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/txmanager"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
@@ -79,7 +79,7 @@ func TestContract_EventCriteria(t *testing.T) {
 	assert.NoError(t, err)
 
 	// fetch events
-	transfers, err := events.New(thorClient, []api.EventCriteria{criteria}).Apply(0, 100)
+	transfers, err := events.New(thorClient, []thorest.EventCriteria{criteria}).Apply(0, 100)
 	assert.NoError(t, err)
 
 	// decode events

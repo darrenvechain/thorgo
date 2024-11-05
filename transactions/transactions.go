@@ -4,18 +4,18 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/darrenvechain/thorgo/api"
 	"github.com/darrenvechain/thorgo/blocks"
+	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/ethereum/go-ethereum/common"
 )
 
 type Visitor struct {
-	client *api.Client
+	client *thorest.Client
 	hash   common.Hash
 	blocks *blocks.Blocks
 }
 
-func New(client *api.Client, hash common.Hash) *Visitor {
+func New(client *thorest.Client, hash common.Hash) *Visitor {
 	return &Visitor{client: client, hash: hash, blocks: blocks.New(client)}
 }
 
@@ -24,35 +24,35 @@ func (v *Visitor) ID() common.Hash {
 }
 
 // Get fetches the transaction by its hash. This includes the clauses, but not the outputs.
-func (v *Visitor) Get() (*api.Transaction, error) {
+func (v *Visitor) Get() (*thorest.Transaction, error) {
 	return v.client.Transaction(v.hash)
 }
 
 // Receipt fetches the transaction receipt by its hash. This includes the outputs.
-func (v *Visitor) Receipt() (*api.TransactionReceipt, error) {
+func (v *Visitor) Receipt() (*thorest.TransactionReceipt, error) {
 	return v.client.TransactionReceipt(v.hash)
 }
 
 // Raw fetches the raw transaction by its hash.
-func (v *Visitor) Raw() (*api.RawTransaction, error) {
+func (v *Visitor) Raw() (*thorest.RawTransaction, error) {
 	return v.client.RawTransaction(v.hash)
 }
 
 // Pending includes the transaction in the pending pool when querying for a transaction.
-func (v *Visitor) Pending() (*api.Transaction, error) {
+func (v *Visitor) Pending() (*thorest.Transaction, error) {
 	return v.client.PendingTransaction(v.hash)
 }
 
 // Wait for the transaction to be included in a block.
 // It will wait for ~6 blocks to be produced.
-func (v *Visitor) Wait() (*api.TransactionReceipt, error) {
+func (v *Visitor) Wait() (*thorest.TransactionReceipt, error) {
 	return v.WaitFor(time.Minute)
 }
 
 // WaitFor the transaction to be included in a block.
 // It will wait for the given duration.
 // If the transaction is not included in a block within the duration, it will return an error.
-func (v *Visitor) WaitFor(duration time.Duration) (*api.TransactionReceipt, error) {
+func (v *Visitor) WaitFor(duration time.Duration) (*thorest.TransactionReceipt, error) {
 	receipt, err := v.client.TransactionReceipt(v.hash)
 	if err == nil {
 		return receipt, nil

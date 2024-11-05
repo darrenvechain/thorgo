@@ -4,20 +4,20 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/darrenvechain/thorgo/api"
 	"github.com/darrenvechain/thorgo/crypto/tx"
+	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/ethereum/go-ethereum/common"
 )
 
 // Transactor is a transaction builder that can be used to simulate, build and send transactions.
 type Transactor struct {
-	client   *api.Client
+	client   *thorest.Client
 	clauses  []*tx.Clause
 	builder  *tx.Builder
 	gasPayer *common.Address
 }
 
-func NewTransactor(client *api.Client, clauses []*tx.Clause) *Transactor {
+func NewTransactor(client *thorest.Client, clauses []*tx.Clause) *Transactor {
 	builder := new(tx.Builder)
 	return &Transactor{
 		client:  client,
@@ -76,7 +76,7 @@ func (t *Transactor) Delegate() *Transactor {
 
 // Simulate estimates the gas usage and checks for errors or reversion in the transaction.
 func (t *Transactor) Simulate(caller common.Address) (Simulation, error) {
-	request := api.InspectRequest{
+	request := thorest.InspectRequest{
 		Clauses: t.clauses,
 		Caller:  &caller,
 	}

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/darrenvechain/thorgo/api"
 	"github.com/darrenvechain/thorgo/crypto/tx"
+	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -15,14 +15,14 @@ import (
 
 // Contract is a generic representation of a smart contract.
 type Contract struct {
-	client  *api.Client
+	client  *thorest.Client
 	ABI     *abi.ABI
 	Address common.Address
 }
 
 // NewContract creates a new contract instance.
 func NewContract(
-	client *api.Client,
+	client *thorest.Client,
 	address common.Address,
 	abi *abi.ABI,
 ) *Contract {
@@ -31,11 +31,11 @@ func NewContract(
 
 // Call executes a read-only contract call.
 func (c *Contract) Call(method string, results *[]interface{}, args ...interface{}) error {
-	return c.CallAt(api.RevisionBest(), method, results, args...)
+	return c.CallAt(thorest.RevisionBest(), method, results, args...)
 }
 
 // CallAt executes a read-only contract call at a specific revision.
-func (c *Contract) CallAt(revision api.Revision, method string, results *[]interface{}, args ...interface{}) error {
+func (c *Contract) CallAt(revision thorest.Revision, method string, results *[]interface{}, args ...interface{}) error {
 	if results == nil {
 		results = new([]interface{})
 	}
@@ -44,7 +44,7 @@ func (c *Contract) CallAt(revision api.Revision, method string, results *[]inter
 		return fmt.Errorf("failed to pack method %s: %w", method, err)
 	}
 	clause := tx.NewClause(&c.Address).WithData(packed).WithValue(big.NewInt(0))
-	request := api.InspectRequest{
+	request := thorest.InspectRequest{
 		Clauses: []*tx.Clause{clause},
 	}
 	response, err := c.client.InspectAt(request, revision)
@@ -145,12 +145,12 @@ func (c *Contract) SendWithVET(manager TxManager, vet *big.Int, method string, a
 //	criteria, err := contract.EventCriteria("Transfer", nil, &to)
 //
 // Returns an EventCriteria object and any error encountered.
-func (c *Contract) EventCriteria(name string, matchers ...interface{}) (api.EventCriteria, error) {
+func (c *Contract) EventCriteria(name string, matchers ...interface{}) (thorest.EventCriteria, error) {
 	ev, ok := c.ABI.Events[name]
 	if !ok {
-		return api.EventCriteria{}, fmt.Errorf("event %s not found", name)
+		return thorest.EventCriteria{}, fmt.Errorf("event %s not found", name)
 	}
-	criteria := api.EventCriteria{
+	criteria := thorest.EventCriteria{
 		Address: &c.Address,
 		Topic0:  &ev.ID,
 	}
@@ -163,13 +163,13 @@ func (c *Contract) EventCriteria(name string, matchers ...interface{}) (api.Even
 			continue
 		}
 		if !ev.Inputs[i].Indexed {
-			return api.EventCriteria{}, errors.New("can't match non-indexed event inputs")
+			return thorest.EventCriteria{}, errors.New("can't match non-indexed event inputs")
 		}
 		topics, err := abi.MakeTopics(
 			[]interface{}{matchers[i]},
 		)
 		if err != nil {
-			return api.EventCriteria{}, err
+			return thorest.EventCriteria{}, err
 		}
 
 		switch i + 1 {
@@ -190,7 +190,7 @@ func (c *Contract) EventCriteria(name string, matchers ...interface{}) (api.Even
 type Event struct {
 	Name string
 	Args map[string]interface{}
-	Log  api.EventLog
+	Log  thorest.EventLog
 }
 
 // DecodeEvents parses logs into a slice of decoded events.
@@ -213,7 +213,7 @@ type Event struct {
 //	}
 //
 // This function returns a slice of decoded event objects and any error encountered.
-func (c *Contract) DecodeEvents(logs []api.EventLog) ([]Event, error) {
+func (c *Contract) DecodeEvents(logs []thorest.EventLog) ([]Event, error) {
 	var decoded []Event
 	for _, log := range logs {
 		if len(log.Topics) < 2 {
@@ -253,7 +253,7 @@ func (c *Contract) DecodeEvents(logs []api.EventLog) ([]Event, error) {
 }
 
 // UnpackLog unpacks a retrieved log into the provided output structure.
-func (c *Contract) UnpackLog(out interface{}, event string, log api.EventLog) error {
+func (c *Contract) UnpackLog(out interface{}, event string, log thorest.EventLog) error {
 	if len(log.Topics) == 0 {
 		return errors.New("anonymous events are not supported")
 	}

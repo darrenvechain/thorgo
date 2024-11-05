@@ -11,7 +11,7 @@ import (
 
 	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/accounts"
-	"github.com/darrenvechain/thorgo/api"
+	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -128,7 +128,7 @@ var (
 	// sets the output to result. The result type might be a single field for simple
 	// returns, a slice of interfaces for anonymous returns and a struct for named
 	// returns.
-	func (_{{$contract.Type}} *{{$contract.Type}}) Call(revision api.Revision, result *[]interface{}, method string, params ...interface{}) error {
+	func (_{{$contract.Type}} *{{$contract.Type}}) Call(revision thorest.Revision, result *[]interface{}, method string, params ...interface{}) error {
 		return _{{$contract.Type}}.contract.Call(method, result, params...)
 	}
 
@@ -141,12 +141,12 @@ var (
 		// {{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.ID}}.
 		//
 		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}({{range .Normalized.Inputs}} {{.Name}} {{bindtype .Type $structs}}, {{end}} revision ...api.Revision) ({{if .Structured}}struct{ {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};{{end}} },{{else}}{{range .Normalized.Outputs}}{{bindtype .Type $structs}},{{end}}{{end}} error) {
-		    var rev api.Revision
+		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}({{range .Normalized.Inputs}} {{.Name}} {{bindtype .Type $structs}}, {{end}} revision ...thorest.Revision) ({{if .Structured}}struct{ {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};{{end}} },{{else}}{{range .Normalized.Outputs}}{{bindtype .Type $structs}},{{end}}{{end}} error) {
+		    var rev thorest.Revision
 		    if len(revision) > 0 {
                 rev = revision[0]
             } else {
-                rev = api.RevisionBest()
+                rev = thorest.RevisionBest()
             }
 
 			var out []interface{}
@@ -211,7 +211,7 @@ var (
         // {{$contract.Type}}{{.Normalized.Name}} represents a {{.Normalized.Name}} event raised by the {{$contract.Type}} contract.
 		type {{$contract.Type}}{{.Normalized.Name}} struct { {{- range .Normalized.Inputs }}
 			{{capitalise .Name}} {{if .Indexed}}{{bindtopictype .Type $structs}}{{else}}{{bindtype .Type $structs}}{{end}}{{- end }}
-			Log api.EventLog
+			Log thorest.EventLog
 		}
 
 
@@ -228,13 +228,13 @@ var (
 		// Filter{{.Normalized.Name}} is a free log retrieval operation binding the contract event 0x{{printf "%x" .Original.ID}}.
 		//
 		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}} *{{$contract.Type}}) Filter{{.Normalized.Name}}({{ if gt $indexedArgCount 0 }}criteria []{{$contract.Type}}{{.Normalized.Name}}Criteria, {{ end }}opts *api.FilterOptions, rang *api.FilterRange) ([]{{$contract.Type}}{{.Normalized.Name}}, error) {
+		func (_{{$contract.Type}} *{{$contract.Type}}) Filter{{.Normalized.Name}}({{ if gt $indexedArgCount 0 }}criteria []{{$contract.Type}}{{.Normalized.Name}}Criteria, {{ end }}opts *thorest.FilterOptions, rang *thorest.FilterRange) ([]{{$contract.Type}}{{.Normalized.Name}}, error) {
 			topicHash := _{{$contract.Type}}.contract.ABI.Events["{{.Normalized.Name}}"].ID
 
             {{ if gt $indexedArgCount 0 }}
-                criteriaSet := make([]api.EventCriteria, len(criteria))
+                criteriaSet := make([]thorest.EventCriteria, len(criteria))
                 for i, c := range criteria {
-                    crteria := api.EventCriteria{
+                    crteria := thorest.EventCriteria{
                         Address: &_{{$contract.Type}}.contract.Address,
                         Topic0:  &topicHash,
                     }
@@ -272,21 +272,21 @@ var (
                 }
 
                 if len(criteriaSet) == 0 {
-                    criteriaSet = append(criteriaSet, api.EventCriteria{
+                    criteriaSet = append(criteriaSet, thorest.EventCriteria{
                         Address: &_{{$contract.Type}}.contract.Address,
                         Topic0: &topicHash,
                     })
                 }
             {{ else }}
-                criteriaSet := []api.EventCriteria{
-                    api.EventCriteria{
+                criteriaSet := []thorest.EventCriteria{
+                    thorest.EventCriteria{
                         Address: &_{{$contract.Type}}.contract.Address,
                         Topic0: &topicHash,
                     },
                 }
             {{ end }}
 
-			filter := &api.EventFilter{
+			filter := &thorest.EventFilter{
             		Range: rang,
             		Options: opts,
             		Criteria: &criteriaSet,
@@ -325,15 +325,15 @@ var (
             topicHash := _{{$contract.Type}}.contract.ABI.Events["{{.Normalized.Name}}"].ID
 
             {{ if gt $indexedArgCount 0 }}
-            criteriaSet := make([]api.EventCriteria, len(criteria))
+            criteriaSet := make([]thorest.EventCriteria, len(criteria))
             {{ else }}
-            criteriaSet := make([]api.EventCriteria, 0)
+            criteriaSet := make([]thorest.EventCriteria, 0)
             {{ end }}
 
             {{ if gt $indexedArgCount 0 }}
 
                 for i, c := range criteria {
-                    crteria := api.EventCriteria{
+                    crteria := thorest.EventCriteria{
                         Address: &_{{$contract.Type}}.contract.Address,
                         Topic0:  &topicHash,
                     }
@@ -404,11 +404,11 @@ var (
                                         }
                                     }
 
-                                    log := api.EventLog{
+                                    log := thorest.EventLog{
                                         Address: &_{{$contract.Type}}.contract.Address,
                                         Topics:  event.Topics,
                                         Data:    event.Data,
-                                        Meta: api.LogMeta{
+                                        Meta: thorest.LogMeta{
                                             BlockID:     block.ID,
                                             BlockNumber: block.Number,
                                             BlockTime:   block.Timestamp,

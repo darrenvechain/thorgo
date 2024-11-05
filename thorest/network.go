@@ -1,4 +1,4 @@
-package api
+package thorest
 
 import "github.com/ethereum/go-ethereum/common"
 

@@ -11,8 +11,8 @@ import (
 
 	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/accounts"
-	"github.com/darrenvechain/thorgo/api"
 	"github.com/darrenvechain/thorgo/crypto/tx"
+	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -81,7 +81,7 @@ func (_Params *Params) Address() common.Address {
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (_Params *Params) Call(revision api.Revision, result *[]interface{}, method string, params ...interface{}) error {
+func (_Params *Params) Call(revision thorest.Revision, result *[]interface{}, method string, params ...interface{}) error {
 	return _Params.contract.Call(method, result, params...)
 }
 
@@ -93,12 +93,12 @@ func (_ParamsTransactor *ParamsTransactor) Transact(vetValue *big.Int, method st
 // Executor is a free data retrieval call binding the contract method 0xc34c08e5.
 //
 // Solidity: function executor() view returns(address)
-func (_Params *Params) Executor(revision ...api.Revision) (common.Address, error) {
-	var rev api.Revision
+func (_Params *Params) Executor(revision ...thorest.Revision) (common.Address, error) {
+	var rev thorest.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = api.RevisionBest()
+		rev = thorest.RevisionBest()
 	}
 
 	var out []interface{}
@@ -116,12 +116,12 @@ func (_Params *Params) Executor(revision ...api.Revision) (common.Address, error
 // Get is a free data retrieval call binding the contract method 0x8eaa6ac0.
 //
 // Solidity: function get(bytes32 _key) view returns(uint256)
-func (_Params *Params) Get(_key [32]byte, revision ...api.Revision) (*big.Int, error) {
-	var rev api.Revision
+func (_Params *Params) Get(_key [32]byte, revision ...thorest.Revision) (*big.Int, error) {
+	var rev thorest.Revision
 	if len(revision) > 0 {
 		rev = revision[0]
 	} else {
-		rev = api.RevisionBest()
+		rev = thorest.RevisionBest()
 	}
 
 	var out []interface{}
@@ -166,7 +166,7 @@ func (_Params *Params) SetAsClause(_key [32]byte, _value *big.Int, vetValue ...*
 type ParamsSet struct {
 	Key   [32]byte
 	Value *big.Int
-	Log   api.EventLog
+	Log   thorest.EventLog
 }
 
 type ParamsSetCriteria struct {
@@ -176,12 +176,12 @@ type ParamsSetCriteria struct {
 // FilterSet is a free log retrieval operation binding the contract event 0x28e3246f80515f5c1ed987b133ef2f193439b25acba6a5e69f219e896fc9d179.
 //
 // Solidity: event Set(bytes32 indexed key, uint256 value)
-func (_Params *Params) FilterSet(criteria []ParamsSetCriteria, opts *api.FilterOptions, rang *api.FilterRange) ([]ParamsSet, error) {
+func (_Params *Params) FilterSet(criteria []ParamsSetCriteria, opts *thorest.FilterOptions, rang *thorest.FilterRange) ([]ParamsSet, error) {
 	topicHash := _Params.contract.ABI.Events["Set"].ID
 
-	criteriaSet := make([]api.EventCriteria, len(criteria))
+	criteriaSet := make([]thorest.EventCriteria, len(criteria))
 	for i, c := range criteria {
-		crteria := api.EventCriteria{
+		crteria := thorest.EventCriteria{
 			Address: &_Params.contract.Address,
 			Topic0:  &topicHash,
 		}
@@ -198,13 +198,13 @@ func (_Params *Params) FilterSet(criteria []ParamsSetCriteria, opts *api.FilterO
 	}
 
 	if len(criteriaSet) == 0 {
-		criteriaSet = append(criteriaSet, api.EventCriteria{
+		criteriaSet = append(criteriaSet, thorest.EventCriteria{
 			Address: &_Params.contract.Address,
 			Topic0:  &topicHash,
 		})
 	}
 
-	filter := &api.EventFilter{
+	filter := &thorest.EventFilter{
 		Range:    rang,
 		Options:  opts,
 		Criteria: &criteriaSet,
@@ -242,10 +242,10 @@ func (_Params *Params) FilterSet(criteria []ParamsSetCriteria, opts *api.FilterO
 func (_Params *Params) WatchSet(criteria []ParamsSetCriteria, ctx context.Context) (chan *ParamsSet, error) {
 	topicHash := _Params.contract.ABI.Events["Set"].ID
 
-	criteriaSet := make([]api.EventCriteria, len(criteria))
+	criteriaSet := make([]thorest.EventCriteria, len(criteria))
 
 	for i, c := range criteria {
-		crteria := api.EventCriteria{
+		crteria := thorest.EventCriteria{
 			Address: &_Params.contract.Address,
 			Topic0:  &topicHash,
 		}
@@ -294,11 +294,11 @@ func (_Params *Params) WatchSet(criteria []ParamsSetCriteria, ctx context.Contex
 								}
 							}
 
-							log := api.EventLog{
+							log := thorest.EventLog{
 								Address: &_Params.contract.Address,
 								Topics:  event.Topics,
 								Data:    event.Data,
-								Meta: api.LogMeta{
+								Meta: thorest.LogMeta{
 									BlockID:     block.ID,
 									BlockNumber: block.Number,
 									BlockTime:   block.Timestamp,

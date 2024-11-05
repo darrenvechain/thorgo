@@ -3,9 +3,9 @@ package thorgo
 import (
 	"testing"
 
-	"github.com/darrenvechain/thorgo/api"
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/solo"
+	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/stretchr/testify/assert"
@@ -50,8 +50,8 @@ func TestTransfers(t *testing.T) {
 	account1 := solo.Keys()[0]
 	account1Addr := crypto.PubkeyToAddress(account1.PublicKey)
 
-	criteria := make([]api.TransferCriteria, 0)
-	criteria = append(criteria, api.TransferCriteria{
+	criteria := make([]thorest.TransferCriteria, 0)
+	criteria = append(criteria, thorest.TransferCriteria{
 		Sender: &account1Addr,
 	})
 
@@ -64,7 +64,7 @@ func TestTransfers(t *testing.T) {
 }
 
 func TestEvents(t *testing.T) {
-	criteria := make([]api.EventCriteria, 0)
+	criteria := make([]thorest.EventCriteria, 0)
 
 	events, err := thor.Events(criteria).
 		BlockRange(0, 10000).

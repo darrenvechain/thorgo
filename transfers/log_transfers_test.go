@@ -3,14 +3,14 @@ package transfers
 import (
 	"testing"
 
-	"github.com/darrenvechain/thorgo/api"
 	blocks2 "github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
+	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	thorClient *api.Client
+	thorClient *thorest.Client
 	blocks     *blocks2.Blocks
 )
 
@@ -25,7 +25,7 @@ func TestMain(m *testing.M) {
 // TestTransfersByBlockRangeASC fetches transfers by block range in ascending order
 func TestTransfersByBlockRangeASC(t *testing.T) {
 	// Don't apply any criteria, just get all events
-	events, err := New(thorClient, []api.TransferCriteria{}).
+	events, err := New(thorClient, []thorest.TransferCriteria{}).
 		BlockRange(0, 1).
 		Asc().
 		Apply(0, 100)
@@ -40,7 +40,7 @@ func TestTransfersByTimeRangeDESC(t *testing.T) {
 	best, err := blocks.Best()
 	assert.NoError(t, err)
 
-	events, err := New(thorClient, []api.TransferCriteria{}).
+	events, err := New(thorClient, []thorest.TransferCriteria{}).
 		TimeRange(genesis.Timestamp, best.Timestamp).
 		Desc().
 		Apply(0, 100)

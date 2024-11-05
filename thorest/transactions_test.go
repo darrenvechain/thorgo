@@ -1,4 +1,4 @@
-package api_test
+package thorest_test
 
 import (
 	"math/big"

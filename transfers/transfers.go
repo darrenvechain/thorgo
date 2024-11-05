@@ -3,7 +3,7 @@ package transfers
 import (
 	"errors"
 
-	"github.com/darrenvechain/thorgo/api"
+	"github.com/darrenvechain/thorgo/thorest"
 )
 
 var (
@@ -14,12 +14,12 @@ var (
 )
 
 type Filter struct {
-	client  *api.Client
-	request *api.TransferFilter
+	client  *thorest.Client
+	request *thorest.TransferFilter
 }
 
-func New(c *api.Client, criteria []api.TransferCriteria) *Filter {
-	return &Filter{client: c, request: &api.TransferFilter{
+func New(c *thorest.Client, criteria []thorest.TransferCriteria) *Filter {
+	return &Filter{client: c, request: &thorest.TransferFilter{
 		Criteria: &criteria,
 	}}
 }
@@ -38,7 +38,7 @@ func (f *Filter) Asc() *Filter {
 
 // BlockRange sets the block range for the transfer filter.
 func (f *Filter) BlockRange(from int64, to int64) *Filter {
-	f.request.Range = &api.FilterRange{
+	f.request.Range = &thorest.FilterRange{
 		From: &from,
 		To:   &to,
 		Unit: &block,
@@ -48,7 +48,7 @@ func (f *Filter) BlockRange(from int64, to int64) *Filter {
 
 // TimeRange sets the time range for the transfer filter.
 func (f *Filter) TimeRange(from int64, to int64) *Filter {
-	f.request.Range = &api.FilterRange{
+	f.request.Range = &thorest.FilterRange{
 		From: &from,
 		To:   &to,
 		Unit: &time,
@@ -57,11 +57,11 @@ func (f *Filter) TimeRange(from int64, to int64) *Filter {
 }
 
 // Apply sends the transfer filter to the node and returns the results.
-func (f *Filter) Apply(offset int64, limit int64) ([]api.TransferLog, error) {
+func (f *Filter) Apply(offset int64, limit int64) ([]thorest.TransferLog, error) {
 	if limit > 256 {
 		return nil, errors.New("limit must be less than or equal to 256")
 	}
-	f.request.Options = &api.FilterOptions{
+	f.request.Options = &thorest.FilterOptions{
 		Offset: &offset,
 		Limit:  &limit,
 	}

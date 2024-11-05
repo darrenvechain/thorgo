@@ -2,10 +2,10 @@ package thorgo
 
 import (
 	"github.com/darrenvechain/thorgo/accounts"
-	"github.com/darrenvechain/thorgo/api"
 	"github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/events"
+	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/darrenvechain/thorgo/transfers"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -14,15 +14,15 @@ import (
 
 type Thor struct {
 	Blocks *blocks.Blocks
-	Client *api.Client
+	Client *thorest.Client
 }
 
 func New(url string) *Thor {
-	c := api.NewFromURL(url)
+	c := thorest.NewClientFromURL(url)
 	return &Thor{Client: c, Blocks: blocks.New(c)}
 }
 
-func NewFromClient(c *api.Client) *Thor {
+func NewFromClient(c *thorest.Client) *Thor {
 	return &Thor{Client: c, Blocks: blocks.New(c)}
 }
 
@@ -43,12 +43,12 @@ func (t *Thor) Transactor(clauses []*tx.Clause) *transactions.Transactor {
 }
 
 // Events sets up a query builder to fetch smart contract solidity events.
-func (t *Thor) Events(criteria []api.EventCriteria) *events.Filter {
+func (t *Thor) Events(criteria []thorest.EventCriteria) *events.Filter {
 	return events.New(t.Client, criteria)
 }
 
 // Transfers sets up a query builder to fetch VET transfers.
-func (t *Thor) Transfers(criteria []api.TransferCriteria) *transfers.Filter {
+func (t *Thor) Transfers(criteria []thorest.TransferCriteria) *transfers.Filter {
 	return transfers.New(t.Client, criteria)
 }
 

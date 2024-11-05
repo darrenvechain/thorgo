@@ -3,30 +3,30 @@ package accounts
 import (
 	"math/big"
 
-	"github.com/darrenvechain/thorgo/api"
 	"github.com/darrenvechain/thorgo/crypto/tx"
+	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 )
 
 type Visitor struct {
-	client   *api.Client
+	client   *thorest.Client
 	account  common.Address
-	revision *api.Revision
+	revision *thorest.Revision
 }
 
-func New(c *api.Client, account common.Address) *Visitor {
+func New(c *thorest.Client, account common.Address) *Visitor {
 	return &Visitor{client: c, account: account}
 }
 
 // Revision sets the optional revision for the API calls.
-func (a *Visitor) Revision(revision api.Revision) *Visitor {
+func (a *Visitor) Revision(revision thorest.Revision) *Visitor {
 	a.revision = &revision
 	return a
 }
 
 // Get fetches the account information for the given address.
-func (a *Visitor) Get() (*api.Account, error) {
+func (a *Visitor) Get() (*thorest.Account, error) {
 	if a.revision == nil {
 		return a.client.Account(a.account)
 	}
@@ -34,7 +34,7 @@ func (a *Visitor) Get() (*api.Account, error) {
 }
 
 // Code fetches the byte code of the contract at the given address.
-func (a *Visitor) Code() (*api.AccountCode, error) {
+func (a *Visitor) Code() (*thorest.AccountCode, error) {
 	if a.revision == nil {
 		return a.client.AccountCode(a.account)
 	}
@@ -43,7 +43,7 @@ func (a *Visitor) Code() (*api.AccountCode, error) {
 }
 
 // Storage fetches the storage value for the given key.
-func (a *Visitor) Storage(key common.Hash) (*api.AccountStorage, error) {
+func (a *Visitor) Storage(key common.Hash) (*thorest.AccountStorage, error) {
 	if a.revision == nil {
 		return a.client.AccountStorage(a.account, key)
 	}
@@ -52,14 +52,14 @@ func (a *Visitor) Storage(key common.Hash) (*api.AccountStorage, error) {
 }
 
 // Call executes a read-only contract call.
-func (a *Visitor) Call(calldata []byte) (*api.InspectResponse, error) {
+func (a *Visitor) Call(calldata []byte) (*thorest.InspectResponse, error) {
 	clause := tx.NewClause(&a.account).WithData(calldata).WithValue(big.NewInt(0))
 
-	request := api.InspectRequest{
+	request := thorest.InspectRequest{
 		Clauses: []*tx.Clause{clause},
 	}
 	var (
-		inspection []api.InspectResponse
+		inspection []thorest.InspectResponse
 		err        error
 	)
 

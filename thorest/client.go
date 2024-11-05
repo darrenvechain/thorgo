@@ -1,4 +1,4 @@
-package api
+package thorest
 
 import (
 	"bytes"
@@ -17,12 +17,12 @@ type Client struct {
 	genesisBlock *Block
 }
 
-func New(url string, client *http.Client) *Client {
+func NewClient(url string, client *http.Client) *Client {
 	return newClient(url, client)
 }
 
-func NewFromURL(url string) *Client {
-	return New(url, &http.Client{})
+func NewClientFromURL(url string) *Client {
+	return NewClient(url, &http.Client{})
 }
 
 func newClient(url string, client *http.Client) *Client {

@@ -5,14 +5,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/darrenvechain/thorgo/api"
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/solo"
+	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	thorClient *api.Client
+	thorClient *thorest.Client
 	blocks     *Blocks
 )
 
