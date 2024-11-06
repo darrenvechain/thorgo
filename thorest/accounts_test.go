@@ -47,22 +47,24 @@ func TestClient_AccountCodeAt(t *testing.T) {
 }
 
 func TestClient_AccountStorage(t *testing.T) {
-	res, err := thorClient.AccountStorage( // nolint: staticcheck
+	res, err := thorClient.AccountStorage(
 		common.HexToAddress("0x0000000000000000000000000000456E65726779"),
 		common.HexToHash(strings.Repeat("0", 64)),
 	)
 
 	assert.NoError(t, err)
+	assert.NotNil(t, res)
 	assert.Equal(t, len(res.Value), 32)
 }
 
 func TestClient_AccountStorageAt(t *testing.T) {
-	res, err := thorClient.AccountStorageAt( // nolint: staticcheck
+	res, err := thorClient.AccountStorageAt(
 		common.HexToAddress("0x0000000000000000000000000000456E65726779"),
 		common.HexToHash(strings.Repeat("0", 64)),
 		thorest.RevisionID(solo.GenesisID()),
 	)
 
 	assert.NoError(t, err)
+	assert.NotNil(t, res)
 	assert.Equal(t, len(res.Value), 32)
 }
