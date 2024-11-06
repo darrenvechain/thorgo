@@ -69,22 +69,21 @@ func TestTransactions(t *testing.T) {
 }
 
 func TestVisitor_RevertReason(t *testing.T) {
-	// build a transaction
-	to, err := txmanager.GeneratePK(thor)
-	assert.NoError(t, err)
+	balance := big.NewInt(1000)
+	transferAmount := big.NewInt(1001)
+
 	// setup contracts + funding
-	deploymentTxID, erc1, err := testcontract.DeployErc20(thor, account1, "Erc20", "ERC")
+	deploymentTxID, erc20, err := testcontract.DeployErc20(thor, account1, "Erc20", "ERC")
 	assert.NoError(t, err)
 	_, err = transactions.New(thorClient, deploymentTxID).Wait()
 	assert.NoError(t, err)
-	erc20Funding, err := erc1.Mint(to.Address(), big.NewInt(1000))
+	erc20Funding, err := erc20.Mint(account1.Address(), balance)
 	assert.NoError(t, err)
 	_, err = erc20Funding.Wait()
-
-	// send more funds than the user has
-	erc2, err := testcontract.NewErc20Transactor(erc1.Address(), thor, account2)
 	assert.NoError(t, err)
-	transfer, err := erc2.Transfer(to.Address(), big.NewInt(1001))
+
+	// send funds too much erc20 tokens
+	transfer, err := erc20.Transfer(account2.Address(), transferAmount)
 	assert.NoError(t, err)
 	receipt, err := transfer.Wait()
 	assert.NoError(t, err)
@@ -95,19 +94,19 @@ func TestVisitor_RevertReason(t *testing.T) {
 	assert.NoError(t, err)
 	reason, err := transfer.RevertReason()
 	assert.NoError(t, err)
-	errABI := erc20ABI.Errors["ERC20InsufficientBalance"]
 
 	type ERC20InsufficientBalance struct {
 		Sender  common.Address
 		Balance *big.Int
 		Needed  *big.Int
 	}
+	errABI := erc20ABI.Errors["ERC20InsufficientBalance"]
 
 	// decode revert reason
 	var decoded = ERC20InsufficientBalance{}
 	err = reason.DecodeInto(errABI, &decoded)
 	assert.NoError(t, err)
-	assert.Equal(t, decoded.Sender, to.Address())
-	assert.Equal(t, decoded.Balance, big.NewInt(1000))
-	assert.Equal(t, decoded.Needed, big.NewInt(1001))
+	assert.Equal(t, decoded.Sender, account1.Address())
+	assert.Equal(t, decoded.Balance, balance)
+	assert.Equal(t, decoded.Needed, transferAmount)
 }

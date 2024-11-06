@@ -132,8 +132,6 @@ func (_Erc20 *Erc20) Allowance(owner common.Address, spender common.Address, rev
 
 	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
 
-	abi.ResolveNameConflict()
-
 	return out0, err
 }
 

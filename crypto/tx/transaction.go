@@ -150,6 +150,7 @@ func (t *Transaction) EvaluateWork(origin common.Address) func(nonce uint64) *bi
 	return func(nonce uint64) *big.Int {
 		var nonceBytes [8]byte
 		binary.BigEndian.PutUint64(nonceBytes[:], nonce)
+		crypto.Keccak256()
 		hash := hash.Blake2b(hashWithoutNonce[:], nonceBytes[:])
 		r := new(big.Int).SetBytes(hash[:])
 		return r.Div(math.MaxBig256, r)

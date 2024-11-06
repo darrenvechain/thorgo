@@ -1,6 +1,9 @@
 package transactions
 
 import (
+	"bytes"
+	"errors"
+
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
@@ -27,7 +30,11 @@ func (r *RevertReason) IsKnownSelector() bool {
 
 // DecodeInto will decode
 func (r *RevertReason) DecodeInto(abiErr abi.Error, value interface{}) error {
-	unpacked, err := abiErr.Inputs.Unpack(r.res.Output)
+	if len(r.res.Output) < 4 || !bytes.Equal(r.res.Output[:4], abiErr.ID.Bytes()[0:4]) {
+		return errors.New("selector does not match")
+	}
+
+	unpacked, err := abiErr.Inputs.Unpack(r.res.Output[4:])
 	if err != nil {
 		return err
 	}
