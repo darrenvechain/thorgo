@@ -1,12 +1,12 @@
 # Thor GO SDK
 
-The Thor GO SDK is a Golang library designed to provide an easy and intuitive way to interact with the VechainThor
+`thorgo` is a Golang library designed to provide an easy and intuitive way to interact with the VeChainThor
 blockchain. It simplifies blockchain interactions, making it straightforward for developers to build and manage
-applications on VechainThor.
+applications on VeChainThor.
 
 ## Key Features
 
-- **Easy-to-Use Interface**: Provides a simple and accessible API for VechainThor interactions.
+- **Easy-to-Use Interface**: Provides a simple and accessible API for VeChainThor interactions.
 - **Blockchain Interaction**: Facilitates transactions, smart contract interactions, and more.
 - **Golang Support**: Leverages the power and efficiency of Go for blockchain development.
 
@@ -36,14 +36,14 @@ go get github.com/darrenvechain/thorgo
 
 - `github.com/darrenvechain/thorgo`
 - `thorgo` is the primary package in the Thor GO SDK. It provides a high-level interface for interacting with the
-  VechainThor blockchain. This package includes functions for querying account balances, transactions, blocks, and smart
+  VeChainThor blockchain. This package includes functions for querying account balances, transactions, blocks, and smart
   contracts. It also supports simulating, building, and sending transactions, as well as interacting with smart
   contracts for reading and transacting.
 
 ### thorest
 
 - `github.com/darrenvechain/thorgo/thorest`
-- The `thorest` package provides raw API access to the VechainThor blockchain. It allows developers to query the
+- The `thorest` package provides raw REST access to the VeChainThor blockchain. It allows developers to query the
   blockchain directly without the need for higher-level abstractions provided by `thorgo`.
 
 ### txmanager

@@ -12,7 +12,7 @@ import (
 var thor = thorgo.New("https://mainnet.vechain.org")
 
 func TestEnergy_Name(t *testing.T) {
-	energy, err := NewEnergy(thor)
+	energy, err := NewVTHO(thor)
 	assert.NoError(t, err)
 
 	name, err := energy.Name()
@@ -21,7 +21,7 @@ func TestEnergy_Name(t *testing.T) {
 }
 
 func TestEnergy_Symbol(t *testing.T) {
-	energy, err := NewEnergy(thor)
+	energy, err := NewVTHO(thor)
 	assert.NoError(t, err)
 
 	symbol, err := energy.Symbol()
@@ -30,7 +30,7 @@ func TestEnergy_Symbol(t *testing.T) {
 }
 
 func TestEnergy_Decimals(t *testing.T) {
-	energy, err := NewEnergy(thor)
+	energy, err := NewVTHO(thor)
 	assert.NoError(t, err)
 
 	decimals, err := energy.Decimals()
@@ -39,7 +39,7 @@ func TestEnergy_Decimals(t *testing.T) {
 }
 
 func TestEnergy_TotalSupply(t *testing.T) {
-	energy, err := NewEnergy(thor)
+	energy, err := NewVTHO(thor)
 	assert.NoError(t, err)
 
 	totalSupply, err := energy.TotalSupply()
@@ -48,7 +48,7 @@ func TestEnergy_TotalSupply(t *testing.T) {
 }
 
 func TestEnergy_BalanceOf(t *testing.T) {
-	energy, err := NewEnergy(thor)
+	energy, err := NewVTHO(thor)
 	assert.NoError(t, err)
 
 	energyBal, err := energy.BalanceOf(energy.Address())
@@ -57,33 +57,33 @@ func TestEnergy_BalanceOf(t *testing.T) {
 }
 
 func TestEnergy_FilterTransfer(t *testing.T) {
-	energy, err := NewEnergy(thor)
+	energy, err := NewVTHO(thor)
 	assert.NoError(t, err)
 
 	maxEvents := int64(10)
-	events, err := energy.FilterTransfer(make([]EnergyTransferCriteria, 0), &thorest.FilterOptions{Limit: &maxEvents}, nil)
+	events, err := energy.FilterTransfer(make([]VTHOTransferCriteria, 0), &thorest.FilterOptions{Limit: &maxEvents}, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, maxEvents, int64(len(events)))
 }
 
 func TestEnergy_FilterApproval(t *testing.T) {
-	energy, err := NewEnergy(thor)
+	energy, err := NewVTHO(thor)
 	assert.NoError(t, err)
 
 	maxEvents := int64(10)
-	events, err := energy.FilterApproval(make([]EnergyApprovalCriteria, 0), &thorest.FilterOptions{Limit: &maxEvents}, nil)
+	events, err := energy.FilterApproval(make([]VTHOApprovalCriteria, 0), &thorest.FilterOptions{Limit: &maxEvents}, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, maxEvents, int64(len(events)))
 }
 
 func TestEnergy_FilterTransfer_WithCriteria(t *testing.T) {
-	energy, err := NewEnergy(thor)
+	energy, err := NewVTHO(thor)
 	assert.NoError(t, err)
 
 	to := common.HexToAddress("0xbF89016e670595AAa225eEfa0a84B7FB17b8dAC8")
 
 	maxEvents := int64(10)
-	events, err := energy.FilterTransfer([]EnergyTransferCriteria{{To: &to}}, &thorest.FilterOptions{Limit: &maxEvents}, nil)
+	events, err := energy.FilterTransfer([]VTHOTransferCriteria{{To: &to}}, &thorest.FilterOptions{Limit: &maxEvents}, nil)
 	assert.NoError(t, err)
 	assert.NotZero(t, len(events))
 }

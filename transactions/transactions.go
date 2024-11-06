@@ -33,6 +33,19 @@ func (v *Visitor) Receipt() (*thorest.TransactionReceipt, error) {
 	return v.client.TransactionReceipt(v.hash)
 }
 
+// RevertReason fetches the revert reason for the transaction.
+func (v *Visitor) RevertReason() (*RevertReason, error) {
+	receipt, err := v.client.TransactionReceipt(v.hash)
+	if err != nil {
+		return nil, err
+	}
+	res, err := v.client.DebugRevertReason(receipt)
+	if err != nil {
+		return nil, err
+	}
+	return &RevertReason{res: res}, nil
+}
+
 // Raw fetches the raw transaction by its hash.
 func (v *Visitor) Raw() (*thorest.RawTransaction, error) {
 	return v.client.RawTransaction(v.hash)

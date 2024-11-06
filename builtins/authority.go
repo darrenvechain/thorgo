@@ -326,7 +326,7 @@ func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriter
 // WatchCandidate listens for on chain events binding the contract event 0xe9e2ad484aeae75ba75479c19d2cbb784b98b2fe4b24dc80a4c8cf142d4c9294.
 //
 // Solidity: event Candidate(address indexed nodeMaster, bytes32 action)
-func (_Authority *Authority) WatchCandidate(criteria []AuthorityCandidateCriteria, ctx context.Context) (chan *AuthorityCandidate, error) {
+func (_Authority *Authority) WatchCandidate(criteria []AuthorityCandidateCriteria, ctx context.Context, bufferSize int) (chan *AuthorityCandidate, error) {
 	topicHash := _Authority.contract.ABI.Events["Candidate"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -348,8 +348,8 @@ func (_Authority *Authority) WatchCandidate(criteria []AuthorityCandidateCriteri
 		criteriaSet[i] = crteria
 	}
 
-	eventChan := make(chan *AuthorityCandidate, 100)
-	blockSub := _Authority.thor.Blocks.Subscribe(ctx)
+	eventChan := make(chan *AuthorityCandidate, bufferSize)
+	blockSub := _Authority.thor.Blocks.Subscribe(ctx, bufferSize)
 
 	go func() {
 		defer close(eventChan)

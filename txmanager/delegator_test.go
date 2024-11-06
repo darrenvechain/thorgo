@@ -125,7 +125,7 @@ func TestNewDelegatedManager(t *testing.T) {
 	gasPayer := txmanager.NewDelegator(solo.Keys()[1])
 	manager := txmanager.NewDelegatedManager(thor, origin, gasPayer)
 
-	contract, _ := builtins.NewEnergyTransactor(thor, manager)
+	contract, _ := builtins.NewVTHOTransactor(thor, manager)
 
 	tx, err := contract.Transfer(common.Address{100}, big.NewInt(1000))
 	assert.NoError(t, err)

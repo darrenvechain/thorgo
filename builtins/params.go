@@ -239,7 +239,7 @@ func (_Params *Params) FilterSet(criteria []ParamsSetCriteria, opts *thorest.Fil
 // WatchSet listens for on chain events binding the contract event 0x28e3246f80515f5c1ed987b133ef2f193439b25acba6a5e69f219e896fc9d179.
 //
 // Solidity: event Set(bytes32 indexed key, uint256 value)
-func (_Params *Params) WatchSet(criteria []ParamsSetCriteria, ctx context.Context) (chan *ParamsSet, error) {
+func (_Params *Params) WatchSet(criteria []ParamsSetCriteria, ctx context.Context, bufferSize int) (chan *ParamsSet, error) {
 	topicHash := _Params.contract.ABI.Events["Set"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -261,8 +261,8 @@ func (_Params *Params) WatchSet(criteria []ParamsSetCriteria, ctx context.Contex
 		criteriaSet[i] = crteria
 	}
 
-	eventChan := make(chan *ParamsSet, 100)
-	blockSub := _Params.thor.Blocks.Subscribe(ctx)
+	eventChan := make(chan *ParamsSet, bufferSize)
+	blockSub := _Params.thor.Blocks.Subscribe(ctx, bufferSize)
 
 	go func() {
 		defer close(eventChan)

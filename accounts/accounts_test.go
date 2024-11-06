@@ -18,7 +18,7 @@ import (
 var (
 	thorClient   *thorest.Client
 	thor         *thorgo.Thor
-	vthoContract *builtins.Energy
+	vthoContract *builtins.VTHO
 	vthoRaw      *accounts.Contract
 	account1     *txmanager.PKManager
 )
@@ -28,8 +28,8 @@ func TestMain(m *testing.M) {
 	thorClient, cancel = testcontainer.NewSolo()
 	defer cancel()
 	thor = thorgo.NewFromClient(thorClient)
-	vthoContract, _ = builtins.NewEnergy(thor)
-	abi, _ := builtins.EnergyMetaData.GetAbi()
+	vthoContract, _ = builtins.NewVTHO(thor)
+	abi, _ := builtins.VTHOMetaData.GetAbi()
 	vthoRaw = accounts.NewContract(thorClient, vthoContract.Address(), abi)
 	account1 = txmanager.FromPK(solo.Keys()[0], thor)
 	m.Run()

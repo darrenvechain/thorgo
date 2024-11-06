@@ -13,8 +13,8 @@ import (
 )
 
 type subscriber struct {
-	sub chan *thorest.ExpandedBlock
-	ctx context.Context
+	channel chan *thorest.ExpandedBlock
+	ctx     context.Context
 }
 
 type Blocks struct {
@@ -36,7 +36,7 @@ func (b *Blocks) poll() {
 	backoff := 5 * time.Second
 
 	for {
-		previous, err = b.Expanded("best")
+		previous, err = b.Expanded(thorest.RevisionBest())
 		if err != nil {
 			time.Sleep(backoff)
 			continue
@@ -50,7 +50,7 @@ func (b *Blocks) poll() {
 		if now.Before(nextBlockTime) {
 			time.Sleep(nextBlockTime.Add(100 * time.Millisecond).Sub(now))
 		}
-		next, err := b.Expanded("best")
+		next, err := b.Expanded(thorest.RevisionBest())
 		if err != nil {
 			time.Sleep(2 * time.Second)
 			continue
@@ -62,14 +62,19 @@ func (b *Blocks) poll() {
 
 		b.subscribers.Range(func(key, value interface{}) bool {
 			sub := value.(subscriber)
-			select {
-			case <-sub.ctx.Done():
-				b.subscribers.Delete(key)
-				close(sub.sub)
-				return false
-			default:
-				sub.sub <- next
-			}
+			go func(sub subscriber) {
+				select {
+				case <-sub.ctx.Done():
+					b.subscribers.Delete(key)
+					close(sub.channel)
+				default:
+					select {
+					case sub.channel <- next:
+					case <-time.After(1 * time.Second):
+						return
+					}
+				}
+			}(sub)
 			return true
 		})
 		previous = next
@@ -79,11 +84,10 @@ func (b *Blocks) poll() {
 // Subscribe adds a new subscriber to the block stream.
 // The subscriber will receive the latest block produced.
 // The subscriber will be removed when the context is done.
-func (b *Blocks) Subscribe(ctx context.Context) <-chan *thorest.ExpandedBlock {
-	sub := make(chan *thorest.ExpandedBlock)
-	id := uuid.New().String()
-	s := subscriber{sub: sub, ctx: ctx}
-	b.subscribers.Store(id, s)
+func (b *Blocks) Subscribe(ctx context.Context, bufferSize int) <-chan *thorest.ExpandedBlock {
+	sub := make(chan *thorest.ExpandedBlock, bufferSize)
+	s := subscriber{channel: sub, ctx: ctx}
+	b.subscribers.Store(uuid.New(), s)
 	return sub
 }
 
@@ -129,7 +133,7 @@ func (b *Blocks) ByNumber(number uint64) (*thorest.Block, error) {
 
 // Expanded returns the expanded block information.
 // This includes the transactions and receipts.
-func (b *Blocks) Expanded(revision string) (*thorest.ExpandedBlock, error) {
+func (b *Blocks) Expanded(revision thorest.Revision) (*thorest.ExpandedBlock, error) {
 	return b.client.ExpandedBlock(revision)
 }
 
@@ -138,7 +142,7 @@ func (b *Blocks) Expanded(revision string) (*thorest.ExpandedBlock, error) {
 func (b *Blocks) Ticker() (*thorest.ExpandedBlock, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	sub := b.Subscribe(ctx)
+	sub := b.Subscribe(ctx, 1)
 	blk := <-sub
 	return blk, nil
 }

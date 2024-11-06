@@ -474,7 +474,7 @@ func (_Executor *Executor) FilterApprover(criteria []ExecutorApproverCriteria, o
 // WatchApprover listens for on chain events binding the contract event 0x770115cde75e60f17b265d7e0c5e39c57abf243bc316c7e5c2f8d851771da6ac.
 //
 // Solidity: event Approver(address indexed approver, bytes32 action)
-func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ctx context.Context) (chan *ExecutorApprover, error) {
+func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ctx context.Context, bufferSize int) (chan *ExecutorApprover, error) {
 	topicHash := _Executor.contract.ABI.Events["Approver"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -496,8 +496,8 @@ func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ct
 		criteriaSet[i] = crteria
 	}
 
-	eventChan := make(chan *ExecutorApprover, 100)
-	blockSub := _Executor.thor.Blocks.Subscribe(ctx)
+	eventChan := make(chan *ExecutorApprover, bufferSize)
+	blockSub := _Executor.thor.Blocks.Subscribe(ctx, bufferSize)
 
 	go func() {
 		defer close(eventChan)
@@ -638,7 +638,7 @@ func (_Executor *Executor) FilterProposal(criteria []ExecutorProposalCriteria, o
 // WatchProposal listens for on chain events binding the contract event 0x7d9bcf5c6cdade398a64a03053a982851ccea20dc827dbc130754b9e78c7c31a.
 //
 // Solidity: event Proposal(bytes32 indexed proposalID, bytes32 action)
-func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ctx context.Context) (chan *ExecutorProposal, error) {
+func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ctx context.Context, bufferSize int) (chan *ExecutorProposal, error) {
 	topicHash := _Executor.contract.ABI.Events["Proposal"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -660,8 +660,8 @@ func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ct
 		criteriaSet[i] = crteria
 	}
 
-	eventChan := make(chan *ExecutorProposal, 100)
-	blockSub := _Executor.thor.Blocks.Subscribe(ctx)
+	eventChan := make(chan *ExecutorProposal, bufferSize)
+	blockSub := _Executor.thor.Blocks.Subscribe(ctx, bufferSize)
 
 	go func() {
 		defer close(eventChan)
@@ -802,7 +802,7 @@ func (_Executor *Executor) FilterVotingContract(criteria []ExecutorVotingContrac
 // WatchVotingContract listens for on chain events binding the contract event 0xf4cb5443be666f872bc8a75293e99e2204a6573e5eb3d2d485d866f2e13c7ea4.
 //
 // Solidity: event VotingContract(address indexed contractAddr, bytes32 action)
-func (_Executor *Executor) WatchVotingContract(criteria []ExecutorVotingContractCriteria, ctx context.Context) (chan *ExecutorVotingContract, error) {
+func (_Executor *Executor) WatchVotingContract(criteria []ExecutorVotingContractCriteria, ctx context.Context, bufferSize int) (chan *ExecutorVotingContract, error) {
 	topicHash := _Executor.contract.ABI.Events["VotingContract"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -824,8 +824,8 @@ func (_Executor *Executor) WatchVotingContract(criteria []ExecutorVotingContract
 		criteriaSet[i] = crteria
 	}
 
-	eventChan := make(chan *ExecutorVotingContract, 100)
-	blockSub := _Executor.thor.Blocks.Subscribe(ctx)
+	eventChan := make(chan *ExecutorVotingContract, bufferSize)
+	blockSub := _Executor.thor.Blocks.Subscribe(ctx, bufferSize)
 
 	go func() {
 		defer close(eventChan)

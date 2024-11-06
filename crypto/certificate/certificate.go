@@ -6,15 +6,17 @@ import (
 
 	"github.com/darrenvechain/thorgo/crypto/hash"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
 type Certificate struct {
-	Domain    string  `json:"domain"`
-	Payload   Payload `json:"payload"`
-	Purpose   string  `json:"purpose"`
-	Signer    string  `json:"signer"`
-	Timestamp uint64  `json:"timestamp"`
+	Domain    string         `json:"domain"`
+	Payload   Payload        `json:"payload"`
+	Purpose   string         `json:"purpose"`
+	Signer    string         `json:"signer"`
+	Timestamp int64          `json:"timestamp"`
+	Signature *hexutil.Bytes `json:"signature,omitempty"`
 }
 
 type Payload struct {
@@ -23,7 +25,9 @@ type Payload struct {
 }
 
 func (c *Certificate) Encode() ([]byte, error) {
-	return json.Marshal(c)
+	cert := *c
+	cert.Signature = nil
+	return json.Marshal(cert)
 }
 
 func (c *Certificate) SigningHash() (common.Hash, error) {
@@ -35,12 +39,15 @@ func (c *Certificate) SigningHash() (common.Hash, error) {
 	return hash.Blake2b(encoded), nil
 }
 
-func (c *Certificate) Verify(signature []byte) bool {
+func (c *Certificate) Verify() bool {
+	if c.Signature == nil {
+		return false
+	}
 	signingHash, err := c.SigningHash()
 	if err != nil {
 		return false
 	}
-	pubkey, err := crypto.SigToPub(signingHash.Bytes(), signature)
+	pubkey, err := crypto.SigToPub(signingHash.Bytes(), *c.Signature)
 	if err != nil {
 		return false
 	}

@@ -12,7 +12,7 @@ import (
 
 func NewSolo() (*thorest.Client, func()) {
 	ctx := context.Background()
-	cmd := []string{"solo", "-api-addr", "0.0.0.0:8669", "-api-cors", "*", "-on-demand"}
+	cmd := []string{"solo", "-api-addr", "0.0.0.0:8669", "-api-cors", "*", "-on-demand", "-api-allowed-tracers", "call"}
 
 	req := testcontainers.ContainerRequest{
 		Image:        "vechain/thor:latest",

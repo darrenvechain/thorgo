@@ -3,6 +3,7 @@ package thorest
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -123,8 +124,8 @@ func (c *Client) GenesisBlock() (*Block, error) {
 }
 
 // ExpandedBlock fetches the block at the given revision with all the transactions expanded.
-func (c *Client) ExpandedBlock(revision string) (*ExpandedBlock, error) {
-	url := "/blocks/" + revision + "?expanded=true"
+func (c *Client) ExpandedBlock(revision Revision) (*ExpandedBlock, error) {
+	url := "/blocks/" + revision.value + "?expanded=true"
 	return httpGet(c, url, &ExpandedBlock{})
 }
 
@@ -228,6 +229,19 @@ func (c *Client) Peers() ([]Peer, error) {
 		return nil, err
 	}
 	return peers, nil
+}
+
+// DebugRevertReason fetches the revert reason for the transaction.
+func (c *Client) DebugRevertReason(receipt *TransactionReceipt) (*TxRevertResponse, error) {
+	url := "/debug/tracers"
+	config := make(map[string]interface{})
+	config["OnlyTopCall"] = true
+	body := debugTraceClause{
+		Config: config,
+		Name:   "call",
+		Target: fmt.Sprintf("%s/%s/%d", receipt.Meta.BlockID.Hex(), receipt.Meta.TxID.Hex(), len(receipt.Outputs)),
+	}
+	return httpPost(c, url, body, &TxRevertResponse{})
 }
 
 func httpGet[T any](c *Client, endpoint string, v *T) (*T, error) {

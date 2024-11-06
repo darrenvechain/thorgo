@@ -38,5 +38,9 @@ jobs:
         # if it has any changes in the 'builtins' dir after running `go generate`, echo an error and fail the workflow
         run: git diff --exit-code builtins || (echo "\n\n\nbuiltins directory is not up to date, run 'go generate ./...' to update it" && exit 1)
 
+      - name: Check `testcontracts` directory
+        # if it has any changes in the 'testcontracts' dir after running `go generate`, echo an error and fail the workflow
+        run: git diff --exit-code internal/testcontract || (echo "\n\n\n internal/testcontract directory is not up to date, run 'go generate ./...' to update it" && exit 1)
+
       - name: Run tests
         run: make test

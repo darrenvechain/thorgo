@@ -58,7 +58,7 @@ func TestBlocks_Finalized(t *testing.T) {
 // TestGetExpandedBlock fetches a block where all the transactions are expanded
 // It accepts a revision, which can be a block ID, block number, "best" or "finalized"
 func TestBlocks_Expanded(t *testing.T) {
-	block, err := blocks.Expanded(solo.GenesisID().Hex())
+	block, err := blocks.Expanded(thorest.RevisionID(solo.GenesisID()))
 	assert.NoError(t, err)
 	assert.NotNil(t, block)
 }
@@ -73,8 +73,8 @@ func TestBlocks_Ticker(t *testing.T) {
 func TestBlocks_Subscribe(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	sub := blocks.Subscribe(ctx)
-	ticker := time.NewTicker(20 * time.Second)
+	sub := blocks.Subscribe(ctx, 1)
+	ticker := time.NewTicker(30 * time.Second)
 	for {
 		select {
 		case <-ticker.C:
@@ -90,7 +90,7 @@ func TestBlocks_Unsubscribe(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	// cancel the context before we start the subscription
 	cancel()
-	sub := blocks.Subscribe(ctx)
+	sub := blocks.Subscribe(ctx, 1)
 	blk, ok := <-sub
 	assert.Nil(t, blk)
 	assert.False(t, ok)

@@ -80,7 +80,7 @@ var (
             if err != nil {
                 return common.Hash{}, nil, err
             }
-            return txID, &{{.Type}}Transactor{ {{.Type}}{ thor: thor, contract: contract }, sender }, nil
+            return txID, &{{.Type}}Transactor{&{{.Type}}{ thor: thor, contract: contract }, sender }, nil
         }
     {{end}}
 
@@ -321,7 +321,7 @@ var (
         // Watch{{.Normalized.Name}} listens for on chain events binding the contract event 0x{{printf "%x" .Original.ID}}.
         //
         // Solidity: {{.Original.String}}
-        func (_{{$contract.Type}} *{{$contract.Type}}) Watch{{.Normalized.Name}}({{ if gt $indexedArgCount 0 }}criteria []{{$contract.Type}}{{.Normalized.Name}}Criteria, {{ end }} ctx context.Context) (chan *{{$contract.Type}}{{.Normalized.Name}}, error) {
+        func (_{{$contract.Type}} *{{$contract.Type}}) Watch{{.Normalized.Name}}({{ if gt $indexedArgCount 0 }}criteria []{{$contract.Type}}{{.Normalized.Name}}Criteria, {{ end }} ctx context.Context, bufferSize int) (chan *{{$contract.Type}}{{.Normalized.Name}}, error) {
             topicHash := _{{$contract.Type}}.contract.ABI.Events["{{.Normalized.Name}}"].ID
 
             {{ if gt $indexedArgCount 0 }}
@@ -371,8 +371,8 @@ var (
                 }
             {{ end }}
 
-            eventChan := make(chan *{{$contract.Type}}{{.Normalized.Name}}, 100)
-            blockSub := _{{$contract.Type}}.thor.Blocks.Subscribe(ctx)
+            eventChan := make(chan *{{$contract.Type}}{{.Normalized.Name}}, bufferSize)
+            blockSub := _{{$contract.Type}}.thor.Blocks.Subscribe(ctx, bufferSize)
 
             go func() {
                 defer close(eventChan)

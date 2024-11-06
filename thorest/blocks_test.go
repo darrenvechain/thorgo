@@ -5,6 +5,7 @@ import (
 
 	"github.com/darrenvechain/thorgo/solo"
 	"github.com/darrenvechain/thorgo/thorest"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,7 +28,7 @@ func TestClient_GenesisBlock(t *testing.T) {
 }
 
 func TestClient_ExpandedBlock(t *testing.T) {
-	block, err := thorClient.ExpandedBlock("0")
+	block, err := thorClient.ExpandedBlock(thorest.RevisionNumber(0))
 	assert.NoError(t, err)
 	assert.NotNil(t, block)
 }
@@ -35,7 +36,7 @@ func TestClient_ExpandedBlock(t *testing.T) {
 func TestClient_ExpandedBlockWithTxs(t *testing.T) {
 	c := thorest.NewClientFromURL("https://mainnet.vechain.org")
 
-	blk, err := c.ExpandedBlock("0x0125fb07988ff3c36b261b5f7227688c1c0473c4873825ac299bc256ea991b0f")
+	blk, err := c.ExpandedBlock(thorest.RevisionID(common.HexToHash("0x0125fb07988ff3c36b261b5f7227688c1c0473c4873825ac299bc256ea991b0f")))
 	assert.NoError(t, err)
 
 	assert.NotNil(t, blk)

@@ -7,18 +7,20 @@ import (
 	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
+	"github.com/darrenvechain/thorgo/internal/testcontract"
 	"github.com/darrenvechain/thorgo/solo"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/darrenvechain/thorgo/txmanager"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
 	thorClient *thorest.Client
 	thor       *thorgo.Thor
-	account1   = txmanager.FromPK(solo.Keys()[0], thor)
-	account2   = txmanager.FromPK(solo.Keys()[1], thor)
+	account1   *txmanager.PKManager
+	account2   *txmanager.PKManager
 )
 
 func TestMain(m *testing.M) {
@@ -26,6 +28,8 @@ func TestMain(m *testing.M) {
 	thorClient, cancel = testcontainer.NewSolo()
 	defer cancel()
 	thor = thorgo.NewFromClient(thorClient)
+	account1 = txmanager.FromPK(solo.Keys()[0], thor)
+	account2 = txmanager.FromPK(solo.Keys()[1], thor)
 	m.Run()
 }
 
@@ -62,4 +66,48 @@ func TestTransactions(t *testing.T) {
 	raw, err := tx.Raw()
 	assert.NoError(t, err)
 	assert.NotNil(t, raw)
+}
+
+func TestVisitor_RevertReason(t *testing.T) {
+	// build a transaction
+	to, err := txmanager.GeneratePK(thor)
+	assert.NoError(t, err)
+	// setup contracts + funding
+	deploymentTxID, erc1, err := testcontract.DeployErc20(thor, account1, "Erc20", "ERC")
+	assert.NoError(t, err)
+	_, err = transactions.New(thorClient, deploymentTxID).Wait()
+	assert.NoError(t, err)
+	erc20Funding, err := erc1.Mint(to.Address(), big.NewInt(1000))
+	assert.NoError(t, err)
+	_, err = erc20Funding.Wait()
+
+	// send more funds than the user has
+	erc2, err := testcontract.NewErc20Transactor(erc1.Address(), thor, account2)
+	assert.NoError(t, err)
+	transfer, err := erc2.Transfer(to.Address(), big.NewInt(1001))
+	assert.NoError(t, err)
+	receipt, err := transfer.Wait()
+	assert.NoError(t, err)
+	assert.True(t, receipt.Reverted)
+
+	// get revert reason
+	erc20ABI, err := testcontract.Erc20MetaData.GetAbi()
+	assert.NoError(t, err)
+	reason, err := transfer.RevertReason()
+	assert.NoError(t, err)
+	errABI := erc20ABI.Errors["ERC20InsufficientBalance"]
+
+	type ERC20InsufficientBalance struct {
+		Sender  common.Address
+		Balance *big.Int
+		Needed  *big.Int
+	}
+
+	// decode revert reason
+	var decoded = ERC20InsufficientBalance{}
+	err = reason.DecodeInto(errABI, &decoded)
+	assert.NoError(t, err)
+	assert.Equal(t, decoded.Sender, to.Address())
+	assert.Equal(t, decoded.Balance, big.NewInt(1000))
+	assert.Equal(t, decoded.Needed, big.NewInt(1001))
 }
