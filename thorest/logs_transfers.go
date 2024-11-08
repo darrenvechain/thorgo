@@ -12,15 +12,15 @@ type TransferLog struct {
 	Meta      LogMeta        `json:"meta"`
 }
 
-type TransferFilter struct {
-	Range    *FilterRange        `json:"range,omitempty"`
-	Options  *FilterOptions      `json:"options,omitempty"`
-	Criteria *[]TransferCriteria `json:"criteriaSet,omitempty"`
-	Order    *string             `json:"order,omitempty"`
-}
-
 type TransferCriteria struct {
 	TxOrigin  *common.Address `json:"txOrigin,omitempty"`
 	Sender    *common.Address `json:"sender,omitempty"`
 	Recipient *common.Address `json:"recipient,omitempty"`
+}
+
+type transferFilter struct {
+	Range    *filterRange        `json:"range,omitempty"`
+	Options  *filterOptions      `json:"options,omitempty"`
+	Criteria *[]TransferCriteria `json:"criteriaSet,omitempty"`
+	Order    *string             `json:"order,omitempty"`
 }

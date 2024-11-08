@@ -4,7 +4,6 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/darrenvechain/thorgo/events"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/txmanager"
 	"github.com/ethereum/go-ethereum/common"
@@ -79,7 +78,7 @@ func TestContract_EventCriteria(t *testing.T) {
 	assert.NoError(t, err)
 
 	// fetch events
-	transfers, err := events.New(thorClient, []thorest.EventCriteria{criteria}).Apply(0, 100)
+	transfers, err := thorClient.FilterEvents([]thorest.EventCriteria{criteria}, &thorest.LogFilters{})
 	assert.NoError(t, err)
 
 	// decode events
@@ -111,7 +110,7 @@ func TestContract_UnpackLog(t *testing.T) {
 	assert.NoError(t, err)
 
 	// fetch events
-	transfers, err := events.New(thorClient, []thorest.EventCriteria{criteria}).Apply(0, 100)
+	transfers, err := thorClient.FilterEvents([]thorest.EventCriteria{criteria}, nil)
 	assert.NoError(t, err)
 	assert.Greater(t, len(transfers), 0)
 

@@ -228,7 +228,7 @@ var (
 		// Filter{{.Normalized.Name}} is a free log retrieval operation binding the contract event 0x{{printf "%x" .Original.ID}}.
 		//
 		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}} *{{$contract.Type}}) Filter{{.Normalized.Name}}({{ if gt $indexedArgCount 0 }}criteria []{{$contract.Type}}{{.Normalized.Name}}Criteria, {{ end }}opts *thorest.FilterOptions, rang *thorest.FilterRange) ([]{{$contract.Type}}{{.Normalized.Name}}, error) {
+		func (_{{$contract.Type}} *{{$contract.Type}}) Filter{{.Normalized.Name}}({{ if gt $indexedArgCount 0 }}criteria []{{$contract.Type}}{{.Normalized.Name}}Criteria, {{ end }}filters *thorest.LogFilters) ([]{{$contract.Type}}{{.Normalized.Name}}, error) {
 			topicHash := _{{$contract.Type}}.contract.ABI.Events["{{.Normalized.Name}}"].ID
 
             {{ if gt $indexedArgCount 0 }}
@@ -286,13 +286,7 @@ var (
                 }
             {{ end }}
 
-			filter := &thorest.EventFilter{
-            		Range: rang,
-            		Options: opts,
-            		Criteria: &criteriaSet,
-            }
-
-            logs, err := _{{$contract.Type}}.thor.Client.FilterEvents(filter)
+            logs, err := _{{$contract.Type}}.thor.Client.FilterEvents(criteriaSet, filters)
 			if err != nil {
 				return nil, err
 			}

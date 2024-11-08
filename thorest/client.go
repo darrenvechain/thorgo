@@ -1,7 +1,6 @@
 package thorest
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -199,10 +198,18 @@ func (c *Client) TransactionReceiptAt(id common.Hash, head common.Hash) (*Transa
 }
 
 // FilterEvents fetches the event logs that match the given filter.
-func (c *Client) FilterEvents(filter *EventFilter) ([]EventLog, error) {
+func (c *Client) FilterEvents(criteriaSet []EventCriteria, filters *LogFilters) ([]EventLog, error) {
 	path := "/logs/event"
 	events := make([]EventLog, 0)
-	_, err := httpPost(c, path, filter, &events)
+	request := eventFilter{
+		Criteria: &criteriaSet,
+	}
+	if filters != nil {
+		request.Range = filters.filterRange
+		request.Options = filters.options
+		request.Order = filters.order
+	}
+	_, err := httpPost(c, path, request, &events)
 	if err != nil {
 		return nil, err
 	}
@@ -210,10 +217,18 @@ func (c *Client) FilterEvents(filter *EventFilter) ([]EventLog, error) {
 }
 
 // FilterTransfers fetches the transfer logs that match the given filter.
-func (c *Client) FilterTransfers(filter *TransferFilter) ([]TransferLog, error) {
+func (c *Client) FilterTransfers(criteriaSet []TransferCriteria, filters *LogFilters) ([]TransferLog, error) {
 	path := "/logs/transfer"
 	transfers := make([]TransferLog, 0)
-	_, err := httpPost(c, path, filter, &transfers)
+	request := transferFilter{
+		Criteria: &criteriaSet,
+	}
+	if filters != nil {
+		request.Range = filters.filterRange
+		request.Options = filters.options
+		request.Order = filters.order
+	}
+	_, err := httpPost(c, path, request, &transfers)
 	if err != nil {
 		return nil, err
 	}
@@ -288,7 +303,7 @@ func httpDo[T any](c *Client, req *http.Request, v *T) (*T, error) {
 	}
 
 	// Decode the JSON response
-	err = json.NewDecoder(bytes.NewReader(responseBody)).Decode(v)
+	err = json.Unmarshal(responseBody, v)
 	if err != nil {
 		return nil, err
 	}

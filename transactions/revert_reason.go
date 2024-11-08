@@ -12,9 +12,9 @@ type RevertReason struct {
 	res *thorest.TxRevertResponse
 }
 
-// Data returns the raw revert reason data.
-func (r *RevertReason) Data() []byte {
-	return r.res.Output
+// Response returns the raw revert reason response.
+func (r *RevertReason) Response() *thorest.TxRevertResponse {
+	return r.res
 }
 
 // Decode will decode the revert reason if it is `Error(string)` or `Panic(uint256)`

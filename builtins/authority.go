@@ -263,7 +263,7 @@ type AuthorityCandidateCriteria struct {
 // FilterCandidate is a free log retrieval operation binding the contract event 0xe9e2ad484aeae75ba75479c19d2cbb784b98b2fe4b24dc80a4c8cf142d4c9294.
 //
 // Solidity: event Candidate(address indexed nodeMaster, bytes32 action)
-func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriteria, opts *thorest.FilterOptions, rang *thorest.FilterRange) ([]AuthorityCandidate, error) {
+func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriteria, filters *thorest.LogFilters) ([]AuthorityCandidate, error) {
 	topicHash := _Authority.contract.ABI.Events["Candidate"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -291,13 +291,7 @@ func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriter
 		})
 	}
 
-	filter := &thorest.EventFilter{
-		Range:    rang,
-		Options:  opts,
-		Criteria: &criteriaSet,
-	}
-
-	logs, err := _Authority.thor.Client.FilterEvents(filter)
+	logs, err := _Authority.thor.Client.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
 	}

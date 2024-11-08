@@ -12,9 +12,9 @@ type EventLog struct {
 	Meta    LogMeta         `json:"meta"`
 }
 
-type EventFilter struct {
-	Range    *FilterRange     `json:"range,omitempty"`
-	Options  *FilterOptions   `json:"options,omitempty"`
+type eventFilter struct {
+	Range    *filterRange     `json:"range,omitempty"`
+	Options  *filterOptions   `json:"options,omitempty"`
 	Criteria *[]EventCriteria `json:"criteriaSet,omitempty"`
 	Order    *string          `json:"order,omitempty"`
 }

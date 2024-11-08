@@ -7,7 +7,6 @@ import (
 	"github.com/darrenvechain/thorgo/solo"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -46,30 +45,19 @@ func TestGetAccount(t *testing.T) {
 }
 
 func TestTransfers(t *testing.T) {
-	// account 1
-	account1 := solo.Keys()[0]
-	account1Addr := crypto.PubkeyToAddress(account1.PublicKey)
-
 	criteria := make([]thorest.TransferCriteria, 0)
-	criteria = append(criteria, thorest.TransferCriteria{
-		Sender: &account1Addr,
-	})
 
-	events, err := thor.Transfers(criteria).
-		BlockRange(0, 10000).
-		Asc().
-		Apply(0, 100)
+	transfers, err := thor.Transfers(criteria, new(thorest.LogFilters))
+
 	assert.NoError(t, err)
-	assert.NotNil(t, events)
+	assert.NotNil(t, transfers)
 }
 
 func TestEvents(t *testing.T) {
 	criteria := make([]thorest.EventCriteria, 0)
 
-	events, err := thor.Events(criteria).
-		BlockRange(0, 10000).
-		Asc().
-		Apply(0, 100)
+	events, err := thor.Events(criteria, new(thorest.LogFilters))
+
 	assert.NoError(t, err)
 	assert.NotNil(t, events)
 }

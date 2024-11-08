@@ -422,7 +422,7 @@ type Erc20ApprovalCriteria struct {
 // FilterApproval is a free log retrieval operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
 //
 // Solidity: event Approval(address indexed owner, address indexed spender, uint256 value)
-func (_Erc20 *Erc20) FilterApproval(criteria []Erc20ApprovalCriteria, opts *thorest.FilterOptions, rang *thorest.FilterRange) ([]Erc20Approval, error) {
+func (_Erc20 *Erc20) FilterApproval(criteria []Erc20ApprovalCriteria, filters *thorest.LogFilters) ([]Erc20Approval, error) {
 	topicHash := _Erc20.contract.ABI.Events["Approval"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -458,13 +458,7 @@ func (_Erc20 *Erc20) FilterApproval(criteria []Erc20ApprovalCriteria, opts *thor
 		})
 	}
 
-	filter := &thorest.EventFilter{
-		Range:    rang,
-		Options:  opts,
-		Criteria: &criteriaSet,
-	}
-
-	logs, err := _Erc20.thor.Client.FilterEvents(filter)
+	logs, err := _Erc20.thor.Client.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -604,7 +598,7 @@ type Erc20TransferCriteria struct {
 // FilterTransfer is a free log retrieval operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
 //
 // Solidity: event Transfer(address indexed from, address indexed to, uint256 value)
-func (_Erc20 *Erc20) FilterTransfer(criteria []Erc20TransferCriteria, opts *thorest.FilterOptions, rang *thorest.FilterRange) ([]Erc20Transfer, error) {
+func (_Erc20 *Erc20) FilterTransfer(criteria []Erc20TransferCriteria, filters *thorest.LogFilters) ([]Erc20Transfer, error) {
 	topicHash := _Erc20.contract.ABI.Events["Transfer"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -640,13 +634,7 @@ func (_Erc20 *Erc20) FilterTransfer(criteria []Erc20TransferCriteria, opts *thor
 		})
 	}
 
-	filter := &thorest.EventFilter{
-		Range:    rang,
-		Options:  opts,
-		Criteria: &criteriaSet,
-	}
-
-	logs, err := _Erc20.thor.Client.FilterEvents(filter)
+	logs, err := _Erc20.thor.Client.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
 	}

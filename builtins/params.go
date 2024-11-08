@@ -176,7 +176,7 @@ type ParamsSetCriteria struct {
 // FilterSet is a free log retrieval operation binding the contract event 0x28e3246f80515f5c1ed987b133ef2f193439b25acba6a5e69f219e896fc9d179.
 //
 // Solidity: event Set(bytes32 indexed key, uint256 value)
-func (_Params *Params) FilterSet(criteria []ParamsSetCriteria, opts *thorest.FilterOptions, rang *thorest.FilterRange) ([]ParamsSet, error) {
+func (_Params *Params) FilterSet(criteria []ParamsSetCriteria, filters *thorest.LogFilters) ([]ParamsSet, error) {
 	topicHash := _Params.contract.ABI.Events["Set"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -204,13 +204,7 @@ func (_Params *Params) FilterSet(criteria []ParamsSetCriteria, opts *thorest.Fil
 		})
 	}
 
-	filter := &thorest.EventFilter{
-		Range:    rang,
-		Options:  opts,
-		Criteria: &criteriaSet,
-	}
-
-	logs, err := _Params.thor.Client.FilterEvents(filter)
+	logs, err := _Params.thor.Client.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
 	}

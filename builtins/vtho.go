@@ -371,7 +371,7 @@ type VTHOApprovalCriteria struct {
 // FilterApproval is a free log retrieval operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
 //
 // Solidity: event Approval(address indexed _owner, address indexed _spender, uint256 _value)
-func (_VTHO *VTHO) FilterApproval(criteria []VTHOApprovalCriteria, opts *thorest.FilterOptions, rang *thorest.FilterRange) ([]VTHOApproval, error) {
+func (_VTHO *VTHO) FilterApproval(criteria []VTHOApprovalCriteria, filters *thorest.LogFilters) ([]VTHOApproval, error) {
 	topicHash := _VTHO.contract.ABI.Events["Approval"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -407,13 +407,7 @@ func (_VTHO *VTHO) FilterApproval(criteria []VTHOApprovalCriteria, opts *thorest
 		})
 	}
 
-	filter := &thorest.EventFilter{
-		Range:    rang,
-		Options:  opts,
-		Criteria: &criteriaSet,
-	}
-
-	logs, err := _VTHO.thor.Client.FilterEvents(filter)
+	logs, err := _VTHO.thor.Client.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -553,7 +547,7 @@ type VTHOTransferCriteria struct {
 // FilterTransfer is a free log retrieval operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
 //
 // Solidity: event Transfer(address indexed _from, address indexed _to, uint256 _value)
-func (_VTHO *VTHO) FilterTransfer(criteria []VTHOTransferCriteria, opts *thorest.FilterOptions, rang *thorest.FilterRange) ([]VTHOTransfer, error) {
+func (_VTHO *VTHO) FilterTransfer(criteria []VTHOTransferCriteria, filters *thorest.LogFilters) ([]VTHOTransfer, error) {
 	topicHash := _VTHO.contract.ABI.Events["Transfer"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -589,13 +583,7 @@ func (_VTHO *VTHO) FilterTransfer(criteria []VTHOTransferCriteria, opts *thorest
 		})
 	}
 
-	filter := &thorest.EventFilter{
-		Range:    rang,
-		Options:  opts,
-		Criteria: &criteriaSet,
-	}
-
-	logs, err := _VTHO.thor.Client.FilterEvents(filter)
+	logs, err := _VTHO.thor.Client.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
 	}

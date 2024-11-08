@@ -411,7 +411,7 @@ type ExecutorApproverCriteria struct {
 // FilterApprover is a free log retrieval operation binding the contract event 0x770115cde75e60f17b265d7e0c5e39c57abf243bc316c7e5c2f8d851771da6ac.
 //
 // Solidity: event Approver(address indexed approver, bytes32 action)
-func (_Executor *Executor) FilterApprover(criteria []ExecutorApproverCriteria, opts *thorest.FilterOptions, rang *thorest.FilterRange) ([]ExecutorApprover, error) {
+func (_Executor *Executor) FilterApprover(criteria []ExecutorApproverCriteria, filters *thorest.LogFilters) ([]ExecutorApprover, error) {
 	topicHash := _Executor.contract.ABI.Events["Approver"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -439,13 +439,7 @@ func (_Executor *Executor) FilterApprover(criteria []ExecutorApproverCriteria, o
 		})
 	}
 
-	filter := &thorest.EventFilter{
-		Range:    rang,
-		Options:  opts,
-		Criteria: &criteriaSet,
-	}
-
-	logs, err := _Executor.thor.Client.FilterEvents(filter)
+	logs, err := _Executor.thor.Client.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -575,7 +569,7 @@ type ExecutorProposalCriteria struct {
 // FilterProposal is a free log retrieval operation binding the contract event 0x7d9bcf5c6cdade398a64a03053a982851ccea20dc827dbc130754b9e78c7c31a.
 //
 // Solidity: event Proposal(bytes32 indexed proposalID, bytes32 action)
-func (_Executor *Executor) FilterProposal(criteria []ExecutorProposalCriteria, opts *thorest.FilterOptions, rang *thorest.FilterRange) ([]ExecutorProposal, error) {
+func (_Executor *Executor) FilterProposal(criteria []ExecutorProposalCriteria, filters *thorest.LogFilters) ([]ExecutorProposal, error) {
 	topicHash := _Executor.contract.ABI.Events["Proposal"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -603,13 +597,7 @@ func (_Executor *Executor) FilterProposal(criteria []ExecutorProposalCriteria, o
 		})
 	}
 
-	filter := &thorest.EventFilter{
-		Range:    rang,
-		Options:  opts,
-		Criteria: &criteriaSet,
-	}
-
-	logs, err := _Executor.thor.Client.FilterEvents(filter)
+	logs, err := _Executor.thor.Client.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -739,7 +727,7 @@ type ExecutorVotingContractCriteria struct {
 // FilterVotingContract is a free log retrieval operation binding the contract event 0xf4cb5443be666f872bc8a75293e99e2204a6573e5eb3d2d485d866f2e13c7ea4.
 //
 // Solidity: event VotingContract(address indexed contractAddr, bytes32 action)
-func (_Executor *Executor) FilterVotingContract(criteria []ExecutorVotingContractCriteria, opts *thorest.FilterOptions, rang *thorest.FilterRange) ([]ExecutorVotingContract, error) {
+func (_Executor *Executor) FilterVotingContract(criteria []ExecutorVotingContractCriteria, filters *thorest.LogFilters) ([]ExecutorVotingContract, error) {
 	topicHash := _Executor.contract.ABI.Events["VotingContract"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -767,13 +755,7 @@ func (_Executor *Executor) FilterVotingContract(criteria []ExecutorVotingContrac
 		})
 	}
 
-	filter := &thorest.EventFilter{
-		Range:    rang,
-		Options:  opts,
-		Criteria: &criteriaSet,
-	}
-
-	logs, err := _Executor.thor.Client.FilterEvents(filter)
+	logs, err := _Executor.thor.Client.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
 	}
