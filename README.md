@@ -59,14 +59,14 @@ go get github.com/darrenvechain/thorgo
 ```golang
 // github.com/darrenvechain/thorgo/accounts
 type TxManager interface {
-    SendClauses(clauses []*transaction.Clause) (common.Hash, error)
+    SendClauses(clauses []*tx.Clause) (common.Hash, error)
 }
 ```
 
 ```golang
 // github.com/darrenvechain/thorgo/transactions
 type Signer interface {
-    SignTransaction(tx *transaction.Transaction) ([]byte, error)
+    SignTransaction(transaction *tx.Transaction) ([]byte, error)
     Address() common.Address
 }
 ```

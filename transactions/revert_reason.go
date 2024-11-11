@@ -3,7 +3,6 @@ package transactions
 import (
 	"bytes"
 	"errors"
-
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
@@ -22,18 +21,22 @@ func (r *RevertReason) Decode() (string, error) {
 	return abi.UnpackRevert(r.res.Output)
 }
 
-// IsKnownSelector will return true if the revert reason is a known selector.
-func (r *RevertReason) IsKnownSelector() bool {
+// IsDefaultSelector will return true if the revert data is a `Error(string)` or `Panic(uint256)` selector.
+func (r *RevertReason) IsDefaultSelector() bool {
 	_, err := abi.UnpackRevert(r.res.Output)
 	return err == nil
 }
 
+// MatchesABI will return true if the revert reason matches the ABI error.
+func (r *RevertReason) MatchesABI(abiErr abi.Error) bool {
+	return len(r.res.Output) >= 4 && bytes.Equal(r.res.Output[:4], abiErr.ID.Bytes()[0:4])
+}
+
 // DecodeInto will decode
 func (r *RevertReason) DecodeInto(abiErr abi.Error, value interface{}) error {
-	if len(r.res.Output) < 4 || !bytes.Equal(r.res.Output[:4], abiErr.ID.Bytes()[0:4]) {
-		return errors.New("selector does not match")
+	if !r.MatchesABI(abiErr) {
+		return errors.New("revert reason does not match ABI error")
 	}
-
 	unpacked, err := abiErr.Inputs.Unpack(r.res.Output[4:])
 	if err != nil {
 		return err
