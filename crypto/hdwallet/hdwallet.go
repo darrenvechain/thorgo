@@ -2,7 +2,6 @@ package hdwallet
 
 import (
 	"crypto/ecdsa"
-	"errors"
 
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
@@ -22,6 +21,7 @@ type Wallet struct {
 	masterKey *hdkeychain.ExtendedKey
 	seed      []byte
 	path      accounts.DerivationPath
+	publicKey *ecdsa.PublicKey
 }
 
 // FromSeed generates a wallet from a BIP-39 seed.
@@ -36,11 +36,13 @@ func FromSeedAt(seed []byte, path accounts.DerivationPath) (*Wallet, error) {
 		return nil, err
 	}
 
-	return &Wallet{
+	w := &Wallet{
 		masterKey: masterKey,
 		seed:      seed,
 		path:      path,
-	}, nil
+	}
+
+	return w.Derive(path)
 }
 
 // FromMnemonic generates a wallet using the PathVET derivation path.
@@ -60,72 +62,80 @@ func FromMnemonicAt(mnemonic string, path accounts.DerivationPath) (*Wallet, err
 		return nil, err
 	}
 
-	return &Wallet{
+	w := &Wallet{
 		masterKey: masterKey,
 		seed:      seed,
 		path:      path,
-	}, nil
+	}
+
+	return w.Derive(path)
 }
 
 // Derive returns a new wallet derived from the root seed and master key at the given path.
-func (w *Wallet) Derive(path accounts.DerivationPath) *Wallet {
+func (w *Wallet) Derive(path accounts.DerivationPath) (*Wallet, error) {
+	key, err := w.derivePath(path)
+	if err != nil {
+		return nil, err
+	}
+
+	publicKey, err := key.ECPubKey()
+	if err != nil {
+		return nil, err
+	}
+	publicKeyECDSA := publicKey.ToECDSA()
+
 	return &Wallet{
 		masterKey: w.masterKey,
 		seed:      w.seed,
 		path:      path,
-	}
+		publicKey: publicKeyECDSA,
+	}, nil
 }
 
 // Child returns a child of the current wallet at the given index.
-func (w *Wallet) Child(index uint32) *Wallet {
+func (w *Wallet) Child(index uint32) (*Wallet, error) {
 	path := append(w.path, index)
 	return w.Derive(path)
 }
 
 // PrivateKey returns the ECDSA private key of the account.
 func (w *Wallet) PrivateKey() (*ecdsa.PrivateKey, error) {
-	return w.derivePrivateKey(w.path)
+	key, err := w.derivePath(w.path)
+	if err != nil {
+		return nil, err
+	}
+
+	privateKey, err := key.ECPrivKey()
+	if err != nil {
+		return nil, err
+	}
+
+	return privateKey.ToECDSA(), nil
 }
 
 // MustGetPrivateKey returns the ECDSA private key of the account.
+// It panics if the private key cannot be retrieved.
 func (w *Wallet) MustGetPrivateKey() *ecdsa.PrivateKey {
-	privateKey, err := w.PrivateKey()
+	key, err := w.PrivateKey()
 	if err != nil {
 		panic(err)
 	}
-	return privateKey
+
+	return key
 }
 
 // PublicKey returns the ECDSA public key of the account.
-func (w *Wallet) PublicKey() (*ecdsa.PublicKey, error) {
-	return w.derivePublicKey(w.path)
-}
-
-// MustGetPublicKey returns the ECDSA public key of the account.
-func (w *Wallet) MustGetPublicKey() *ecdsa.PublicKey {
-	publicKey, err := w.PublicKey()
-	if err != nil {
-		panic(err)
-	}
-	return publicKey
+func (w *Wallet) PublicKey() *ecdsa.PublicKey {
+	return w.publicKey
 }
 
 // Address returns the address of the current master key.
-func (w *Wallet) Address() (common.Address, error) {
-	return w.deriveAddress(w.path)
+func (w *Wallet) Address() common.Address {
+	return crypto.PubkeyToAddress(*w.publicKey)
 }
 
-// MustGetAddress returns the address of the current master key.
-func (w *Wallet) MustGetAddress() common.Address {
-	addr, err := w.Address()
-	if err != nil {
-		panic(err)
-	}
-	return addr
-}
-
-// DerivePrivateKey derives the private key of the derivation path.
-func (w *Wallet) derivePrivateKey(path accounts.DerivationPath) (*ecdsa.PrivateKey, error) {
+// derivePath derives the key at the given path.
+func (w *Wallet) derivePath(path accounts.DerivationPath) (*hdkeychain.ExtendedKey, error) {
 	var err error
 	key := w.masterKey
 	for _, n := range path {
@@ -135,38 +145,5 @@ func (w *Wallet) derivePrivateKey(path accounts.DerivationPath) (*ecdsa.PrivateK
 		}
 	}
 
-	privateKey, err := key.ECPrivKey()
-	if err != nil {
-		return nil, err
-	}
-	privateKeyECDSA := privateKey.ToECDSA()
-
-	return privateKeyECDSA, nil
-}
-
-// DerivePublicKey derives the public key of the derivation path.
-func (w *Wallet) derivePublicKey(path accounts.DerivationPath) (*ecdsa.PublicKey, error) {
-	privateKeyECDSA, err := w.derivePrivateKey(path)
-	if err != nil {
-		return nil, err
-	}
-
-	publicKey := privateKeyECDSA.Public()
-	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
-	if !ok {
-		return nil, errors.New("failed to get public key")
-	}
-
-	return publicKeyECDSA, nil
-}
-
-// DeriveAddress derives the account address of the derivation path.
-func (w *Wallet) deriveAddress(path accounts.DerivationPath) (common.Address, error) {
-	publicKeyECDSA, err := w.derivePublicKey(path)
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	address := crypto.PubkeyToAddress(*publicKeyECDSA)
-	return address, nil
+	return key, nil
 }

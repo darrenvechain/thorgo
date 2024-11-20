@@ -129,7 +129,7 @@ var (
 	// returns, a slice of interfaces for anonymous returns and a struct for named
 	// returns.
 	func (_{{$contract.Type}} *{{$contract.Type}}) Call(revision thorest.Revision, result *[]interface{}, method string, params ...interface{}) error {
-		return _{{$contract.Type}}.contract.Call(method, result, params...)
+		return _{{$contract.Type}}.contract.CallAt(revision, method, result, params...)
 	}
 
 	// Transact invokes the (paid) contract method with params as input values.

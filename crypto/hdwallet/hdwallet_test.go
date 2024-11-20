@@ -16,7 +16,7 @@ func TestFromMnemonic(t *testing.T) {
 	wallet, err := FromMnemonic(mnemonic)
 	assert.NoError(t, err)
 
-	addr, err := wallet.Address()
+	addr := wallet.Address()
 	assert.NoError(t, err)
 	assert.Equal(t, rootAccount, addr.Hex())
 }
@@ -28,7 +28,7 @@ func TestFromSeed(t *testing.T) {
 	wallet, err := FromSeed(seed)
 	assert.NoError(t, err)
 
-	addr, err := wallet.Address()
+	addr := wallet.Address()
 	assert.NoError(t, err)
 	assert.Equal(t, rootAccount, addr.Hex())
 }
@@ -37,8 +37,9 @@ func TestWallet_Child(t *testing.T) {
 	wallet, err := FromMnemonic(mnemonic)
 	assert.NoError(t, err)
 
-	child := wallet.Child(0)
-	addr, err := child.Address()
+	child, err := wallet.Child(0)
+	assert.NoError(t, err)
+	addr := child.Address()
 	assert.NoError(t, err)
 	assert.Equal(t, account0, addr.Hex())
 }

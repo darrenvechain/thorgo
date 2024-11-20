@@ -82,7 +82,7 @@ func (_Params *Params) Address() common.Address {
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
 func (_Params *Params) Call(revision thorest.Revision, result *[]interface{}, method string, params ...interface{}) error {
-	return _Params.contract.Call(method, result, params...)
+	return _Params.contract.CallAt(revision, method, result, params...)
 }
 
 // Transact invokes the (paid) contract method with params as input values.

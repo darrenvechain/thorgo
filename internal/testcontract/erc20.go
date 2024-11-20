@@ -104,7 +104,7 @@ func (_Erc20 *Erc20) Address() common.Address {
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
 func (_Erc20 *Erc20) Call(revision thorest.Revision, result *[]interface{}, method string, params ...interface{}) error {
-	return _Erc20.contract.Call(method, result, params...)
+	return _Erc20.contract.CallAt(revision, method, result, params...)
 }
 
 // Transact invokes the (paid) contract method with params as input values.
