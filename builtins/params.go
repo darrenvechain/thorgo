@@ -47,7 +47,8 @@ type Params struct {
 // ParamsTransactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
 type ParamsTransactor struct {
 	*Params
-	manager accounts.TxManager // TxManager to use
+	contract *accounts.ContractTransactor // Generic contract wrapper for the low level calls
+	manager  accounts.TxManager           // TxManager to use
 }
 
 // NewParams creates a new instance of Params, bound to a specific deployed contract.
@@ -57,9 +58,6 @@ func NewParams(thor *thorgo.Thor) (*Params, error) {
 		return nil, err
 	}
 	contract := thor.Account(common.HexToAddress("0x0000000000000000000000000000506172616d73")).Contract(parsed)
-	if err != nil {
-		return nil, err
-	}
 	return &Params{thor: thor, contract: contract}, nil
 }
 
@@ -69,12 +67,17 @@ func NewParamsTransactor(thor *thorgo.Thor, manager accounts.TxManager) (*Params
 	if err != nil {
 		return nil, err
 	}
-	return &ParamsTransactor{Params: base, manager: manager}, nil
+	return &ParamsTransactor{Params: base, contract: base.contract.Transactor(manager), manager: manager}, nil
 }
 
 // Address returns the address of the contract.
 func (_Params *Params) Address() common.Address {
 	return _Params.contract.Address
+}
+
+// Transactor constructs a new transactor for the contract, which allows to send transactions.
+func (_Params *Params) Transactor(manager accounts.TxManager) *ParamsTransactor {
+	return &ParamsTransactor{Params: _Params, contract: _Params.contract.Transactor(manager), manager: manager}
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -86,8 +89,8 @@ func (_Params *Params) Call(revision thorest.Revision, result *[]interface{}, me
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_ParamsTransactor *ParamsTransactor) Transact(vetValue *big.Int, method string, params ...interface{}) (*transactions.Visitor, error) {
-	return _ParamsTransactor.contract.SendWithVET(_ParamsTransactor.manager, vetValue, method, params...)
+func (_ParamsTransactor *ParamsTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) (*transactions.Visitor, error) {
+	return _ParamsTransactor.contract.Send(opts, method, params...)
 }
 
 // Executor is a free data retrieval call binding the contract method 0xc34c08e5.
@@ -139,14 +142,8 @@ func (_Params *Params) Get(_key [32]byte, revision ...thorest.Revision) (*big.In
 // Set is a paid mutator transaction binding the contract method 0x273f4940.
 //
 // Solidity: function set(bytes32 _key, uint256 _value) returns()
-func (_ParamsTransactor *ParamsTransactor) Set(_key [32]byte, _value *big.Int, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _ParamsTransactor.Transact(val, "set", _key, _value)
+func (_ParamsTransactor *ParamsTransactor) Set(_key [32]byte, _value *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _ParamsTransactor.Transact(opts, "set", _key, _value)
 }
 
 // SetAsClause is a transaction clause generator 0x273f4940.
@@ -233,7 +230,7 @@ func (_Params *Params) FilterSet(criteria []ParamsSetCriteria, filters *thorest.
 // WatchSet listens for on chain events binding the contract event 0x28e3246f80515f5c1ed987b133ef2f193439b25acba6a5e69f219e896fc9d179.
 //
 // Solidity: event Set(bytes32 indexed key, uint256 value)
-func (_Params *Params) WatchSet(criteria []ParamsSetCriteria, ctx context.Context, bufferSize int) (chan *ParamsSet, error) {
+func (_Params *Params) WatchSet(criteria []ParamsSetCriteria, ctx context.Context, bufferSize int64) (chan *ParamsSet, error) {
 	topicHash := _Params.contract.ABI.Events["Set"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -256,34 +253,23 @@ func (_Params *Params) WatchSet(criteria []ParamsSetCriteria, ctx context.Contex
 	}
 
 	eventChan := make(chan *ParamsSet, bufferSize)
-	blockSub := _Params.thor.Blocks.Subscribe(ctx, bufferSize)
+	ticker := _Params.thor.Blocks.Ticker()
 
 	go func() {
 		defer close(eventChan)
 
 		for {
 			select {
-			case block := <-blockSub:
+			case <-ticker.C():
+				block, err := _Params.thor.Blocks.Best()
+				if err != nil {
+					continue
+				}
 				for _, tx := range block.Transactions {
 					for index, outputs := range tx.Outputs {
 						for _, event := range outputs.Events {
-							if event.Address != _Params.contract.Address {
-								continue
-							}
-							if topicHash != event.Topics[0] {
-								continue
-							}
 							for _, c := range criteriaSet {
-								if c.Topic1 != nil && *c.Topic1 != event.Topics[1] {
-									continue
-								}
-								if c.Topic2 != nil && *c.Topic2 != event.Topics[2] {
-									continue
-								}
-								if c.Topic3 != nil && *c.Topic3 != event.Topics[3] {
-									continue
-								}
-								if c.Topic4 != nil && *c.Topic4 != event.Topics[4] {
+								if !c.Matches(event) {
 									continue
 								}
 							}

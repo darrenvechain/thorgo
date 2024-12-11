@@ -47,7 +47,8 @@ type Authority struct {
 // AuthorityTransactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
 type AuthorityTransactor struct {
 	*Authority
-	manager accounts.TxManager // TxManager to use
+	contract *accounts.ContractTransactor // Generic contract wrapper for the low level calls
+	manager  accounts.TxManager           // TxManager to use
 }
 
 // NewAuthority creates a new instance of Authority, bound to a specific deployed contract.
@@ -57,9 +58,6 @@ func NewAuthority(thor *thorgo.Thor) (*Authority, error) {
 		return nil, err
 	}
 	contract := thor.Account(common.HexToAddress("0x0000000000000000000000417574686f72697479")).Contract(parsed)
-	if err != nil {
-		return nil, err
-	}
 	return &Authority{thor: thor, contract: contract}, nil
 }
 
@@ -69,12 +67,17 @@ func NewAuthorityTransactor(thor *thorgo.Thor, manager accounts.TxManager) (*Aut
 	if err != nil {
 		return nil, err
 	}
-	return &AuthorityTransactor{Authority: base, manager: manager}, nil
+	return &AuthorityTransactor{Authority: base, contract: base.contract.Transactor(manager), manager: manager}, nil
 }
 
 // Address returns the address of the contract.
 func (_Authority *Authority) Address() common.Address {
 	return _Authority.contract.Address
+}
+
+// Transactor constructs a new transactor for the contract, which allows to send transactions.
+func (_Authority *Authority) Transactor(manager accounts.TxManager) *AuthorityTransactor {
+	return &AuthorityTransactor{Authority: _Authority, contract: _Authority.contract.Transactor(manager), manager: manager}
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -86,8 +89,8 @@ func (_Authority *Authority) Call(revision thorest.Revision, result *[]interface
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_AuthorityTransactor *AuthorityTransactor) Transact(vetValue *big.Int, method string, params ...interface{}) (*transactions.Visitor, error) {
-	return _AuthorityTransactor.contract.SendWithVET(_AuthorityTransactor.manager, vetValue, method, params...)
+func (_AuthorityTransactor *AuthorityTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) (*transactions.Visitor, error) {
+	return _AuthorityTransactor.contract.Send(opts, method, params...)
 }
 
 // Executor is a free data retrieval call binding the contract method 0xc34c08e5.
@@ -200,14 +203,8 @@ func (_Authority *Authority) Next(_nodeMaster common.Address, revision ...thores
 // Add is a paid mutator transaction binding the contract method 0xdc0094b8.
 //
 // Solidity: function add(address _nodeMaster, address _endorsor, bytes32 _identity) returns()
-func (_AuthorityTransactor *AuthorityTransactor) Add(_nodeMaster common.Address, _endorsor common.Address, _identity [32]byte, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _AuthorityTransactor.Transact(val, "add", _nodeMaster, _endorsor, _identity)
+func (_AuthorityTransactor *AuthorityTransactor) Add(_nodeMaster common.Address, _endorsor common.Address, _identity [32]byte, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _AuthorityTransactor.Transact(opts, "add", _nodeMaster, _endorsor, _identity)
 }
 
 // AddAsClause is a transaction clause generator 0xdc0094b8.
@@ -226,14 +223,8 @@ func (_Authority *Authority) AddAsClause(_nodeMaster common.Address, _endorsor c
 // Revoke is a paid mutator transaction binding the contract method 0x74a8f103.
 //
 // Solidity: function revoke(address _nodeMaster) returns()
-func (_AuthorityTransactor *AuthorityTransactor) Revoke(_nodeMaster common.Address, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _AuthorityTransactor.Transact(val, "revoke", _nodeMaster)
+func (_AuthorityTransactor *AuthorityTransactor) Revoke(_nodeMaster common.Address, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _AuthorityTransactor.Transact(opts, "revoke", _nodeMaster)
 }
 
 // RevokeAsClause is a transaction clause generator 0x74a8f103.
@@ -320,7 +311,7 @@ func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriter
 // WatchCandidate listens for on chain events binding the contract event 0xe9e2ad484aeae75ba75479c19d2cbb784b98b2fe4b24dc80a4c8cf142d4c9294.
 //
 // Solidity: event Candidate(address indexed nodeMaster, bytes32 action)
-func (_Authority *Authority) WatchCandidate(criteria []AuthorityCandidateCriteria, ctx context.Context, bufferSize int) (chan *AuthorityCandidate, error) {
+func (_Authority *Authority) WatchCandidate(criteria []AuthorityCandidateCriteria, ctx context.Context, bufferSize int64) (chan *AuthorityCandidate, error) {
 	topicHash := _Authority.contract.ABI.Events["Candidate"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -343,34 +334,23 @@ func (_Authority *Authority) WatchCandidate(criteria []AuthorityCandidateCriteri
 	}
 
 	eventChan := make(chan *AuthorityCandidate, bufferSize)
-	blockSub := _Authority.thor.Blocks.Subscribe(ctx, bufferSize)
+	ticker := _Authority.thor.Blocks.Ticker()
 
 	go func() {
 		defer close(eventChan)
 
 		for {
 			select {
-			case block := <-blockSub:
+			case <-ticker.C():
+				block, err := _Authority.thor.Blocks.Best()
+				if err != nil {
+					continue
+				}
 				for _, tx := range block.Transactions {
 					for index, outputs := range tx.Outputs {
 						for _, event := range outputs.Events {
-							if event.Address != _Authority.contract.Address {
-								continue
-							}
-							if topicHash != event.Topics[0] {
-								continue
-							}
 							for _, c := range criteriaSet {
-								if c.Topic1 != nil && *c.Topic1 != event.Topics[1] {
-									continue
-								}
-								if c.Topic2 != nil && *c.Topic2 != event.Topics[2] {
-									continue
-								}
-								if c.Topic3 != nil && *c.Topic3 != event.Topics[3] {
-									continue
-								}
-								if c.Topic4 != nil && *c.Topic4 != event.Topics[4] {
+								if !c.Matches(event) {
 									continue
 								}
 							}

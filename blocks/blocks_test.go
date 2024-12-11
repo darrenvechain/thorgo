@@ -1,7 +1,6 @@
 package blocks
 
 import (
-	"context"
 	"testing"
 	"time"
 
@@ -22,16 +21,6 @@ func TestMain(m *testing.M) {
 	defer cancel()
 	blocks = New(thorClient)
 	m.Run()
-}
-
-// TestGetBestBlock fetches the best block from the network
-func TestBlocks_Best(t *testing.T) {
-	_, err := blocks.Ticker()
-	assert.NoError(t, err)
-
-	block, err := blocks.Best()
-	assert.NoError(t, err)
-	assert.NotNil(t, block)
 }
 
 // TestGetBlockByNumber fetches a block by its number
@@ -65,33 +54,13 @@ func TestBlocks_Expanded(t *testing.T) {
 
 // TestWaitForNextBlock waits for the next block to be produced
 func TestBlocks_Ticker(t *testing.T) {
-	block, err := blocks.Ticker()
-	assert.NoError(t, err)
-	assert.NotNil(t, block)
-}
+	ticker := blocks.Ticker()
+	timeout := time.NewTimer(12 * time.Second)
 
-func TestBlocks_Subscribe(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	sub := blocks.Subscribe(ctx, 1)
-	ticker := time.NewTicker(30 * time.Second)
-	for {
-		select {
-		case <-ticker.C:
-			t.Fatal("timed out waiting for block")
-		case blk := <-sub:
-			assert.NotNil(t, blk)
-			return
-		}
+	select {
+	case <-timeout.C:
+		t.Fatal("timed out waiting for the next block")
+	case <-ticker.C():
+		return
 	}
-}
-
-func TestBlocks_Unsubscribe(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	// cancel the context before we start the subscription
-	cancel()
-	sub := blocks.Subscribe(ctx, 1)
-	blk, ok := <-sub
-	assert.Nil(t, blk)
-	assert.False(t, ok)
 }

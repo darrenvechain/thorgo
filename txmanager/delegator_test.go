@@ -34,11 +34,10 @@ func TestPKDelegator(t *testing.T) {
 	origin := txmanager.FromPK(solo.Keys()[0], thor)
 	delegator := txmanager.NewDelegator(solo.Keys()[1])
 
+	opts := new(transactions.OptionsBuilder).GasPayer(delegator.Address()).Build()
+
 	clause := tx.NewClause(&common.Address{}).WithValue(new(big.Int))
-	tx, err := thor.Transactor([]*tx.Clause{clause}).
-		GasPayer(delegator.Address()).
-		Delegate().
-		Build(origin.Address())
+	tx, err := thor.Transactor([]*tx.Clause{clause}).Build(origin.Address(), opts)
 
 	assert.NoError(t, err)
 
@@ -94,10 +93,10 @@ func TestNewUrlDelegator(t *testing.T) {
 
 	delegator := txmanager.NewUrlDelegator(server.URL)
 
+	opts := new(transactions.OptionsBuilder).Delegated().Build()
+
 	clause := tx.NewClause(&common.Address{}).WithValue(new(big.Int))
-	tx, err := thor.Transactor([]*tx.Clause{clause}).
-		Delegate().
-		Build(origin.Address())
+	tx, err := thor.Transactor([]*tx.Clause{clause}).Build(origin.Address(), opts)
 	assert.NoError(t, err)
 
 	delegatorSignature, err := delegator.Delegate(tx, origin.Address())
@@ -127,7 +126,7 @@ func TestNewDelegatedManager(t *testing.T) {
 
 	contract, _ := builtins.NewVTHOTransactor(thor, manager)
 
-	tx, err := contract.Transfer(common.Address{100}, big.NewInt(1000))
+	tx, err := contract.Transfer(common.Address{100}, big.NewInt(1000), &transactions.Options{})
 	assert.NoError(t, err)
 
 	receipt, err := tx.Wait()

@@ -40,7 +40,7 @@ var Erc20MetaData = &bind.MetaData{
 }
 
 // DeployErc20 deploys a new Ethereum contract, binding an instance of Erc20 to it.
-func DeployErc20(thor *thorgo.Thor, sender accounts.TxManager, name string, symbol string) (common.Hash, *Erc20Transactor, error) {
+func DeployErc20(thor *thorgo.Thor, sender accounts.TxManager, opts *transactions.Options, name string, symbol string) (common.Hash, *Erc20Transactor, error) {
 	parsed, err := Erc20MetaData.GetAbi()
 	if err != nil {
 		return common.Hash{}, nil, err
@@ -53,11 +53,11 @@ func DeployErc20(thor *thorgo.Thor, sender accounts.TxManager, name string, symb
 	if err != nil {
 		return common.Hash{}, nil, err
 	}
-	contract, txID, err := thor.Deployer(bytes, parsed).Deploy(sender, name, symbol)
+	contract, txID, err := thor.Deployer(bytes, parsed).Deploy(sender, opts, name, symbol)
 	if err != nil {
 		return common.Hash{}, nil, err
 	}
-	return txID, &Erc20Transactor{&Erc20{thor: thor, contract: contract}, sender}, nil
+	return txID, &Erc20Transactor{&Erc20{thor: thor, contract: contract}, contract.Transactor(sender), sender}, nil
 }
 
 // Erc20 is an auto generated Go binding around an Ethereum contract, allowing you to query and create clauses.
@@ -69,7 +69,8 @@ type Erc20 struct {
 // Erc20Transactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
 type Erc20Transactor struct {
 	*Erc20
-	manager accounts.TxManager // TxManager to use
+	contract *accounts.ContractTransactor // Generic contract wrapper for the low level calls
+	manager  accounts.TxManager           // TxManager to use
 }
 
 // NewErc20 creates a new instance of Erc20, bound to a specific deployed contract.
@@ -79,9 +80,6 @@ func NewErc20(address common.Address, thor *thorgo.Thor) (*Erc20, error) {
 		return nil, err
 	}
 	contract := thor.Account(address).Contract(parsed)
-	if err != nil {
-		return nil, err
-	}
 	return &Erc20{thor: thor, contract: contract}, nil
 }
 
@@ -91,12 +89,17 @@ func NewErc20Transactor(address common.Address, thor *thorgo.Thor, manager accou
 	if err != nil {
 		return nil, err
 	}
-	return &Erc20Transactor{Erc20: base, manager: manager}, nil
+	return &Erc20Transactor{Erc20: base, contract: base.contract.Transactor(manager), manager: manager}, nil
 }
 
 // Address returns the address of the contract.
 func (_Erc20 *Erc20) Address() common.Address {
 	return _Erc20.contract.Address
+}
+
+// Transactor constructs a new transactor for the contract, which allows to send transactions.
+func (_Erc20 *Erc20) Transactor(manager accounts.TxManager) *Erc20Transactor {
+	return &Erc20Transactor{Erc20: _Erc20, contract: _Erc20.contract.Transactor(manager), manager: manager}
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -108,8 +111,8 @@ func (_Erc20 *Erc20) Call(revision thorest.Revision, result *[]interface{}, meth
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_Erc20Transactor *Erc20Transactor) Transact(vetValue *big.Int, method string, params ...interface{}) (*transactions.Visitor, error) {
-	return _Erc20Transactor.contract.SendWithVET(_Erc20Transactor.manager, vetValue, method, params...)
+func (_Erc20Transactor *Erc20Transactor) Transact(opts *transactions.Options, method string, params ...interface{}) (*transactions.Visitor, error) {
+	return _Erc20Transactor.contract.Send(opts, method, params...)
 }
 
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
@@ -253,14 +256,8 @@ func (_Erc20 *Erc20) TotalSupply(revision ...thorest.Revision) (*big.Int, error)
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
 // Solidity: function approve(address spender, uint256 value) returns(bool)
-func (_Erc20Transactor *Erc20Transactor) Approve(spender common.Address, value *big.Int, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Erc20Transactor.Transact(val, "approve", spender, value)
+func (_Erc20Transactor *Erc20Transactor) Approve(spender common.Address, value *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _Erc20Transactor.Transact(opts, "approve", spender, value)
 }
 
 // ApproveAsClause is a transaction clause generator 0x095ea7b3.
@@ -279,14 +276,8 @@ func (_Erc20 *Erc20) ApproveAsClause(spender common.Address, value *big.Int, vet
 // Burn is a paid mutator transaction binding the contract method 0x42966c68.
 //
 // Solidity: function burn(uint256 value) returns()
-func (_Erc20Transactor *Erc20Transactor) Burn(value *big.Int, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Erc20Transactor.Transact(val, "burn", value)
+func (_Erc20Transactor *Erc20Transactor) Burn(value *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _Erc20Transactor.Transact(opts, "burn", value)
 }
 
 // BurnAsClause is a transaction clause generator 0x42966c68.
@@ -305,14 +296,8 @@ func (_Erc20 *Erc20) BurnAsClause(value *big.Int, vetValue ...*big.Int) (*tx.Cla
 // BurnFrom is a paid mutator transaction binding the contract method 0x79cc6790.
 //
 // Solidity: function burnFrom(address account, uint256 value) returns()
-func (_Erc20Transactor *Erc20Transactor) BurnFrom(account common.Address, value *big.Int, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Erc20Transactor.Transact(val, "burnFrom", account, value)
+func (_Erc20Transactor *Erc20Transactor) BurnFrom(account common.Address, value *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _Erc20Transactor.Transact(opts, "burnFrom", account, value)
 }
 
 // BurnFromAsClause is a transaction clause generator 0x79cc6790.
@@ -331,14 +316,8 @@ func (_Erc20 *Erc20) BurnFromAsClause(account common.Address, value *big.Int, ve
 // Mint is a paid mutator transaction binding the contract method 0x40c10f19.
 //
 // Solidity: function mint(address to, uint256 amount) returns()
-func (_Erc20Transactor *Erc20Transactor) Mint(to common.Address, amount *big.Int, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Erc20Transactor.Transact(val, "mint", to, amount)
+func (_Erc20Transactor *Erc20Transactor) Mint(to common.Address, amount *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _Erc20Transactor.Transact(opts, "mint", to, amount)
 }
 
 // MintAsClause is a transaction clause generator 0x40c10f19.
@@ -357,14 +336,8 @@ func (_Erc20 *Erc20) MintAsClause(to common.Address, amount *big.Int, vetValue .
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
 //
 // Solidity: function transfer(address to, uint256 value) returns(bool)
-func (_Erc20Transactor *Erc20Transactor) Transfer(to common.Address, value *big.Int, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Erc20Transactor.Transact(val, "transfer", to, value)
+func (_Erc20Transactor *Erc20Transactor) Transfer(to common.Address, value *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _Erc20Transactor.Transact(opts, "transfer", to, value)
 }
 
 // TransferAsClause is a transaction clause generator 0xa9059cbb.
@@ -383,14 +356,8 @@ func (_Erc20 *Erc20) TransferAsClause(to common.Address, value *big.Int, vetValu
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
 //
 // Solidity: function transferFrom(address from, address to, uint256 value) returns(bool)
-func (_Erc20Transactor *Erc20Transactor) TransferFrom(from common.Address, to common.Address, value *big.Int, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Erc20Transactor.Transact(val, "transferFrom", from, to, value)
+func (_Erc20Transactor *Erc20Transactor) TransferFrom(from common.Address, to common.Address, value *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _Erc20Transactor.Transact(opts, "transferFrom", from, to, value)
 }
 
 // TransferFromAsClause is a transaction clause generator 0x23b872dd.
@@ -487,7 +454,7 @@ func (_Erc20 *Erc20) FilterApproval(criteria []Erc20ApprovalCriteria, filters *t
 // WatchApproval listens for on chain events binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
 //
 // Solidity: event Approval(address indexed owner, address indexed spender, uint256 value)
-func (_Erc20 *Erc20) WatchApproval(criteria []Erc20ApprovalCriteria, ctx context.Context, bufferSize int) (chan *Erc20Approval, error) {
+func (_Erc20 *Erc20) WatchApproval(criteria []Erc20ApprovalCriteria, ctx context.Context, bufferSize int64) (chan *Erc20Approval, error) {
 	topicHash := _Erc20.contract.ABI.Events["Approval"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -518,34 +485,23 @@ func (_Erc20 *Erc20) WatchApproval(criteria []Erc20ApprovalCriteria, ctx context
 	}
 
 	eventChan := make(chan *Erc20Approval, bufferSize)
-	blockSub := _Erc20.thor.Blocks.Subscribe(ctx, bufferSize)
+	ticker := _Erc20.thor.Blocks.Ticker()
 
 	go func() {
 		defer close(eventChan)
 
 		for {
 			select {
-			case block := <-blockSub:
+			case <-ticker.C():
+				block, err := _Erc20.thor.Blocks.Best()
+				if err != nil {
+					continue
+				}
 				for _, tx := range block.Transactions {
 					for index, outputs := range tx.Outputs {
 						for _, event := range outputs.Events {
-							if event.Address != _Erc20.contract.Address {
-								continue
-							}
-							if topicHash != event.Topics[0] {
-								continue
-							}
 							for _, c := range criteriaSet {
-								if c.Topic1 != nil && *c.Topic1 != event.Topics[1] {
-									continue
-								}
-								if c.Topic2 != nil && *c.Topic2 != event.Topics[2] {
-									continue
-								}
-								if c.Topic3 != nil && *c.Topic3 != event.Topics[3] {
-									continue
-								}
-								if c.Topic4 != nil && *c.Topic4 != event.Topics[4] {
+								if !c.Matches(event) {
 									continue
 								}
 							}
@@ -663,7 +619,7 @@ func (_Erc20 *Erc20) FilterTransfer(criteria []Erc20TransferCriteria, filters *t
 // WatchTransfer listens for on chain events binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
 //
 // Solidity: event Transfer(address indexed from, address indexed to, uint256 value)
-func (_Erc20 *Erc20) WatchTransfer(criteria []Erc20TransferCriteria, ctx context.Context, bufferSize int) (chan *Erc20Transfer, error) {
+func (_Erc20 *Erc20) WatchTransfer(criteria []Erc20TransferCriteria, ctx context.Context, bufferSize int64) (chan *Erc20Transfer, error) {
 	topicHash := _Erc20.contract.ABI.Events["Transfer"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -694,34 +650,23 @@ func (_Erc20 *Erc20) WatchTransfer(criteria []Erc20TransferCriteria, ctx context
 	}
 
 	eventChan := make(chan *Erc20Transfer, bufferSize)
-	blockSub := _Erc20.thor.Blocks.Subscribe(ctx, bufferSize)
+	ticker := _Erc20.thor.Blocks.Ticker()
 
 	go func() {
 		defer close(eventChan)
 
 		for {
 			select {
-			case block := <-blockSub:
+			case <-ticker.C():
+				block, err := _Erc20.thor.Blocks.Best()
+				if err != nil {
+					continue
+				}
 				for _, tx := range block.Transactions {
 					for index, outputs := range tx.Outputs {
 						for _, event := range outputs.Events {
-							if event.Address != _Erc20.contract.Address {
-								continue
-							}
-							if topicHash != event.Topics[0] {
-								continue
-							}
 							for _, c := range criteriaSet {
-								if c.Topic1 != nil && *c.Topic1 != event.Topics[1] {
-									continue
-								}
-								if c.Topic2 != nil && *c.Topic2 != event.Topics[2] {
-									continue
-								}
-								if c.Topic3 != nil && *c.Topic3 != event.Topics[3] {
-									continue
-								}
-								if c.Topic4 != nil && *c.Topic4 != event.Topics[4] {
+								if !c.Matches(event) {
 									continue
 								}
 							}

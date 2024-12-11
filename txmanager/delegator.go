@@ -43,8 +43,16 @@ func (d *DelegatedManager) SignTransaction(tx *tx.Transaction) ([]byte, error) {
 	return signature, nil
 }
 
-func (d *DelegatedManager) SendClauses(clauses []*tx.Clause) (common.Hash, error) {
-	tx, err := d.thor.Transactor(clauses).Delegate().Build(d.Address())
+func (d *DelegatedManager) SendClauses(clauses []*tx.Clause, opts *transactions.Options) (common.Hash, error) {
+	if opts == nil {
+		opts = &transactions.Options{}
+	}
+	if opts.Delegation == nil || !*opts.Delegation {
+		opts.Delegation = new(bool)
+		*opts.Delegation = true
+	}
+
+	tx, err := d.thor.Transactor(clauses).Build(d.Address(), opts)
 	if err != nil {
 		return common.Hash{}, err
 	}

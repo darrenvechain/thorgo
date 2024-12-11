@@ -100,20 +100,20 @@ func (c *Client) AccountStorageAt(
 }
 
 // Block fetches the block for the given revision.
-func (c *Client) Block(revision string) (*Block, error) {
-	url := "/blocks/" + revision
+func (c *Client) Block(revision Revision) (*Block, error) {
+	url := "/blocks/" + revision.value
 	return httpGet(c, url, &Block{})
 }
 
 // BestBlock returns the best block.
 func (c *Client) BestBlock() (*Block, error) {
-	return c.Block("best")
+	return c.Block(RevisionBest())
 }
 
 // GenesisBlock returns the genesis block.
 func (c *Client) GenesisBlock() (*Block, error) {
 	if c.genesisBlock == nil {
-		block, err := c.Block("0")
+		block, err := c.Block(RevisionNumber(0))
 		if err != nil {
 			return nil, err
 		}

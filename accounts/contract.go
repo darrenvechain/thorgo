@@ -8,7 +8,6 @@ import (
 
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
-	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -31,7 +30,7 @@ func NewContract(
 
 // Call executes a read-only contract call.
 func (c *Contract) Call(method string, results *[]interface{}, args ...interface{}) error {
-	return c.CallAt(thorest.RevisionBest(), method, results, args...)
+	return c.CallAt(thorest.RevisionNext(), method, results, args...)
 }
 
 // CallAt executes a read-only contract call at a specific revision.
@@ -109,26 +108,8 @@ func (c *Contract) AsClauseWithVET(vet *big.Int, method string, args ...interfac
 	return tx.NewClause(&c.Address).WithData(packed).WithValue(vet), nil
 }
 
-type TxManager interface {
-	SendClauses(clauses []*tx.Clause) (common.Hash, error)
-}
-
-// Send executes a transaction with a single clause.
-func (c *Contract) Send(manager TxManager, method string, args ...interface{}) (*transactions.Visitor, error) {
-	return c.SendWithVET(manager, big.NewInt(0), method, args...)
-}
-
-// SendWithVET executes a transaction with a single clause and a value.
-func (c *Contract) SendWithVET(manager TxManager, vet *big.Int, method string, args ...interface{}) (*transactions.Visitor, error) {
-	clause, err := c.AsClauseWithVET(vet, method, args...)
-	if err != nil {
-		return &transactions.Visitor{}, fmt.Errorf("failed to pack method %s: %w", method, err)
-	}
-	txId, err := manager.SendClauses([]*tx.Clause{clause})
-	if err != nil {
-		return &transactions.Visitor{}, fmt.Errorf("failed to send transaction: %w", err)
-	}
-	return transactions.New(c.client, txId), nil
+func (c *Contract) Transactor(manager TxManager) *ContractTransactor {
+	return &ContractTransactor{Contract: c, manager: manager}
 }
 
 // EventCriteria generates criteria to query contract events by name.

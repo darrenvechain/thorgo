@@ -23,18 +23,13 @@ func NewDeployer(client *thorest.Client, bytecode []byte, abi *abi.ABI) *Deploye
 	return &Deployer{client: client, bytecode: bytecode, abi: abi, value: big.NewInt(0)}
 }
 
-func (d *Deployer) WithValue(value *big.Int) *Deployer {
-	d.value = value
-	return d
-}
-
-func (d *Deployer) Deploy(sender TxManager, args ...interface{}) (*Contract, common.Hash, error) {
+func (d *Deployer) Deploy(sender TxManager, opts *transactions.Options, args ...interface{}) (*Contract, common.Hash, error) {
 	clause, err := d.AsClause(args...)
 	txID := common.Hash{}
 	if err != nil {
 		return nil, txID, fmt.Errorf("failed to pack contract arguments: %w", err)
 	}
-	txID, err = sender.SendClauses([]*tx.Clause{clause})
+	txID, err = sender.SendClauses([]*tx.Clause{clause}, opts)
 	if err != nil {
 		return nil, txID, fmt.Errorf("failed to send contract deployment transaction: %w", err)
 	}

@@ -1,6 +1,8 @@
 package transactions
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -39,6 +41,9 @@ func (v *Visitor) RevertReason() (*RevertReason, error) {
 	if err != nil {
 		return nil, err
 	}
+	if !receipt.Reverted {
+		return nil, errors.New("transaction did not revert")
+	}
 	res, err := v.client.DebugRevertReason(receipt)
 	if err != nil {
 		return nil, err
@@ -71,17 +76,16 @@ func (v *Visitor) WaitFor(duration time.Duration) (*thorest.TransactionReceipt, 
 		return receipt, nil
 	}
 
-	timeout := time.After(duration)
+	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	defer cancel()
+
+	ticker := v.blocks.Ticker()
 
 	for {
 		select {
-		case <-timeout:
+		case <-ctx.Done():
 			return nil, fmt.Errorf("timed out waiting for the tx receipt %s", v.hash.String())
-		default:
-			_, err := v.blocks.Ticker()
-			if err != nil {
-				time.Sleep(1 * time.Second)
-			}
+		case <-ticker.C():
 			receipt, err = v.client.TransactionReceipt(v.hash)
 			if err == nil {
 				return receipt, nil

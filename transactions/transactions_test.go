@@ -38,7 +38,7 @@ func TestTransactions(t *testing.T) {
 	// build a transaction
 	to := account2.Address()
 	vetClause := tx.NewClause(&to).WithValue(big.NewInt(1000))
-	unsigned, err := transactions.NewTransactor(thorClient, []*tx.Clause{vetClause}).Build(account1.Address())
+	unsigned, err := transactions.NewTransactor(thorClient, []*tx.Clause{vetClause}).Build(account1.Address(), &transactions.Options{})
 	assert.NoError(t, err)
 
 	// sign it
@@ -73,17 +73,17 @@ func TestVisitor_RevertReason(t *testing.T) {
 	transferAmount := big.NewInt(1001)
 
 	// setup contracts + funding
-	deploymentTxID, erc20, err := testcontract.DeployErc20(thor, account1, "Erc20", "ERC")
+	deploymentTxID, erc20, err := testcontract.DeployErc20(thor, account1, &transactions.Options{}, "Erc20", "ERC")
 	assert.NoError(t, err)
 	_, err = transactions.New(thorClient, deploymentTxID).Wait()
 	assert.NoError(t, err)
-	erc20Funding, err := erc20.Mint(account1.Address(), balance)
+	erc20Funding, err := erc20.Mint(account1.Address(), balance, &transactions.Options{})
 	assert.NoError(t, err)
 	_, err = erc20Funding.Wait()
 	assert.NoError(t, err)
 
 	// send funds too much erc20 tokens
-	transfer, err := erc20.Transfer(account2.Address(), transferAmount)
+	transfer, err := erc20.Transfer(account2.Address(), transferAmount, &transactions.Options{})
 	assert.NoError(t, err)
 	receipt, err := transfer.Wait()
 	assert.NoError(t, err)

@@ -35,3 +35,9 @@ func RevisionFinalized() Revision {
 func RevisionJustified() Revision {
 	return Revision{value: "justified"}
 }
+
+// RevisionNext creates a revision based on the next block.
+// Only allowed on the /accounts/* endpoint
+func RevisionNext() Revision {
+	return Revision{value: "next"}
+}

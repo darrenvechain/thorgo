@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/darrenvechain/thorgo/thorest"
+	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/darrenvechain/thorgo/txmanager"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
@@ -55,7 +56,7 @@ func TestContract_Send(t *testing.T) {
 	receiver, err := txmanager.GeneratePK(thor)
 	assert.NoError(t, err)
 
-	tx, err := vthoRaw.Send(account1, "transfer", receiver.Address(), big.NewInt(1000))
+	tx, err := vthoRaw.Transactor(account1).Send(&transactions.Options{}, "transfer", receiver.Address(), big.NewInt(1000))
 	assert.NoError(t, err)
 
 	receipt, err := tx.Wait()
@@ -67,10 +68,11 @@ func TestContract_EventCriteria(t *testing.T) {
 	receiver, err := txmanager.GeneratePK(thor)
 	assert.NoError(t, err)
 
-	tx, err := vthoRaw.Send(account1, "transfer", receiver.Address(), big.NewInt(1000))
+	tx, err := vthoRaw.Transactor(account1).Send(&transactions.Options{}, "transfer", receiver.Address(), big.NewInt(1000))
 	assert.NoError(t, err)
 
-	receipt, _ := tx.Wait()
+	receipt, err := tx.Wait()
+	assert.NoError(t, err)
 	assert.False(t, receipt.Reverted)
 
 	// event criteria - match the newly created receiver
@@ -99,7 +101,7 @@ func TestContract_UnpackLog(t *testing.T) {
 	receiver, err := txmanager.GeneratePK(thor)
 	assert.NoError(t, err)
 
-	tx, err := vthoRaw.Send(account1, "transfer", receiver.Address(), big.NewInt(1000))
+	tx, err := vthoRaw.Transactor(account1).Send(&transactions.Options{}, "transfer", receiver.Address(), big.NewInt(1000))
 	assert.NoError(t, err)
 
 	receipt, _ := tx.Wait()

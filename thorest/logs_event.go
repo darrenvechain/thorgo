@@ -27,3 +27,25 @@ type EventCriteria struct {
 	Topic3  *common.Hash    `json:"topic3,omitempty"`
 	Topic4  *common.Hash    `json:"topic4,omitempty"`
 }
+
+func (e *EventCriteria) Matches(event Event) bool {
+	if e.Address != nil && *e.Address != event.Address {
+		return false
+	}
+
+	matchTopic := func(topic *common.Hash, index int) bool {
+		if topic == nil {
+			return true // no criteria set, always match
+		}
+		if len(event.Topics) <= index {
+			return false // not enough topics
+		}
+		return *topic == event.Topics[index] // compare topics
+	}
+
+	return matchTopic(e.Topic0, 0) &&
+		matchTopic(e.Topic1, 1) &&
+		matchTopic(e.Topic2, 2) &&
+		matchTopic(e.Topic3, 3) &&
+		matchTopic(e.Topic4, 4)
+}

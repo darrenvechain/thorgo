@@ -60,7 +60,7 @@ var (
 
     {{if .InputBin}}
         // Deploy{{.Type}} deploys a new Ethereum contract, binding an instance of {{.Type}} to it.
-        func Deploy{{.Type}}(thor *thorgo.Thor, sender accounts.TxManager{{range .Constructor.Inputs}}, {{.Name}} {{bindtype .Type $structs}}{{end}}) (common.Hash, *{{.Type}}Transactor, error) {
+        func Deploy{{.Type}}(thor *thorgo.Thor, sender accounts.TxManager, opts *transactions.Options{{range .Constructor.Inputs}}, {{.Name}} {{bindtype .Type $structs}}{{end}}) (common.Hash, *{{.Type}}Transactor, error) {
             parsed, err := {{.Type}}MetaData.GetAbi()
             if err != nil {
                 return common.Hash{}, nil, err
@@ -76,11 +76,11 @@ var (
             if err != nil {
                 return common.Hash{}, nil, err
             }
-            contract, txID, err := thor.Deployer(bytes, parsed).Deploy(sender{{range .Constructor.Inputs}}, {{.Name}}{{end}})
+            contract, txID, err := thor.Deployer(bytes, parsed).Deploy(sender, opts{{range .Constructor.Inputs}}, {{.Name}}{{end}})
             if err != nil {
                 return common.Hash{}, nil, err
             }
-            return txID, &{{.Type}}Transactor{&{{.Type}}{ thor: thor, contract: contract }, sender }, nil
+            return txID, &{{.Type}}Transactor{&{{.Type}}{thor: thor, contract: contract}, contract.Transactor(sender), sender}, nil
         }
     {{end}}
 
@@ -93,6 +93,7 @@ var (
 	// {{.Type}}Transactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
     type {{.Type}}Transactor struct {
             *{{.Type}}
+            contract *accounts.ContractTransactor // Generic contract wrapper for the low level calls
     		manager accounts.TxManager // TxManager to use
     }
 
@@ -104,9 +105,6 @@ var (
 			return nil, err
 		}
 		contract := thor.Account(address).Contract(parsed)
-		if err != nil {
-			return nil, err
-		}
 		return &{{.Type}}{ thor: thor, contract: contract }, nil
 	}
 
@@ -116,12 +114,17 @@ var (
         if err != nil {
             return nil, err
         }
-        return &{{.Type}}Transactor{ {{.Type}}: base, manager: manager }, nil
+        return &{{.Type}}Transactor{ {{.Type}}: base, contract: base.contract.Transactor(manager), manager: manager }, nil
     }
 
 	// Address returns the address of the contract.
 	func (_{{$contract.Type}} *{{$contract.Type}}) Address() common.Address {
         return _{{$contract.Type}}.contract.Address
+    }
+
+    // Transactor constructs a new transactor for the contract, which allows to send transactions.
+    func (_{{$contract.Type}} *{{$contract.Type}}) Transactor(manager accounts.TxManager) *{{$contract.Type}}Transactor {
+        return &{{$contract.Type}}Transactor{ {{$contract.Type}}: _{{$contract.Type}}, contract: _{{$contract.Type}}.contract.Transactor(manager), manager: manager }
     }
 
 	// Call invokes the (constant) contract method with params as input values and
@@ -133,8 +136,8 @@ var (
 	}
 
 	// Transact invokes the (paid) contract method with params as input values.
-	func (_{{$contract.Type}}Transactor *{{$contract.Type}}Transactor) Transact(vetValue *big.Int, method string, params ...interface{}) (*transactions.Visitor, error) {
-		return _{{$contract.Type}}Transactor.contract.SendWithVET(_{{$contract.Type}}Transactor.manager, vetValue, method, params...)
+	func (_{{$contract.Type}}Transactor *{{$contract.Type}}Transactor) Transact(opts *transactions.Options, method string, params ...interface{}) (*transactions.Visitor, error) {
+		return _{{$contract.Type}}Transactor.contract.Send(opts, method, params...)
 	}
 
 	{{range .Calls}}
@@ -175,14 +178,8 @@ var (
 		// {{.Normalized.Name}} is a paid mutator transaction binding the contract method 0x{{printf "%x" .Original.ID}}.
 		//
 		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}}Transactor *{{$contract.Type}}Transactor) {{.Normalized.Name}}({{range .Normalized.Inputs}} {{.Name}} {{bindtype .Type $structs}}, {{end}} vetValue ... *big.Int) (*transactions.Visitor, error) {
-		    var val *big.Int
-		    if len(vetValue) > 0 {
-                val = vetValue[0]
-            } else {
-                val = big.NewInt(0)
-            }
-			return _{{$contract.Type}}Transactor.Transact( val, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
+		func (_{{$contract.Type}}Transactor *{{$contract.Type}}Transactor) {{.Normalized.Name}}({{range .Normalized.Inputs}} {{.Name}} {{bindtype .Type $structs}}, {{end}} opts *transactions.Options) (*transactions.Visitor, error) {
+			return _{{$contract.Type}}Transactor.Transact(opts, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
 		}
 
 		// {{.Normalized.Name}}AsClause is a transaction clause generator 0x{{printf "%x" .Original.ID}}.
@@ -315,7 +312,7 @@ var (
         // Watch{{.Normalized.Name}} listens for on chain events binding the contract event 0x{{printf "%x" .Original.ID}}.
         //
         // Solidity: {{.Original.String}}
-        func (_{{$contract.Type}} *{{$contract.Type}}) Watch{{.Normalized.Name}}({{ if gt $indexedArgCount 0 }}criteria []{{$contract.Type}}{{.Normalized.Name}}Criteria, {{ end }} ctx context.Context, bufferSize int) (chan *{{$contract.Type}}{{.Normalized.Name}}, error) {
+        func (_{{$contract.Type}} *{{$contract.Type}}) Watch{{.Normalized.Name}}({{ if gt $indexedArgCount 0 }}criteria []{{$contract.Type}}{{.Normalized.Name}}Criteria, {{ end }} ctx context.Context, bufferSize int64) (chan *{{$contract.Type}}{{.Normalized.Name}}, error) {
             topicHash := _{{$contract.Type}}.contract.ABI.Events["{{.Normalized.Name}}"].ID
 
             {{ if gt $indexedArgCount 0 }}
@@ -366,34 +363,23 @@ var (
             {{ end }}
 
             eventChan := make(chan *{{$contract.Type}}{{.Normalized.Name}}, bufferSize)
-            blockSub := _{{$contract.Type}}.thor.Blocks.Subscribe(ctx, bufferSize)
+            ticker := _{{$contract.Type}}.thor.Blocks.Ticker()
 
             go func() {
                 defer close(eventChan)
 
                 for {
                     select {
-                    case block := <-blockSub:
+                    case <-ticker.C():
+                        block, err := _{{$contract.Type}}.thor.Blocks.Best()
+                        if err != nil {
+                        	continue
+                        }
                         for _, tx := range block.Transactions {
                             for index, outputs := range tx.Outputs {
                                 for _, event := range outputs.Events {
-                                    if event.Address != _{{$contract.Type}}.contract.Address {
-                                        continue
-                                    }
-                                    if topicHash != event.Topics[0] {
-                                        continue
-                                    }
                                     for _, c := range criteriaSet {
-                                        if c.Topic1 != nil && *c.Topic1 != event.Topics[1] {
-                                            continue
-                                        }
-                                        if c.Topic2 != nil && *c.Topic2 != event.Topics[2] {
-                                            continue
-                                        }
-                                        if c.Topic3 != nil && *c.Topic3 != event.Topics[3] {
-                                            continue
-                                        }
-                                        if c.Topic4 != nil && *c.Topic4 != event.Topics[4] {
+                                        if !c.Matches(event) {
                                             continue
                                         }
                                     }

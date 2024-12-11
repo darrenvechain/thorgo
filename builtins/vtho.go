@@ -47,7 +47,8 @@ type VTHO struct {
 // VTHOTransactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
 type VTHOTransactor struct {
 	*VTHO
-	manager accounts.TxManager // TxManager to use
+	contract *accounts.ContractTransactor // Generic contract wrapper for the low level calls
+	manager  accounts.TxManager           // TxManager to use
 }
 
 // NewVTHO creates a new instance of VTHO, bound to a specific deployed contract.
@@ -57,9 +58,6 @@ func NewVTHO(thor *thorgo.Thor) (*VTHO, error) {
 		return nil, err
 	}
 	contract := thor.Account(common.HexToAddress("0x0000000000000000000000000000456e65726779")).Contract(parsed)
-	if err != nil {
-		return nil, err
-	}
 	return &VTHO{thor: thor, contract: contract}, nil
 }
 
@@ -69,12 +67,17 @@ func NewVTHOTransactor(thor *thorgo.Thor, manager accounts.TxManager) (*VTHOTran
 	if err != nil {
 		return nil, err
 	}
-	return &VTHOTransactor{VTHO: base, manager: manager}, nil
+	return &VTHOTransactor{VTHO: base, contract: base.contract.Transactor(manager), manager: manager}, nil
 }
 
 // Address returns the address of the contract.
 func (_VTHO *VTHO) Address() common.Address {
 	return _VTHO.contract.Address
+}
+
+// Transactor constructs a new transactor for the contract, which allows to send transactions.
+func (_VTHO *VTHO) Transactor(manager accounts.TxManager) *VTHOTransactor {
+	return &VTHOTransactor{VTHO: _VTHO, contract: _VTHO.contract.Transactor(manager), manager: manager}
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -86,8 +89,8 @@ func (_VTHO *VTHO) Call(revision thorest.Revision, result *[]interface{}, method
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_VTHOTransactor *VTHOTransactor) Transact(vetValue *big.Int, method string, params ...interface{}) (*transactions.Visitor, error) {
-	return _VTHOTransactor.contract.SendWithVET(_VTHOTransactor.manager, vetValue, method, params...)
+func (_VTHOTransactor *VTHOTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) (*transactions.Visitor, error) {
+	return _VTHOTransactor.contract.Send(opts, method, params...)
 }
 
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
@@ -254,14 +257,8 @@ func (_VTHO *VTHO) TotalSupply(revision ...thorest.Revision) (*big.Int, error) {
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
 // Solidity: function approve(address _spender, uint256 _value) returns(bool success)
-func (_VTHOTransactor *VTHOTransactor) Approve(_spender common.Address, _value *big.Int, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _VTHOTransactor.Transact(val, "approve", _spender, _value)
+func (_VTHOTransactor *VTHOTransactor) Approve(_spender common.Address, _value *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _VTHOTransactor.Transact(opts, "approve", _spender, _value)
 }
 
 // ApproveAsClause is a transaction clause generator 0x095ea7b3.
@@ -280,14 +277,8 @@ func (_VTHO *VTHO) ApproveAsClause(_spender common.Address, _value *big.Int, vet
 // Move is a paid mutator transaction binding the contract method 0xbb35783b.
 //
 // Solidity: function move(address _from, address _to, uint256 _amount) returns(bool success)
-func (_VTHOTransactor *VTHOTransactor) Move(_from common.Address, _to common.Address, _amount *big.Int, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _VTHOTransactor.Transact(val, "move", _from, _to, _amount)
+func (_VTHOTransactor *VTHOTransactor) Move(_from common.Address, _to common.Address, _amount *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _VTHOTransactor.Transact(opts, "move", _from, _to, _amount)
 }
 
 // MoveAsClause is a transaction clause generator 0xbb35783b.
@@ -306,14 +297,8 @@ func (_VTHO *VTHO) MoveAsClause(_from common.Address, _to common.Address, _amoun
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
 //
 // Solidity: function transfer(address _to, uint256 _amount) returns(bool success)
-func (_VTHOTransactor *VTHOTransactor) Transfer(_to common.Address, _amount *big.Int, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _VTHOTransactor.Transact(val, "transfer", _to, _amount)
+func (_VTHOTransactor *VTHOTransactor) Transfer(_to common.Address, _amount *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _VTHOTransactor.Transact(opts, "transfer", _to, _amount)
 }
 
 // TransferAsClause is a transaction clause generator 0xa9059cbb.
@@ -332,14 +317,8 @@ func (_VTHO *VTHO) TransferAsClause(_to common.Address, _amount *big.Int, vetVal
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
 //
 // Solidity: function transferFrom(address _from, address _to, uint256 _amount) returns(bool success)
-func (_VTHOTransactor *VTHOTransactor) TransferFrom(_from common.Address, _to common.Address, _amount *big.Int, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _VTHOTransactor.Transact(val, "transferFrom", _from, _to, _amount)
+func (_VTHOTransactor *VTHOTransactor) TransferFrom(_from common.Address, _to common.Address, _amount *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _VTHOTransactor.Transact(opts, "transferFrom", _from, _to, _amount)
 }
 
 // TransferFromAsClause is a transaction clause generator 0x23b872dd.
@@ -436,7 +415,7 @@ func (_VTHO *VTHO) FilterApproval(criteria []VTHOApprovalCriteria, filters *thor
 // WatchApproval listens for on chain events binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
 //
 // Solidity: event Approval(address indexed _owner, address indexed _spender, uint256 _value)
-func (_VTHO *VTHO) WatchApproval(criteria []VTHOApprovalCriteria, ctx context.Context, bufferSize int) (chan *VTHOApproval, error) {
+func (_VTHO *VTHO) WatchApproval(criteria []VTHOApprovalCriteria, ctx context.Context, bufferSize int64) (chan *VTHOApproval, error) {
 	topicHash := _VTHO.contract.ABI.Events["Approval"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -467,34 +446,23 @@ func (_VTHO *VTHO) WatchApproval(criteria []VTHOApprovalCriteria, ctx context.Co
 	}
 
 	eventChan := make(chan *VTHOApproval, bufferSize)
-	blockSub := _VTHO.thor.Blocks.Subscribe(ctx, bufferSize)
+	ticker := _VTHO.thor.Blocks.Ticker()
 
 	go func() {
 		defer close(eventChan)
 
 		for {
 			select {
-			case block := <-blockSub:
+			case <-ticker.C():
+				block, err := _VTHO.thor.Blocks.Best()
+				if err != nil {
+					continue
+				}
 				for _, tx := range block.Transactions {
 					for index, outputs := range tx.Outputs {
 						for _, event := range outputs.Events {
-							if event.Address != _VTHO.contract.Address {
-								continue
-							}
-							if topicHash != event.Topics[0] {
-								continue
-							}
 							for _, c := range criteriaSet {
-								if c.Topic1 != nil && *c.Topic1 != event.Topics[1] {
-									continue
-								}
-								if c.Topic2 != nil && *c.Topic2 != event.Topics[2] {
-									continue
-								}
-								if c.Topic3 != nil && *c.Topic3 != event.Topics[3] {
-									continue
-								}
-								if c.Topic4 != nil && *c.Topic4 != event.Topics[4] {
+								if !c.Matches(event) {
 									continue
 								}
 							}
@@ -612,7 +580,7 @@ func (_VTHO *VTHO) FilterTransfer(criteria []VTHOTransferCriteria, filters *thor
 // WatchTransfer listens for on chain events binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
 //
 // Solidity: event Transfer(address indexed _from, address indexed _to, uint256 _value)
-func (_VTHO *VTHO) WatchTransfer(criteria []VTHOTransferCriteria, ctx context.Context, bufferSize int) (chan *VTHOTransfer, error) {
+func (_VTHO *VTHO) WatchTransfer(criteria []VTHOTransferCriteria, ctx context.Context, bufferSize int64) (chan *VTHOTransfer, error) {
 	topicHash := _VTHO.contract.ABI.Events["Transfer"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -643,34 +611,23 @@ func (_VTHO *VTHO) WatchTransfer(criteria []VTHOTransferCriteria, ctx context.Co
 	}
 
 	eventChan := make(chan *VTHOTransfer, bufferSize)
-	blockSub := _VTHO.thor.Blocks.Subscribe(ctx, bufferSize)
+	ticker := _VTHO.thor.Blocks.Ticker()
 
 	go func() {
 		defer close(eventChan)
 
 		for {
 			select {
-			case block := <-blockSub:
+			case <-ticker.C():
+				block, err := _VTHO.thor.Blocks.Best()
+				if err != nil {
+					continue
+				}
 				for _, tx := range block.Transactions {
 					for index, outputs := range tx.Outputs {
 						for _, event := range outputs.Events {
-							if event.Address != _VTHO.contract.Address {
-								continue
-							}
-							if topicHash != event.Topics[0] {
-								continue
-							}
 							for _, c := range criteriaSet {
-								if c.Topic1 != nil && *c.Topic1 != event.Topics[1] {
-									continue
-								}
-								if c.Topic2 != nil && *c.Topic2 != event.Topics[2] {
-									continue
-								}
-								if c.Topic3 != nil && *c.Topic3 != event.Topics[3] {
-									continue
-								}
-								if c.Topic4 != nil && *c.Topic4 != event.Topics[4] {
+								if !c.Matches(event) {
 									continue
 								}
 							}

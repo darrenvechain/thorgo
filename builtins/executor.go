@@ -47,7 +47,8 @@ type Executor struct {
 // ExecutorTransactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
 type ExecutorTransactor struct {
 	*Executor
-	manager accounts.TxManager // TxManager to use
+	contract *accounts.ContractTransactor // Generic contract wrapper for the low level calls
+	manager  accounts.TxManager           // TxManager to use
 }
 
 // NewExecutor creates a new instance of Executor, bound to a specific deployed contract.
@@ -57,9 +58,6 @@ func NewExecutor(thor *thorgo.Thor) (*Executor, error) {
 		return nil, err
 	}
 	contract := thor.Account(common.HexToAddress("0x0000000000000000000000004578656375746f72")).Contract(parsed)
-	if err != nil {
-		return nil, err
-	}
 	return &Executor{thor: thor, contract: contract}, nil
 }
 
@@ -69,12 +67,17 @@ func NewExecutorTransactor(thor *thorgo.Thor, manager accounts.TxManager) (*Exec
 	if err != nil {
 		return nil, err
 	}
-	return &ExecutorTransactor{Executor: base, manager: manager}, nil
+	return &ExecutorTransactor{Executor: base, contract: base.contract.Transactor(manager), manager: manager}, nil
 }
 
 // Address returns the address of the contract.
 func (_Executor *Executor) Address() common.Address {
 	return _Executor.contract.Address
+}
+
+// Transactor constructs a new transactor for the contract, which allows to send transactions.
+func (_Executor *Executor) Transactor(manager accounts.TxManager) *ExecutorTransactor {
+	return &ExecutorTransactor{Executor: _Executor, contract: _Executor.contract.Transactor(manager), manager: manager}
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -86,8 +89,8 @@ func (_Executor *Executor) Call(revision thorest.Revision, result *[]interface{}
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_ExecutorTransactor *ExecutorTransactor) Transact(vetValue *big.Int, method string, params ...interface{}) (*transactions.Visitor, error) {
-	return _ExecutorTransactor.contract.SendWithVET(_ExecutorTransactor.manager, vetValue, method, params...)
+func (_ExecutorTransactor *ExecutorTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) (*transactions.Visitor, error) {
+	return _ExecutorTransactor.contract.Send(opts, method, params...)
 }
 
 // ApproverCount is a free data retrieval call binding the contract method 0x128e9be6.
@@ -218,14 +221,8 @@ func (_Executor *Executor) VotingContracts(arg0 common.Address, revision ...thor
 // AddApprover is a paid mutator transaction binding the contract method 0x3ef0c09e.
 //
 // Solidity: function addApprover(address _approver, bytes32 _identity) returns()
-func (_ExecutorTransactor *ExecutorTransactor) AddApprover(_approver common.Address, _identity [32]byte, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _ExecutorTransactor.Transact(val, "addApprover", _approver, _identity)
+func (_ExecutorTransactor *ExecutorTransactor) AddApprover(_approver common.Address, _identity [32]byte, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _ExecutorTransactor.Transact(opts, "addApprover", _approver, _identity)
 }
 
 // AddApproverAsClause is a transaction clause generator 0x3ef0c09e.
@@ -244,14 +241,8 @@ func (_Executor *Executor) AddApproverAsClause(_approver common.Address, _identi
 // Approve is a paid mutator transaction binding the contract method 0xa53a1adf.
 //
 // Solidity: function approve(bytes32 _proposalID) returns()
-func (_ExecutorTransactor *ExecutorTransactor) Approve(_proposalID [32]byte, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _ExecutorTransactor.Transact(val, "approve", _proposalID)
+func (_ExecutorTransactor *ExecutorTransactor) Approve(_proposalID [32]byte, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _ExecutorTransactor.Transact(opts, "approve", _proposalID)
 }
 
 // ApproveAsClause is a transaction clause generator 0xa53a1adf.
@@ -270,14 +261,8 @@ func (_Executor *Executor) ApproveAsClause(_proposalID [32]byte, vetValue ...*bi
 // AttachVotingContract is a paid mutator transaction binding the contract method 0xa1fb668f.
 //
 // Solidity: function attachVotingContract(address _contract) returns()
-func (_ExecutorTransactor *ExecutorTransactor) AttachVotingContract(_contract common.Address, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _ExecutorTransactor.Transact(val, "attachVotingContract", _contract)
+func (_ExecutorTransactor *ExecutorTransactor) AttachVotingContract(_contract common.Address, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _ExecutorTransactor.Transact(opts, "attachVotingContract", _contract)
 }
 
 // AttachVotingContractAsClause is a transaction clause generator 0xa1fb668f.
@@ -296,14 +281,8 @@ func (_Executor *Executor) AttachVotingContractAsClause(_contract common.Address
 // DetachVotingContract is a paid mutator transaction binding the contract method 0xa83b3bd8.
 //
 // Solidity: function detachVotingContract(address _contract) returns()
-func (_ExecutorTransactor *ExecutorTransactor) DetachVotingContract(_contract common.Address, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _ExecutorTransactor.Transact(val, "detachVotingContract", _contract)
+func (_ExecutorTransactor *ExecutorTransactor) DetachVotingContract(_contract common.Address, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _ExecutorTransactor.Transact(opts, "detachVotingContract", _contract)
 }
 
 // DetachVotingContractAsClause is a transaction clause generator 0xa83b3bd8.
@@ -322,14 +301,8 @@ func (_Executor *Executor) DetachVotingContractAsClause(_contract common.Address
 // Execute is a paid mutator transaction binding the contract method 0xe751f271.
 //
 // Solidity: function execute(bytes32 _proposalID) returns()
-func (_ExecutorTransactor *ExecutorTransactor) Execute(_proposalID [32]byte, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _ExecutorTransactor.Transact(val, "execute", _proposalID)
+func (_ExecutorTransactor *ExecutorTransactor) Execute(_proposalID [32]byte, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _ExecutorTransactor.Transact(opts, "execute", _proposalID)
 }
 
 // ExecuteAsClause is a transaction clause generator 0xe751f271.
@@ -348,14 +321,8 @@ func (_Executor *Executor) ExecuteAsClause(_proposalID [32]byte, vetValue ...*bi
 // Propose is a paid mutator transaction binding the contract method 0x9d481848.
 //
 // Solidity: function propose(address _target, bytes _data) returns(bytes32)
-func (_ExecutorTransactor *ExecutorTransactor) Propose(_target common.Address, _data []byte, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _ExecutorTransactor.Transact(val, "propose", _target, _data)
+func (_ExecutorTransactor *ExecutorTransactor) Propose(_target common.Address, _data []byte, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _ExecutorTransactor.Transact(opts, "propose", _target, _data)
 }
 
 // ProposeAsClause is a transaction clause generator 0x9d481848.
@@ -374,14 +341,8 @@ func (_Executor *Executor) ProposeAsClause(_target common.Address, _data []byte,
 // RevokeApprover is a paid mutator transaction binding the contract method 0x18d13ef7.
 //
 // Solidity: function revokeApprover(address _approver) returns()
-func (_ExecutorTransactor *ExecutorTransactor) RevokeApprover(_approver common.Address, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _ExecutorTransactor.Transact(val, "revokeApprover", _approver)
+func (_ExecutorTransactor *ExecutorTransactor) RevokeApprover(_approver common.Address, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _ExecutorTransactor.Transact(opts, "revokeApprover", _approver)
 }
 
 // RevokeApproverAsClause is a transaction clause generator 0x18d13ef7.
@@ -468,7 +429,7 @@ func (_Executor *Executor) FilterApprover(criteria []ExecutorApproverCriteria, f
 // WatchApprover listens for on chain events binding the contract event 0x770115cde75e60f17b265d7e0c5e39c57abf243bc316c7e5c2f8d851771da6ac.
 //
 // Solidity: event Approver(address indexed approver, bytes32 action)
-func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ctx context.Context, bufferSize int) (chan *ExecutorApprover, error) {
+func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ctx context.Context, bufferSize int64) (chan *ExecutorApprover, error) {
 	topicHash := _Executor.contract.ABI.Events["Approver"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -491,34 +452,23 @@ func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ct
 	}
 
 	eventChan := make(chan *ExecutorApprover, bufferSize)
-	blockSub := _Executor.thor.Blocks.Subscribe(ctx, bufferSize)
+	ticker := _Executor.thor.Blocks.Ticker()
 
 	go func() {
 		defer close(eventChan)
 
 		for {
 			select {
-			case block := <-blockSub:
+			case <-ticker.C():
+				block, err := _Executor.thor.Blocks.Best()
+				if err != nil {
+					continue
+				}
 				for _, tx := range block.Transactions {
 					for index, outputs := range tx.Outputs {
 						for _, event := range outputs.Events {
-							if event.Address != _Executor.contract.Address {
-								continue
-							}
-							if topicHash != event.Topics[0] {
-								continue
-							}
 							for _, c := range criteriaSet {
-								if c.Topic1 != nil && *c.Topic1 != event.Topics[1] {
-									continue
-								}
-								if c.Topic2 != nil && *c.Topic2 != event.Topics[2] {
-									continue
-								}
-								if c.Topic3 != nil && *c.Topic3 != event.Topics[3] {
-									continue
-								}
-								if c.Topic4 != nil && *c.Topic4 != event.Topics[4] {
+								if !c.Matches(event) {
 									continue
 								}
 							}
@@ -626,7 +576,7 @@ func (_Executor *Executor) FilterProposal(criteria []ExecutorProposalCriteria, f
 // WatchProposal listens for on chain events binding the contract event 0x7d9bcf5c6cdade398a64a03053a982851ccea20dc827dbc130754b9e78c7c31a.
 //
 // Solidity: event Proposal(bytes32 indexed proposalID, bytes32 action)
-func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ctx context.Context, bufferSize int) (chan *ExecutorProposal, error) {
+func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ctx context.Context, bufferSize int64) (chan *ExecutorProposal, error) {
 	topicHash := _Executor.contract.ABI.Events["Proposal"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -649,34 +599,23 @@ func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ct
 	}
 
 	eventChan := make(chan *ExecutorProposal, bufferSize)
-	blockSub := _Executor.thor.Blocks.Subscribe(ctx, bufferSize)
+	ticker := _Executor.thor.Blocks.Ticker()
 
 	go func() {
 		defer close(eventChan)
 
 		for {
 			select {
-			case block := <-blockSub:
+			case <-ticker.C():
+				block, err := _Executor.thor.Blocks.Best()
+				if err != nil {
+					continue
+				}
 				for _, tx := range block.Transactions {
 					for index, outputs := range tx.Outputs {
 						for _, event := range outputs.Events {
-							if event.Address != _Executor.contract.Address {
-								continue
-							}
-							if topicHash != event.Topics[0] {
-								continue
-							}
 							for _, c := range criteriaSet {
-								if c.Topic1 != nil && *c.Topic1 != event.Topics[1] {
-									continue
-								}
-								if c.Topic2 != nil && *c.Topic2 != event.Topics[2] {
-									continue
-								}
-								if c.Topic3 != nil && *c.Topic3 != event.Topics[3] {
-									continue
-								}
-								if c.Topic4 != nil && *c.Topic4 != event.Topics[4] {
+								if !c.Matches(event) {
 									continue
 								}
 							}
@@ -784,7 +723,7 @@ func (_Executor *Executor) FilterVotingContract(criteria []ExecutorVotingContrac
 // WatchVotingContract listens for on chain events binding the contract event 0xf4cb5443be666f872bc8a75293e99e2204a6573e5eb3d2d485d866f2e13c7ea4.
 //
 // Solidity: event VotingContract(address indexed contractAddr, bytes32 action)
-func (_Executor *Executor) WatchVotingContract(criteria []ExecutorVotingContractCriteria, ctx context.Context, bufferSize int) (chan *ExecutorVotingContract, error) {
+func (_Executor *Executor) WatchVotingContract(criteria []ExecutorVotingContractCriteria, ctx context.Context, bufferSize int64) (chan *ExecutorVotingContract, error) {
 	topicHash := _Executor.contract.ABI.Events["VotingContract"].ID
 
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
@@ -807,34 +746,23 @@ func (_Executor *Executor) WatchVotingContract(criteria []ExecutorVotingContract
 	}
 
 	eventChan := make(chan *ExecutorVotingContract, bufferSize)
-	blockSub := _Executor.thor.Blocks.Subscribe(ctx, bufferSize)
+	ticker := _Executor.thor.Blocks.Ticker()
 
 	go func() {
 		defer close(eventChan)
 
 		for {
 			select {
-			case block := <-blockSub:
+			case <-ticker.C():
+				block, err := _Executor.thor.Blocks.Best()
+				if err != nil {
+					continue
+				}
 				for _, tx := range block.Transactions {
 					for index, outputs := range tx.Outputs {
 						for _, event := range outputs.Events {
-							if event.Address != _Executor.contract.Address {
-								continue
-							}
-							if topicHash != event.Topics[0] {
-								continue
-							}
 							for _, c := range criteriaSet {
-								if c.Topic1 != nil && *c.Topic1 != event.Topics[1] {
-									continue
-								}
-								if c.Topic2 != nil && *c.Topic2 != event.Topics[2] {
-									continue
-								}
-								if c.Topic3 != nil && *c.Topic3 != event.Topics[3] {
-									continue
-								}
-								if c.Topic4 != nil && *c.Topic4 != event.Topics[4] {
+								if !c.Matches(event) {
 									continue
 								}
 							}

@@ -47,7 +47,8 @@ type Prototype struct {
 // PrototypeTransactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
 type PrototypeTransactor struct {
 	*Prototype
-	manager accounts.TxManager // TxManager to use
+	contract *accounts.ContractTransactor // Generic contract wrapper for the low level calls
+	manager  accounts.TxManager           // TxManager to use
 }
 
 // NewPrototype creates a new instance of Prototype, bound to a specific deployed contract.
@@ -57,9 +58,6 @@ func NewPrototype(thor *thorgo.Thor) (*Prototype, error) {
 		return nil, err
 	}
 	contract := thor.Account(common.HexToAddress("0x000000000000000000000050726f746f74797065")).Contract(parsed)
-	if err != nil {
-		return nil, err
-	}
 	return &Prototype{thor: thor, contract: contract}, nil
 }
 
@@ -69,12 +67,17 @@ func NewPrototypeTransactor(thor *thorgo.Thor, manager accounts.TxManager) (*Pro
 	if err != nil {
 		return nil, err
 	}
-	return &PrototypeTransactor{Prototype: base, manager: manager}, nil
+	return &PrototypeTransactor{Prototype: base, contract: base.contract.Transactor(manager), manager: manager}, nil
 }
 
 // Address returns the address of the contract.
 func (_Prototype *Prototype) Address() common.Address {
 	return _Prototype.contract.Address
+}
+
+// Transactor constructs a new transactor for the contract, which allows to send transactions.
+func (_Prototype *Prototype) Transactor(manager accounts.TxManager) *PrototypeTransactor {
+	return &PrototypeTransactor{Prototype: _Prototype, contract: _Prototype.contract.Transactor(manager), manager: manager}
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -86,8 +89,8 @@ func (_Prototype *Prototype) Call(revision thorest.Revision, result *[]interface
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_PrototypeTransactor *PrototypeTransactor) Transact(vetValue *big.Int, method string, params ...interface{}) (*transactions.Visitor, error) {
-	return _PrototypeTransactor.contract.SendWithVET(_PrototypeTransactor.manager, vetValue, method, params...)
+func (_PrototypeTransactor *PrototypeTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) (*transactions.Visitor, error) {
+	return _PrototypeTransactor.contract.Send(opts, method, params...)
 }
 
 // Balance is a free data retrieval call binding the contract method 0x6d8c859a.
@@ -332,14 +335,8 @@ func (_Prototype *Prototype) UserCredit(_self common.Address, _user common.Addre
 // AddUser is a paid mutator transaction binding the contract method 0x8ca3b448.
 //
 // Solidity: function addUser(address _self, address _user) returns()
-func (_PrototypeTransactor *PrototypeTransactor) AddUser(_self common.Address, _user common.Address, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _PrototypeTransactor.Transact(val, "addUser", _self, _user)
+func (_PrototypeTransactor *PrototypeTransactor) AddUser(_self common.Address, _user common.Address, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _PrototypeTransactor.Transact(opts, "addUser", _self, _user)
 }
 
 // AddUserAsClause is a transaction clause generator 0x8ca3b448.
@@ -358,14 +355,8 @@ func (_Prototype *Prototype) AddUserAsClause(_self common.Address, _user common.
 // RemoveUser is a paid mutator transaction binding the contract method 0x22928d6b.
 //
 // Solidity: function removeUser(address _self, address _user) returns()
-func (_PrototypeTransactor *PrototypeTransactor) RemoveUser(_self common.Address, _user common.Address, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _PrototypeTransactor.Transact(val, "removeUser", _self, _user)
+func (_PrototypeTransactor *PrototypeTransactor) RemoveUser(_self common.Address, _user common.Address, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _PrototypeTransactor.Transact(opts, "removeUser", _self, _user)
 }
 
 // RemoveUserAsClause is a transaction clause generator 0x22928d6b.
@@ -384,14 +375,8 @@ func (_Prototype *Prototype) RemoveUserAsClause(_self common.Address, _user comm
 // SelectSponsor is a paid mutator transaction binding the contract method 0x3871a9fb.
 //
 // Solidity: function selectSponsor(address _self, address _sponsor) returns()
-func (_PrototypeTransactor *PrototypeTransactor) SelectSponsor(_self common.Address, _sponsor common.Address, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _PrototypeTransactor.Transact(val, "selectSponsor", _self, _sponsor)
+func (_PrototypeTransactor *PrototypeTransactor) SelectSponsor(_self common.Address, _sponsor common.Address, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _PrototypeTransactor.Transact(opts, "selectSponsor", _self, _sponsor)
 }
 
 // SelectSponsorAsClause is a transaction clause generator 0x3871a9fb.
@@ -410,14 +395,8 @@ func (_Prototype *Prototype) SelectSponsorAsClause(_self common.Address, _sponso
 // SetCreditPlan is a paid mutator transaction binding the contract method 0x3659f8ed.
 //
 // Solidity: function setCreditPlan(address _self, uint256 _credit, uint256 _recoveryRate) returns()
-func (_PrototypeTransactor *PrototypeTransactor) SetCreditPlan(_self common.Address, _credit *big.Int, _recoveryRate *big.Int, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _PrototypeTransactor.Transact(val, "setCreditPlan", _self, _credit, _recoveryRate)
+func (_PrototypeTransactor *PrototypeTransactor) SetCreditPlan(_self common.Address, _credit *big.Int, _recoveryRate *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _PrototypeTransactor.Transact(opts, "setCreditPlan", _self, _credit, _recoveryRate)
 }
 
 // SetCreditPlanAsClause is a transaction clause generator 0x3659f8ed.
@@ -436,14 +415,8 @@ func (_Prototype *Prototype) SetCreditPlanAsClause(_self common.Address, _credit
 // SetMaster is a paid mutator transaction binding the contract method 0x01378b58.
 //
 // Solidity: function setMaster(address _self, address _newMaster) returns()
-func (_PrototypeTransactor *PrototypeTransactor) SetMaster(_self common.Address, _newMaster common.Address, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _PrototypeTransactor.Transact(val, "setMaster", _self, _newMaster)
+func (_PrototypeTransactor *PrototypeTransactor) SetMaster(_self common.Address, _newMaster common.Address, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _PrototypeTransactor.Transact(opts, "setMaster", _self, _newMaster)
 }
 
 // SetMasterAsClause is a transaction clause generator 0x01378b58.
@@ -462,14 +435,8 @@ func (_Prototype *Prototype) SetMasterAsClause(_self common.Address, _newMaster 
 // Sponsor is a paid mutator transaction binding the contract method 0x766c4f37.
 //
 // Solidity: function sponsor(address _self) returns()
-func (_PrototypeTransactor *PrototypeTransactor) Sponsor(_self common.Address, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _PrototypeTransactor.Transact(val, "sponsor", _self)
+func (_PrototypeTransactor *PrototypeTransactor) Sponsor(_self common.Address, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _PrototypeTransactor.Transact(opts, "sponsor", _self)
 }
 
 // SponsorAsClause is a transaction clause generator 0x766c4f37.
@@ -488,14 +455,8 @@ func (_Prototype *Prototype) SponsorAsClause(_self common.Address, vetValue ...*
 // Unsponsor is a paid mutator transaction binding the contract method 0xcdd2a99f.
 //
 // Solidity: function unsponsor(address _self) returns()
-func (_PrototypeTransactor *PrototypeTransactor) Unsponsor(_self common.Address, vetValue ...*big.Int) (*transactions.Visitor, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _PrototypeTransactor.Transact(val, "unsponsor", _self)
+func (_PrototypeTransactor *PrototypeTransactor) Unsponsor(_self common.Address, opts *transactions.Options) (*transactions.Visitor, error) {
+	return _PrototypeTransactor.Transact(opts, "unsponsor", _self)
 }
 
 // UnsponsorAsClause is a transaction clause generator 0xcdd2a99f.

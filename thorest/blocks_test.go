@@ -10,7 +10,7 @@ import (
 )
 
 func TestClient_Block(t *testing.T) {
-	block, err := thorClient.Block("1")
+	block, err := thorClient.Block(thorest.RevisionBest())
 	assert.NoError(t, err)
 	assert.NotNil(t, block)
 }
@@ -51,7 +51,7 @@ func TestClient_ChainTag(t *testing.T) {
 }
 
 func TestClient_BlockRef(t *testing.T) {
-	genesis, err := thorClient.Block("0")
+	genesis, err := thorClient.Block(thorest.RevisionNumber(0))
 	assert.NoError(t, err)
 	assert.NotNil(t, genesis)
 	assert.Equal(t, genesis.BlockRef().Number(), uint32(0))

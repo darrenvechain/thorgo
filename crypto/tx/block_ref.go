@@ -7,8 +7,10 @@ package tx
 
 import (
 	"encoding/binary"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 // BlockRef is block reference.
@@ -31,9 +33,16 @@ func NewBlockRefFromID(blockID common.Hash) (br BlockRef) {
 	return
 }
 
-func (b BlockRef) UnmarshalJSON(data []byte) error {
+func (b *BlockRef) UnmarshalJSON(data []byte) error {
 	// block ref is returned as a hex string from the API
-	decoded := common.Hex2Bytes(string(data[1 : len(data)-1]))
+	encoded := string(data[1 : len(data)-1])
+	encoded = strings.TrimPrefix(encoded, "0x")
+	decoded := common.Hex2Bytes(encoded)
 	copy(b[:], decoded)
 	return nil
+}
+
+func (b *BlockRef) MarshalJSON() ([]byte, error) {
+	hex := hexutil.Encode(b[:])
+	return []byte(`"` + hex + `"`), nil
 }

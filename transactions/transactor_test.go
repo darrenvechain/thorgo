@@ -26,12 +26,12 @@ func TestContractClause(t *testing.T) {
 	txbuilder := transactions.NewTransactor(thorClient, []*tx.Clause{clause})
 
 	// simulation
-	simulation, err := txbuilder.Simulate(account1Addr)
+	simulation, err := txbuilder.Simulate(account1Addr, &transactions.Options{})
 	assert.NoError(t, err)
 	assert.False(t, simulation.Reverted())
 
 	// build
-	tx, err := txbuilder.Build(account1Addr)
+	tx, err := txbuilder.Build(account1Addr, &transactions.Options{})
 	assert.NoError(t, err)
 
 	// sign
