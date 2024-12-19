@@ -352,7 +352,7 @@ func (t *Transaction) IntrinsicGas() (uint64, error) {
 func (t *Transaction) GasPrice(baseGasPrice *big.Int) *big.Int {
 	x := new(big.Int).SetUint64(uint64(t.body.GasPriceCoef))
 	x.Mul(x, baseGasPrice)
-	x.Div(x, big.NewInt(math.MaxUint8))
+	x.Div(x, big.NewInt(255))
 	return x.Add(x, baseGasPrice)
 }
 
