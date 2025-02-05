@@ -36,9 +36,9 @@ func TestParams_Get(t *testing.T) {
 
 	// set solo2 as the current executor
 	solo2 := txmanager.FromPK(solo.Keys()[1], thor)
-	var key [32]byte = KeyExecutorAddress
-	var value = new(big.Int).SetBytes(solo2.Address().Bytes())
-	tx, err := params.Set(key, value, &transactions.Options{})
+	// TODO: Not sure why the value is a big.Int here
+	value := new(big.Int).SetBytes(solo2.Address().Bytes())
+	tx, err := params.Set(KeyExecutorAddress, value, &transactions.Options{})
 	assert.NoError(t, err)
 	_, err = tx.Wait()
 	assert.NoError(t, err)
