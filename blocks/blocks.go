@@ -12,35 +12,23 @@ import (
 
 type Blocks struct {
 	client *thorest.Client
-	ctx    context.Context
 	best   atomic.Value
 	signal Signal
 }
 
 func New(ctx context.Context, c *thorest.Client) *Blocks {
-	b := &Blocks{client: c, ctx: ctx}
-	go b.poll()
+	b := &Blocks{client: c}
+	go b.poll(ctx)
 	return b
 }
 
 // poll sends the expanded block to all active subscribers.
-func (b *Blocks) poll() {
+func (b *Blocks) poll(ctx context.Context) {
 	var previous *thorest.ExpandedBlock
-	var err error
-	backoff := 5 * time.Second
-
-	for {
-		previous, err = b.Expanded(thorest.RevisionBest())
-		if err != nil {
-			time.Sleep(backoff)
-			continue
-		}
-		break
-	}
 
 	for {
 		select {
-		case <-b.ctx.Done():
+		case <-ctx.Done():
 			return
 		default:
 			next, err := b.Expanded(thorest.RevisionBest())
@@ -52,7 +40,7 @@ func (b *Blocks) poll() {
 				time.Sleep(2 * time.Second)
 				continue
 			}
-			if next.ID == previous.ID {
+			if previous != nil && next.ID == previous.ID {
 				time.Sleep(250 * time.Millisecond)
 				continue
 			}

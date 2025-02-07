@@ -53,21 +53,12 @@ go get github.com/darrenvechain/thorgo
 - The delegation managers can be used to easily delegate transaction gas fees.
 - **Note**: The private key implementations in this package are not secure. It is recommended to use a secure key
   management solution in a production environment.
-- To create your own transaction manager or signer, you can implement the `accounts.TxManager` for contract interaction
-  and the `transactions.Signer` to sign transactions.
+- To create your own transaction manager or signer, you can implement the `accounts.TxManager` interface:
 
 ```golang
 // github.com/darrenvechain/thorgo/accounts
 type TxManager interface {
     SendClauses(clauses []*tx.Clause) (common.Hash, error)
-}
-```
-
-```golang
-// github.com/darrenvechain/thorgo/transactions
-type Signer interface {
-    SignTransaction(transaction *tx.Transaction) ([]byte, error)
-    Address() common.Address
 }
 ```
 
@@ -101,20 +92,22 @@ type Signer interface {
 package main
 
 import (
-    "fmt"
-  
-    "github.com/darrenvechain/thorgo"
-    "github.com/darrenvechain/thorgo/solo"
-    "github.com/ethereum/go-ethereum/common"
+  "context"
+  "fmt"
+
+  "github.com/darrenvechain/thorgo"
+  "github.com/darrenvechain/thorgo/solo"
+  "github.com/ethereum/go-ethereum/common"
 )
 
 func main() {
-    thor := thorgo.New(solo.URL)
-  
-    // Get an accounts balance
-    acc, err := thor.Account(common.HexToAddress("0x0000000000000000000000000000456e6570")).Get()
-    fmt.Println(acc.Balance)
+  thor := thorgo.New(context.Background(), solo.URL)
+
+  // Get an accounts balance
+  acc, err := thor.Account(common.HexToAddress("0x0000000000000000000000000000456e6570")).Get()
+  fmt.Println(acc.Balance)
 }
+
 ```
 
 ### 2: Interacting with a contract + Delegated Transaction
@@ -129,44 +122,45 @@ func main() {
 package main
 
 import (
-  "log/slog"
-  "math/big"
+	"context"
+	"log/slog"
+	"math/big"
 
-  "github.com/darrenvechain/thorgo"
-  "github.com/darrenvechain/thorgo/builtins"
-  "github.com/darrenvechain/thorgo/solo"
-  "github.com/darrenvechain/thorgo/transactions"
-  "github.com/darrenvechain/thorgo/txmanager"
+	"github.com/darrenvechain/thorgo"
+	"github.com/darrenvechain/thorgo/builtins"
+	"github.com/darrenvechain/thorgo/solo"
+	"github.com/darrenvechain/thorgo/transactions"
+	"github.com/darrenvechain/thorgo/txmanager"
 )
 
 func main() {
-  thor := thorgo.New("http://localhost:8669")
+	thor := thorgo.New(context.Background(), "http://localhost:8669")
 
-  // Create a delegated transaction manager
-  origin := txmanager.FromPK(solo.Keys()[0], thor)
-  gasPayer := txmanager.NewDelegator(solo.Keys()[1])
-  txSender := txmanager.NewDelegatedManager(thor, origin, gasPayer)
+	// Create a delegated transaction manager
+	origin := txmanager.FromPK(solo.Keys()[0], thor.Client)
+	gasPayer := txmanager.NewDelegator(solo.Keys()[1])
+	txSender := txmanager.NewDelegatedManager(thor.Client, origin, gasPayer)
 
-  // Use the `thorgen` CLI to build your own smart contract wrapper
-  vtho, _ := builtins.NewVTHOTransactor(thor, txSender)
+	// Use the `thorgen` CLI to build your own smart contract wrapper
+	vtho, _ := builtins.NewVTHOTransactor(thor.Client, txSender)
 
-  // Create a new account to receive the tokens
-  recipient, _ := txmanager.GeneratePK(thor)
+	// Create a new account to receive the tokens
+	recipient, _ := txmanager.GeneratePK(thor.Client)
 
-  // Call the balanceOf function
-  balance, err := vtho.BalanceOf(recipient.Address())
-  slog.Info("recipient balance before", "balance", balance, "error", err)
+	// Call the balanceOf function
+	balance, err := vtho.BalanceOf(recipient.Address())
+	slog.Info("recipient balance before", "balance", balance, "error", err)
 
-  tx, err := vtho.Transfer(recipient.Address(), big.NewInt(1000000000000000000), &transactions.Options{})
-  if err != nil {
-    slog.Error("transfer error", "error", err)
-    return
-  }
-  receipt, _ := tx.Wait()
-  slog.Info("transfer receipt", "error", receipt.Reverted)
+	tx, err := vtho.Transfer(recipient.Address(), big.NewInt(1000000000000000000), &transactions.Options{})
+	if err != nil {
+		slog.Error("transfer error", "error", err)
+		return
+	}
+	receipt, _ := tx.Wait(context.Background())
+	slog.Info("transfer receipt", "error", receipt.Reverted)
 
-  balance, err = vtho.BalanceOf(recipient.Address())
-  slog.Info("recipient balance after", "balance", balance, "error", err)
+	balance, err = vtho.BalanceOf(recipient.Address())
+	slog.Info("recipient balance after", "balance", balance, "error", err)
 }
 ```
 
@@ -181,40 +175,41 @@ func main() {
 package main
 
 import (
-  "log/slog"
-  "math/big"
+	"context"
+	"log/slog"
+	"math/big"
 
-  "github.com/darrenvechain/thorgo"
-  "github.com/darrenvechain/thorgo/builtins"
-  "github.com/darrenvechain/thorgo/crypto/tx"
-  "github.com/darrenvechain/thorgo/solo"
-  "github.com/darrenvechain/thorgo/transactions"
-  "github.com/darrenvechain/thorgo/txmanager"
+	"github.com/darrenvechain/thorgo"
+	"github.com/darrenvechain/thorgo/builtins"
+	"github.com/darrenvechain/thorgo/crypto/tx"
+	"github.com/darrenvechain/thorgo/solo"
+	"github.com/darrenvechain/thorgo/transactions"
+	"github.com/darrenvechain/thorgo/txmanager"
 )
 
 func main() {
-  thor := thorgo.New("http://localhost:8669")
+	thor := thorgo.New(context.Background(), "http://localhost:8669")
 
-  // Create a delegated transaction manager
-  origin := txmanager.FromPK(solo.Keys()[0], thor)
-  recipient1, _ := txmanager.GeneratePK(thor)
-  recipient2, _ := txmanager.GeneratePK(thor)
+	// Create a delegated transaction manager
+	origin := txmanager.FromPK(solo.Keys()[0], thor.Client)
+	recipient1, _ := txmanager.GeneratePK(thor.Client)
+	recipient2, _ := txmanager.GeneratePK(thor.Client)
 
-  vtho, _ := builtins.NewVTHOTransactor(thor, origin)
+	vtho, _ := builtins.NewVTHOTransactor(thor.Client, origin)
 
-  clause1, _ := vtho.TransferAsClause(recipient1.Address(), big.NewInt(1000))
-  clause2, _ := vtho.TransferAsClause(recipient2.Address(), big.NewInt(9999))
+	clause1, _ := vtho.TransferAsClause(recipient1.Address(), big.NewInt(1000))
+	clause2, _ := vtho.TransferAsClause(recipient2.Address(), big.NewInt(9999))
 
-  txID, _ := origin.SendClauses([]*tx.Clause{clause1, clause2}, &transactions.Options{})
-  slog.Info("transaction sent", "id", txID)
-  trx, _ := thor.Transaction(txID).Wait()
-  slog.Info("transaction mined", "reverted", trx.Reverted)
+	txID, _ := origin.SendClauses([]*tx.Clause{clause1, clause2}, &transactions.Options{})
+	slog.Info("transaction sent", "id", txID)
+	trx, _ := thor.Transaction(txID).Wait(context.Background())
+	slog.Info("transaction mined", "reverted", trx.Reverted)
 
-  balance1, _ := vtho.BalanceOf(recipient1.Address())
-  balance2, _ := vtho.BalanceOf(recipient2.Address())
+	balance1, _ := vtho.BalanceOf(recipient1.Address())
+	balance2, _ := vtho.BalanceOf(recipient2.Address())
 
-  slog.Info("recipient1", "balance", balance1)
-  slog.Info("recipient2", "balance", balance2)
+	slog.Info("recipient1", "balance", balance1)
+	slog.Info("recipient2", "balance", balance2)
 }
 
 ```

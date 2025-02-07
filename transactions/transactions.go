@@ -13,7 +13,6 @@ import (
 type Visitor struct {
 	client *thorest.Client
 	hash   common.Hash
-	//blocks *blocks.Blocks
 }
 
 func New(client *thorest.Client, hash common.Hash) *Visitor {
