@@ -1,10 +1,10 @@
 package builtins
 
 import (
+	"context"
 	"math/big"
 	"testing"
 
-	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/solo"
 	"github.com/darrenvechain/thorgo/transactions"
@@ -17,15 +17,14 @@ var (
 	KeyExecutorAddress = common.BytesToHash([]byte("executor"))
 )
 
-func TestParams_Get(t *testing.T) {
+func TestParams_Set(t *testing.T) {
 	// init thor
 	client, cancel := testcontainer.NewSolo()
 	defer cancel()
-	thor := thorgo.NewFromClient(client)
 
 	// init contract
-	solo1 := txmanager.FromPK(solo.Keys()[0], thor)
-	params, err := NewParamsTransactor(thor, solo1)
+	solo1 := txmanager.FromPK(solo.Keys()[0], client)
+	params, err := NewParamsTransactor(client, solo1)
 	assert.NoError(t, err)
 
 	res, err := params.Get(KeyExecutorAddress)
@@ -35,12 +34,12 @@ func TestParams_Get(t *testing.T) {
 	assert.Equal(t, solo1.Address(), common.BytesToAddress(res.Bytes()))
 
 	// set solo2 as the current executor
-	solo2 := txmanager.FromPK(solo.Keys()[1], thor)
+	solo2 := txmanager.FromPK(solo.Keys()[1], client)
 	// TODO: Not sure why the value is a big.Int here
 	value := new(big.Int).SetBytes(solo2.Address().Bytes())
 	tx, err := params.Set(KeyExecutorAddress, value, &transactions.Options{})
 	assert.NoError(t, err)
-	_, err = tx.Wait()
+	_, err = tx.Wait(context.Background())
 	assert.NoError(t, err)
 
 	// check that solo 2 is the updated executor

@@ -1,6 +1,7 @@
 package thorgo
 
 import (
+	"context"
 	"testing"
 
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
@@ -11,16 +12,17 @@ import (
 )
 
 var thor *Thor
+var ctx = context.Background()
 
 func TestMain(t *testing.M) {
 	clt, cancel := testcontainer.NewSolo()
 	defer cancel()
-	thor = NewFromClient(clt)
+	thor = NewFromClient(ctx, clt)
 	t.Run()
 }
 
 func TestFromClient(t *testing.T) {
-	thor := NewFromClient(thor.Client)
+	thor := NewFromClient(ctx, thor.Client)
 	assert.NotNil(t, thor)
 	tag, err := thor.Client.ChainTag()
 	assert.NoError(t, err)

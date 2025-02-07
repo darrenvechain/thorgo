@@ -3,13 +3,12 @@ package builtins
 import (
 	"testing"
 
-	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
 )
 
-var thor = thorgo.New("https://mainnet.vechain.org")
+var thor = thorest.NewClientFromURL("https://mainnet.vechain.org")
 var eventLimit = int64(10)
 var logFilter = new(thorest.LogFilters).Limit(eventLimit)
 

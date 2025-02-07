@@ -9,8 +9,8 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/accounts"
+	"github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
@@ -31,6 +31,7 @@ var (
 	_ = hexutil.MustDecode
 	_ = context.Background
 	_ = tx.NewClause
+	_ = blocks.New
 )
 
 // Erc20MetaData contains all meta data concerning the Erc20 contract.
@@ -40,7 +41,7 @@ var Erc20MetaData = &bind.MetaData{
 }
 
 // DeployErc20 deploys a new Ethereum contract, binding an instance of Erc20 to it.
-func DeployErc20(thor *thorgo.Thor, sender accounts.TxManager, opts *transactions.Options, name string, symbol string) (common.Hash, *Erc20Transactor, error) {
+func DeployErc20(ctx context.Context, thor *thorest.Client, sender accounts.TxManager, opts *transactions.Options, name string, symbol string) (common.Hash, *Erc20Transactor, error) {
 	parsed, err := Erc20MetaData.GetAbi()
 	if err != nil {
 		return common.Hash{}, nil, err
@@ -53,7 +54,7 @@ func DeployErc20(thor *thorgo.Thor, sender accounts.TxManager, opts *transaction
 	if err != nil {
 		return common.Hash{}, nil, err
 	}
-	contract, txID, err := thor.Deployer(bytes, parsed).Deploy(sender, opts, name, symbol)
+	contract, txID, err := accounts.NewDeployer(thor, bytes, parsed).Deploy(ctx, sender, opts, name, symbol)
 	if err != nil {
 		return common.Hash{}, nil, err
 	}
@@ -62,7 +63,7 @@ func DeployErc20(thor *thorgo.Thor, sender accounts.TxManager, opts *transaction
 
 // Erc20 is an auto generated Go binding around an Ethereum contract, allowing you to query and create clauses.
 type Erc20 struct {
-	thor     *thorgo.Thor       // Thor connection to use
+	thor     *thorest.Client    // Thor client connection to use
 	contract *accounts.Contract // Generic contract wrapper for the low level calls
 }
 
@@ -74,17 +75,17 @@ type Erc20Transactor struct {
 }
 
 // NewErc20 creates a new instance of Erc20, bound to a specific deployed contract.
-func NewErc20(address common.Address, thor *thorgo.Thor) (*Erc20, error) {
+func NewErc20(address common.Address, thor *thorest.Client) (*Erc20, error) {
 	parsed, err := Erc20MetaData.GetAbi()
 	if err != nil {
 		return nil, err
 	}
-	contract := thor.Account(address).Contract(parsed)
+	contract := accounts.New(thor, address).Contract(parsed)
 	return &Erc20{thor: thor, contract: contract}, nil
 }
 
 // NewErc20Transactor creates a new instance of Erc20Transactor, bound to a specific deployed contract.
-func NewErc20Transactor(address common.Address, thor *thorgo.Thor, manager accounts.TxManager) (*Erc20Transactor, error) {
+func NewErc20Transactor(address common.Address, thor *thorest.Client, manager accounts.TxManager) (*Erc20Transactor, error) {
 	base, err := NewErc20(address, thor)
 	if err != nil {
 		return nil, err
@@ -425,7 +426,7 @@ func (_Erc20 *Erc20) FilterApproval(criteria []Erc20ApprovalCriteria, filters *t
 		})
 	}
 
-	logs, err := _Erc20.thor.Client.FilterEvents(criteriaSet, filters)
+	logs, err := _Erc20.thor.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -485,7 +486,8 @@ func (_Erc20 *Erc20) WatchApproval(criteria []Erc20ApprovalCriteria, ctx context
 	}
 
 	eventChan := make(chan *Erc20Approval, bufferSize)
-	ticker := _Erc20.thor.Blocks.Ticker()
+	blocks := blocks.New(ctx, _Erc20.thor)
+	ticker := blocks.Ticker()
 
 	go func() {
 		defer close(eventChan)
@@ -493,7 +495,7 @@ func (_Erc20 *Erc20) WatchApproval(criteria []Erc20ApprovalCriteria, ctx context
 		for {
 			select {
 			case <-ticker.C():
-				block, err := _Erc20.thor.Blocks.Best()
+				block, err := blocks.Best()
 				if err != nil {
 					continue
 				}
@@ -590,7 +592,7 @@ func (_Erc20 *Erc20) FilterTransfer(criteria []Erc20TransferCriteria, filters *t
 		})
 	}
 
-	logs, err := _Erc20.thor.Client.FilterEvents(criteriaSet, filters)
+	logs, err := _Erc20.thor.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -650,7 +652,8 @@ func (_Erc20 *Erc20) WatchTransfer(criteria []Erc20TransferCriteria, ctx context
 	}
 
 	eventChan := make(chan *Erc20Transfer, bufferSize)
-	ticker := _Erc20.thor.Blocks.Ticker()
+	blocks := blocks.New(ctx, _Erc20.thor)
+	ticker := blocks.Ticker()
 
 	go func() {
 		defer close(eventChan)
@@ -658,7 +661,7 @@ func (_Erc20 *Erc20) WatchTransfer(criteria []Erc20TransferCriteria, ctx context
 		for {
 			select {
 			case <-ticker.C():
-				block, err := _Erc20.thor.Blocks.Best()
+				block, err := blocks.Best()
 				if err != nil {
 					continue
 				}

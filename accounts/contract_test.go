@@ -1,6 +1,7 @@
 package accounts_test
 
 import (
+	"context"
 	"math/big"
 	"testing"
 
@@ -42,7 +43,7 @@ func TestContract_DecodeCall(t *testing.T) {
 }
 
 func TestContract_AsClause(t *testing.T) {
-	receiver, err := txmanager.GeneratePK(thor)
+	receiver, err := txmanager.GeneratePK(thorClient)
 	assert.NoError(t, err)
 
 	// transfer clause
@@ -53,25 +54,25 @@ func TestContract_AsClause(t *testing.T) {
 }
 
 func TestContract_Send(t *testing.T) {
-	receiver, err := txmanager.GeneratePK(thor)
+	receiver, err := txmanager.GeneratePK(thorClient)
 	assert.NoError(t, err)
 
 	tx, err := vthoRaw.Transactor(account1).Send(&transactions.Options{}, "transfer", receiver.Address(), big.NewInt(1000))
 	assert.NoError(t, err)
 
-	receipt, err := tx.Wait()
+	receipt, err := tx.Wait(context.Background())
 	assert.NoError(t, err)
 	assert.False(t, receipt.Reverted)
 }
 
 func TestContract_EventCriteria(t *testing.T) {
-	receiver, err := txmanager.GeneratePK(thor)
+	receiver, err := txmanager.GeneratePK(thorClient)
 	assert.NoError(t, err)
 
 	tx, err := vthoRaw.Transactor(account1).Send(&transactions.Options{}, "transfer", receiver.Address(), big.NewInt(1000))
 	assert.NoError(t, err)
 
-	receipt, err := tx.Wait()
+	receipt, err := tx.Wait(context.Background())
 	assert.NoError(t, err)
 	assert.False(t, receipt.Reverted)
 
@@ -98,13 +99,13 @@ func TestContract_EventCriteria(t *testing.T) {
 }
 
 func TestContract_UnpackLog(t *testing.T) {
-	receiver, err := txmanager.GeneratePK(thor)
+	receiver, err := txmanager.GeneratePK(thorClient)
 	assert.NoError(t, err)
 
 	tx, err := vthoRaw.Transactor(account1).Send(&transactions.Options{}, "transfer", receiver.Address(), big.NewInt(1000))
 	assert.NoError(t, err)
 
-	receipt, _ := tx.Wait()
+	receipt, _ := tx.Wait(context.Background())
 	assert.False(t, receipt.Reverted)
 
 	// event criteria - match the newly created receiver

@@ -9,8 +9,8 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/accounts"
+	"github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/transactions"
@@ -31,6 +31,7 @@ var (
 	_ = hexutil.MustDecode
 	_ = context.Background
 	_ = tx.NewClause
+	_ = blocks.New
 )
 
 {{$structs := .Structs}}
@@ -60,7 +61,7 @@ var (
 
     {{if .InputBin}}
         // Deploy{{.Type}} deploys a new Ethereum contract, binding an instance of {{.Type}} to it.
-        func Deploy{{.Type}}(thor *thorgo.Thor, sender accounts.TxManager, opts *transactions.Options{{range .Constructor.Inputs}}, {{.Name}} {{bindtype .Type $structs}}{{end}}) (common.Hash, *{{.Type}}Transactor, error) {
+        func Deploy{{.Type}}(ctx context.Context, thor *thorest.Client, sender accounts.TxManager, opts *transactions.Options{{range .Constructor.Inputs}}, {{.Name}} {{bindtype .Type $structs}}{{end}}) (common.Hash, *{{.Type}}Transactor, error) {
             parsed, err := {{.Type}}MetaData.GetAbi()
             if err != nil {
                 return common.Hash{}, nil, err
@@ -76,7 +77,7 @@ var (
             if err != nil {
                 return common.Hash{}, nil, err
             }
-            contract, txID, err := thor.Deployer(bytes, parsed).Deploy(sender, opts{{range .Constructor.Inputs}}, {{.Name}}{{end}})
+            contract, txID, err := accounts.NewDeployer(thor, bytes, parsed).Deploy(ctx, sender, opts{{range .Constructor.Inputs}}, {{.Name}}{{end}})
             if err != nil {
                 return common.Hash{}, nil, err
             }
@@ -86,7 +87,7 @@ var (
 
 	// {{.Type}} is an auto generated Go binding around an Ethereum contract, allowing you to query and create clauses.
 	type {{.Type}} struct {
-		thor     *thorgo.Thor // Thor connection to use
+		thor     *thorest.Client // Thor client connection to use
 		contract *accounts.Contract // Generic contract wrapper for the low level calls
 	}
 
@@ -99,17 +100,17 @@ var (
 
 
 	// New{{.Type}} creates a new instance of {{.Type}}, bound to a specific deployed contract.
-	func New{{.Type}}(address common.Address, thor *thorgo.Thor) (*{{.Type}}, error) {
+	func New{{.Type}}(address common.Address, thor *thorest.Client) (*{{.Type}}, error) {
 		parsed, err := {{.Type}}MetaData.GetAbi()
 		if err != nil {
 			return nil, err
 		}
-		contract := thor.Account(address).Contract(parsed)
+		contract := accounts.New(thor, address).Contract(parsed)
 		return &{{.Type}}{ thor: thor, contract: contract }, nil
 	}
 
 	// New{{.Type}}Transactor creates a new instance of {{.Type}}Transactor, bound to a specific deployed contract.
-    func New{{.Type}}Transactor(address common.Address, thor *thorgo.Thor, manager accounts.TxManager) (*{{.Type}}Transactor, error) {
+    func New{{.Type}}Transactor(address common.Address, thor *thorest.Client, manager accounts.TxManager) (*{{.Type}}Transactor, error) {
         base, err := New{{.Type}}(address, thor)
         if err != nil {
             return nil, err
@@ -283,7 +284,7 @@ var (
                 }
             {{ end }}
 
-            logs, err := _{{$contract.Type}}.thor.Client.FilterEvents(criteriaSet, filters)
+            logs, err := _{{$contract.Type}}.thor.FilterEvents(criteriaSet, filters)
 			if err != nil {
 				return nil, err
 			}
@@ -363,7 +364,8 @@ var (
             {{ end }}
 
             eventChan := make(chan *{{$contract.Type}}{{.Normalized.Name}}, bufferSize)
-            ticker := _{{$contract.Type}}.thor.Blocks.Ticker()
+            blocks := blocks.New(ctx, _{{$contract.Type}}.thor)
+            ticker := blocks.Ticker()
 
             go func() {
                 defer close(eventChan)
@@ -371,7 +373,7 @@ var (
                 for {
                     select {
                     case <-ticker.C():
-                        block, err := _{{$contract.Type}}.thor.Blocks.Best()
+                        block, err := blocks.Best()
                         if err != nil {
                         	continue
                         }

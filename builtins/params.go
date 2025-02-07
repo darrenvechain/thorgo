@@ -9,8 +9,8 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/accounts"
+	"github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
@@ -31,6 +31,7 @@ var (
 	_ = hexutil.MustDecode
 	_ = context.Background
 	_ = tx.NewClause
+	_ = blocks.New
 )
 
 // ParamsMetaData contains all meta data concerning the Params contract.
@@ -40,7 +41,7 @@ var ParamsMetaData = &bind.MetaData{
 
 // Params is an auto generated Go binding around an Ethereum contract, allowing you to query and create clauses.
 type Params struct {
-	thor     *thorgo.Thor       // Thor connection to use
+	thor     *thorest.Client    // Thor client connection to use
 	contract *accounts.Contract // Generic contract wrapper for the low level calls
 }
 
@@ -52,17 +53,17 @@ type ParamsTransactor struct {
 }
 
 // NewParams creates a new instance of Params, bound to a specific deployed contract.
-func NewParams(thor *thorgo.Thor) (*Params, error) {
+func NewParams(thor *thorest.Client) (*Params, error) {
 	parsed, err := ParamsMetaData.GetAbi()
 	if err != nil {
 		return nil, err
 	}
-	contract := thor.Account(common.HexToAddress("0x0000000000000000000000000000506172616d73")).Contract(parsed)
+	contract := accounts.New(thor, common.HexToAddress("0x0000000000000000000000000000506172616d73")).Contract(parsed)
 	return &Params{thor: thor, contract: contract}, nil
 }
 
 // NewParamsTransactor creates a new instance of ParamsTransactor, bound to a specific deployed contract.
-func NewParamsTransactor(thor *thorgo.Thor, manager accounts.TxManager) (*ParamsTransactor, error) {
+func NewParamsTransactor(thor *thorest.Client, manager accounts.TxManager) (*ParamsTransactor, error) {
 	base, err := NewParams(thor)
 	if err != nil {
 		return nil, err
@@ -201,7 +202,7 @@ func (_Params *Params) FilterSet(criteria []ParamsSetCriteria, filters *thorest.
 		})
 	}
 
-	logs, err := _Params.thor.Client.FilterEvents(criteriaSet, filters)
+	logs, err := _Params.thor.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -253,7 +254,8 @@ func (_Params *Params) WatchSet(criteria []ParamsSetCriteria, ctx context.Contex
 	}
 
 	eventChan := make(chan *ParamsSet, bufferSize)
-	ticker := _Params.thor.Blocks.Ticker()
+	blocks := blocks.New(ctx, _Params.thor)
+	ticker := blocks.Ticker()
 
 	go func() {
 		defer close(eventChan)
@@ -261,7 +263,7 @@ func (_Params *Params) WatchSet(criteria []ParamsSetCriteria, ctx context.Contex
 		for {
 			select {
 			case <-ticker.C():
-				block, err := _Params.thor.Blocks.Best()
+				block, err := blocks.Best()
 				if err != nil {
 					continue
 				}

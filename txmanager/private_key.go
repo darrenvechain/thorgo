@@ -3,8 +3,8 @@ package txmanager
 import (
 	"crypto/ecdsa"
 
-	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/crypto/tx"
+	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -12,14 +12,14 @@ import (
 
 type PKManager struct {
 	key  *ecdsa.PrivateKey
-	thor *thorgo.Thor
+	thor *thorest.Client
 }
 
-func FromPK(key *ecdsa.PrivateKey, thor *thorgo.Thor) *PKManager {
+func FromPK(key *ecdsa.PrivateKey, thor *thorest.Client) *PKManager {
 	return &PKManager{key: key, thor: thor}
 }
 
-func GeneratePK(thor *thorgo.Thor) (*PKManager, error) {
+func GeneratePK(thor *thorest.Client) (*PKManager, error) {
 	key, err := crypto.GenerateKey()
 	if err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ func (p *PKManager) PublicKey() *ecdsa.PublicKey {
 }
 
 func (p *PKManager) SendClauses(clauses []*tx.Clause, opts *transactions.Options) (common.Hash, error) {
-	tx, err := p.thor.Transactor(clauses).Build(p.Address(), opts)
+	tx, err := transactions.NewTransactor(p.thor, clauses).Build(p.Address(), opts)
 	if err != nil {
 		return common.Hash{}, err
 	}
@@ -45,7 +45,7 @@ func (p *PKManager) SendClauses(clauses []*tx.Clause, opts *transactions.Options
 	if err != nil {
 		return common.Hash{}, err
 	}
-	res, err := p.thor.Client.SendTransaction(tx.WithSignature(signature))
+	res, err := p.thor.SendTransaction(tx.WithSignature(signature))
 	if err != nil {
 		return common.Hash{}, err
 	}

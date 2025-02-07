@@ -9,8 +9,8 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/accounts"
+	"github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
@@ -31,6 +31,7 @@ var (
 	_ = hexutil.MustDecode
 	_ = context.Background
 	_ = tx.NewClause
+	_ = blocks.New
 )
 
 // PrototypeMetaData contains all meta data concerning the Prototype contract.
@@ -40,7 +41,7 @@ var PrototypeMetaData = &bind.MetaData{
 
 // Prototype is an auto generated Go binding around an Ethereum contract, allowing you to query and create clauses.
 type Prototype struct {
-	thor     *thorgo.Thor       // Thor connection to use
+	thor     *thorest.Client    // Thor client connection to use
 	contract *accounts.Contract // Generic contract wrapper for the low level calls
 }
 
@@ -52,17 +53,17 @@ type PrototypeTransactor struct {
 }
 
 // NewPrototype creates a new instance of Prototype, bound to a specific deployed contract.
-func NewPrototype(thor *thorgo.Thor) (*Prototype, error) {
+func NewPrototype(thor *thorest.Client) (*Prototype, error) {
 	parsed, err := PrototypeMetaData.GetAbi()
 	if err != nil {
 		return nil, err
 	}
-	contract := thor.Account(common.HexToAddress("0x000000000000000000000050726f746f74797065")).Contract(parsed)
+	contract := accounts.New(thor, common.HexToAddress("0x000000000000000000000050726f746f74797065")).Contract(parsed)
 	return &Prototype{thor: thor, contract: contract}, nil
 }
 
 // NewPrototypeTransactor creates a new instance of PrototypeTransactor, bound to a specific deployed contract.
-func NewPrototypeTransactor(thor *thorgo.Thor, manager accounts.TxManager) (*PrototypeTransactor, error) {
+func NewPrototypeTransactor(thor *thorest.Client, manager accounts.TxManager) (*PrototypeTransactor, error) {
 	base, err := NewPrototype(thor)
 	if err != nil {
 		return nil, err

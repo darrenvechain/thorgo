@@ -4,39 +4,36 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
-	"github.com/darrenvechain/thorgo/transactions"
+	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/txmanager"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	thor *thorgo.Thor
+	client *thorest.Client
 )
 
 func TestMain(m *testing.M) {
-	client, cancel := testcontainer.NewSolo()
+	var cancel func()
+	client, cancel = testcontainer.NewSolo()
 	defer cancel()
-	thor = thorgo.NewFromClient(client)
 	m.Run()
 }
 
 var (
 	// PKManager should implement accounts.TxManager
 	_ accounts.TxManager = &txmanager.PKManager{}
-	// PKManager should implement transactions.Signer
-	_ transactions.Signer = &txmanager.PKManager{}
 )
 
 // TestPKSigner demonstrates ease the ease of sending a transaction using a private key signer
 func TestPKSigner(t *testing.T) {
-	signer, err := txmanager.GeneratePK(thor)
+	signer, err := txmanager.GeneratePK(client)
 	assert.NoError(t, err)
 
-	to, err := txmanager.GeneratePK(thor)
+	to, err := txmanager.GeneratePK(client)
 	assert.NoError(t, err)
 	toAddr := to.Address()
 	vetClause := tx.NewClause(&toAddr).WithValue(big.NewInt(1000))

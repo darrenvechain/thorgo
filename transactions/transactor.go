@@ -132,29 +132,3 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 
 	return builder.Build(), nil
 }
-
-type Signer interface {
-	SignTransaction(tx *tx.Transaction) ([]byte, error)
-	Address() common.Address
-}
-
-// Send will submit the transaction to the network.
-func (t *Transactor) Send(signer Signer, options *Options) (*Visitor, error) {
-	tx, err := t.Build(signer.Address(), options)
-	if err != nil {
-		return nil, fmt.Errorf("failed to build transaction: %w", err)
-	}
-
-	signature, err := signer.SignTransaction(tx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to sign transaction: %w", err)
-	}
-	tx = tx.WithSignature(signature)
-
-	res, err := t.client.SendTransaction(tx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to send transaction: %w", err)
-	}
-
-	return New(t.client, res.ID), nil
-}

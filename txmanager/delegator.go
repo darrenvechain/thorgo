@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/crypto/tx"
+	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -17,12 +17,17 @@ import (
 
 // DelegatedManager is a transaction manager that delegates the payment of transaction fees to a Delegator
 type DelegatedManager struct {
-	thor     *thorgo.Thor
+	thor     *thorest.Client
 	gasPayer Delegator
-	origin   transactions.Signer
+	origin   Signer
 }
 
-func NewDelegatedManager(thor *thorgo.Thor, origin transactions.Signer, gasPayer Delegator) *DelegatedManager {
+type Signer interface {
+	SignTransaction(tx *tx.Transaction) ([]byte, error)
+	Address() common.Address
+}
+
+func NewDelegatedManager(thor *thorest.Client, origin Signer, gasPayer Delegator) *DelegatedManager {
 	return &DelegatedManager{
 		thor:     thor,
 		origin:   origin,
@@ -52,7 +57,7 @@ func (d *DelegatedManager) SendClauses(clauses []*tx.Clause, opts *transactions.
 		*opts.Delegation = true
 	}
 
-	tx, err := d.thor.Transactor(clauses).Build(d.Address(), opts)
+	tx, err := transactions.NewTransactor(d.thor, clauses).Build(d.origin.Address(), opts)
 	if err != nil {
 		return common.Hash{}, err
 	}
@@ -61,7 +66,7 @@ func (d *DelegatedManager) SendClauses(clauses []*tx.Clause, opts *transactions.
 		return common.Hash{}, fmt.Errorf("failed to sign transaction: %w", err)
 	}
 	tx = tx.WithSignature(signature)
-	res, err := d.thor.Client.SendTransaction(tx)
+	res, err := d.thor.SendTransaction(tx)
 	if err != nil {
 		return common.Hash{}, fmt.Errorf("failed to send transaction: %w", err)
 	}

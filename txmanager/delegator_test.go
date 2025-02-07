@@ -1,6 +1,7 @@
 package txmanager_test
 
 import (
+	"context"
 	"crypto/ecdsa"
 	"encoding/json"
 	"math/big"
@@ -24,20 +25,18 @@ var (
 	_ txmanager.Delegator = &txmanager.PKDelegator{}
 	// URLDelegator should implement Delegator
 	_ txmanager.Delegator = &txmanager.URLDelegator{}
-	// DelegatedManager should implement transactions.Signer
-	_ transactions.Signer = &txmanager.DelegatedManager{}
 	// DelegatedManager should implement accounts.TxManager
 	_ accounts.TxManager = &txmanager.DelegatedManager{}
 )
 
 func TestPKDelegator(t *testing.T) {
-	origin := txmanager.FromPK(solo.Keys()[0], thor)
+	origin := txmanager.FromPK(solo.Keys()[0], client)
 	delegator := txmanager.NewDelegator(solo.Keys()[1])
 
 	opts := new(transactions.OptionsBuilder).GasPayer(delegator.Address()).Build()
 
 	clause := tx.NewClause(&common.Address{}).WithValue(new(big.Int))
-	tx, err := thor.Transactor([]*tx.Clause{clause}).Build(origin.Address(), opts)
+	tx, err := transactions.NewTransactor(client, []*tx.Clause{clause}).Build(origin.Address(), opts)
 
 	assert.NoError(t, err)
 
@@ -88,7 +87,7 @@ func createDelegationServer(key *ecdsa.PrivateKey) *httptest.Server {
 }
 
 func TestNewUrlDelegator(t *testing.T) {
-	origin := txmanager.FromPK(solo.Keys()[0], thor)
+	origin := txmanager.FromPK(solo.Keys()[0], client)
 	server := createDelegationServer(solo.Keys()[1])
 
 	delegator := txmanager.NewUrlDelegator(server.URL)
@@ -96,7 +95,7 @@ func TestNewUrlDelegator(t *testing.T) {
 	opts := new(transactions.OptionsBuilder).Delegated().Build()
 
 	clause := tx.NewClause(&common.Address{}).WithValue(new(big.Int))
-	tx, err := thor.Transactor([]*tx.Clause{clause}).Build(origin.Address(), opts)
+	tx, err := transactions.NewTransactor(client, []*tx.Clause{clause}).Build(origin.Address(), opts)
 	assert.NoError(t, err)
 
 	delegatorSignature, err := delegator.Delegate(tx, origin.Address())
@@ -120,16 +119,16 @@ func TestNewUrlDelegator(t *testing.T) {
 }
 
 func TestNewDelegatedManager(t *testing.T) {
-	origin := txmanager.FromPK(solo.Keys()[0], thor)
+	origin := txmanager.FromPK(solo.Keys()[0], client)
 	gasPayer := txmanager.NewDelegator(solo.Keys()[1])
-	manager := txmanager.NewDelegatedManager(thor, origin, gasPayer)
+	manager := txmanager.NewDelegatedManager(client, origin, gasPayer)
 
-	contract, _ := builtins.NewVTHOTransactor(thor, manager)
+	contract, _ := builtins.NewVTHOTransactor(client, manager)
 
 	tx, err := contract.Transfer(common.Address{100}, big.NewInt(1000), &transactions.Options{})
 	assert.NoError(t, err)
 
-	receipt, err := tx.Wait()
+	receipt, err := tx.Wait(context.Background())
 	assert.NoError(t, err)
 	assert.False(t, receipt.Reverted)
 

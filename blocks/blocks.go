@@ -1,6 +1,7 @@
 package blocks
 
 import (
+	"context"
 	"errors"
 	"sync/atomic"
 	"time"
@@ -11,12 +12,13 @@ import (
 
 type Blocks struct {
 	client *thorest.Client
+	ctx    context.Context
 	best   atomic.Value
 	signal Signal
 }
 
-func New(c *thorest.Client) *Blocks {
-	b := &Blocks{client: c}
+func New(ctx context.Context, c *thorest.Client) *Blocks {
+	b := &Blocks{client: c, ctx: ctx}
 	go b.poll()
 	return b
 }
@@ -37,27 +39,32 @@ func (b *Blocks) poll() {
 	}
 
 	for {
-		next, err := b.Expanded(thorest.RevisionBest())
-		if errors.Is(err, thorest.ErrNotFound) {
-			time.Sleep(250 * time.Millisecond)
-			continue
-		}
-		if err != nil {
-			time.Sleep(2 * time.Second)
-			continue
-		}
-		if next.ID == previous.ID {
-			time.Sleep(250 * time.Millisecond)
-			continue
-		}
-		previous = next
-		b.best.Store(next)
-		b.signal.Broadcast()
+		select {
+		case <-b.ctx.Done():
+			return
+		default:
+			next, err := b.Expanded(thorest.RevisionBest())
+			if errors.Is(err, thorest.ErrNotFound) {
+				time.Sleep(250 * time.Millisecond)
+				continue
+			}
+			if err != nil {
+				time.Sleep(2 * time.Second)
+				continue
+			}
+			if next.ID == previous.ID {
+				time.Sleep(250 * time.Millisecond)
+				continue
+			}
+			previous = next
+			b.best.Store(next)
+			b.signal.Broadcast()
 
-		nextBlockTime := time.Unix(previous.Timestamp, 0).Add(6 * time.Second)
-		now := time.Now().UTC()
-		if now.Before(nextBlockTime) {
-			time.Sleep(nextBlockTime.Add(100 * time.Millisecond).Sub(now))
+			nextBlockTime := time.Unix(previous.Timestamp, 0).Add(6 * time.Second)
+			now := time.Now().UTC()
+			if now.Before(nextBlockTime) {
+				time.Sleep(nextBlockTime.Add(100 * time.Millisecond).Sub(now))
+			}
 		}
 	}
 }

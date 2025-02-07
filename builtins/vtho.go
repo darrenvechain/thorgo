@@ -9,8 +9,8 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/accounts"
+	"github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
@@ -31,6 +31,7 @@ var (
 	_ = hexutil.MustDecode
 	_ = context.Background
 	_ = tx.NewClause
+	_ = blocks.New
 )
 
 // VTHOMetaData contains all meta data concerning the VTHO contract.
@@ -40,7 +41,7 @@ var VTHOMetaData = &bind.MetaData{
 
 // VTHO is an auto generated Go binding around an Ethereum contract, allowing you to query and create clauses.
 type VTHO struct {
-	thor     *thorgo.Thor       // Thor connection to use
+	thor     *thorest.Client    // Thor client connection to use
 	contract *accounts.Contract // Generic contract wrapper for the low level calls
 }
 
@@ -52,17 +53,17 @@ type VTHOTransactor struct {
 }
 
 // NewVTHO creates a new instance of VTHO, bound to a specific deployed contract.
-func NewVTHO(thor *thorgo.Thor) (*VTHO, error) {
+func NewVTHO(thor *thorest.Client) (*VTHO, error) {
 	parsed, err := VTHOMetaData.GetAbi()
 	if err != nil {
 		return nil, err
 	}
-	contract := thor.Account(common.HexToAddress("0x0000000000000000000000000000456e65726779")).Contract(parsed)
+	contract := accounts.New(thor, common.HexToAddress("0x0000000000000000000000000000456e65726779")).Contract(parsed)
 	return &VTHO{thor: thor, contract: contract}, nil
 }
 
 // NewVTHOTransactor creates a new instance of VTHOTransactor, bound to a specific deployed contract.
-func NewVTHOTransactor(thor *thorgo.Thor, manager accounts.TxManager) (*VTHOTransactor, error) {
+func NewVTHOTransactor(thor *thorest.Client, manager accounts.TxManager) (*VTHOTransactor, error) {
 	base, err := NewVTHO(thor)
 	if err != nil {
 		return nil, err
@@ -386,7 +387,7 @@ func (_VTHO *VTHO) FilterApproval(criteria []VTHOApprovalCriteria, filters *thor
 		})
 	}
 
-	logs, err := _VTHO.thor.Client.FilterEvents(criteriaSet, filters)
+	logs, err := _VTHO.thor.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -446,7 +447,8 @@ func (_VTHO *VTHO) WatchApproval(criteria []VTHOApprovalCriteria, ctx context.Co
 	}
 
 	eventChan := make(chan *VTHOApproval, bufferSize)
-	ticker := _VTHO.thor.Blocks.Ticker()
+	blocks := blocks.New(ctx, _VTHO.thor)
+	ticker := blocks.Ticker()
 
 	go func() {
 		defer close(eventChan)
@@ -454,7 +456,7 @@ func (_VTHO *VTHO) WatchApproval(criteria []VTHOApprovalCriteria, ctx context.Co
 		for {
 			select {
 			case <-ticker.C():
-				block, err := _VTHO.thor.Blocks.Best()
+				block, err := blocks.Best()
 				if err != nil {
 					continue
 				}
@@ -551,7 +553,7 @@ func (_VTHO *VTHO) FilterTransfer(criteria []VTHOTransferCriteria, filters *thor
 		})
 	}
 
-	logs, err := _VTHO.thor.Client.FilterEvents(criteriaSet, filters)
+	logs, err := _VTHO.thor.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -611,7 +613,8 @@ func (_VTHO *VTHO) WatchTransfer(criteria []VTHOTransferCriteria, ctx context.Co
 	}
 
 	eventChan := make(chan *VTHOTransfer, bufferSize)
-	ticker := _VTHO.thor.Blocks.Ticker()
+	blocks := blocks.New(ctx, _VTHO.thor)
+	ticker := blocks.Ticker()
 
 	go func() {
 		defer close(eventChan)
@@ -619,7 +622,7 @@ func (_VTHO *VTHO) WatchTransfer(criteria []VTHOTransferCriteria, ctx context.Co
 		for {
 			select {
 			case <-ticker.C():
-				block, err := _VTHO.thor.Blocks.Best()
+				block, err := blocks.Best()
 				if err != nil {
 					continue
 				}

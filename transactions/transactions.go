@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/thorest"
@@ -14,11 +13,11 @@ import (
 type Visitor struct {
 	client *thorest.Client
 	hash   common.Hash
-	blocks *blocks.Blocks
+	//blocks *blocks.Blocks
 }
 
 func New(client *thorest.Client, hash common.Hash) *Visitor {
-	return &Visitor{client: client, hash: hash, blocks: blocks.New(client)}
+	return &Visitor{client: client, hash: hash}
 }
 
 func (v *Visitor) ID() common.Hash {
@@ -61,25 +60,17 @@ func (v *Visitor) Pending() (*thorest.Transaction, error) {
 	return v.client.PendingTransaction(v.hash)
 }
 
-// Wait for the transaction to be included in a block.
-// It will wait for ~6 blocks to be produced.
-func (v *Visitor) Wait() (*thorest.TransactionReceipt, error) {
-	return v.WaitFor(time.Minute)
-}
-
-// WaitFor the transaction to be included in a block.
+// Wait the transaction to be included in a block.
 // It will wait for the given duration.
 // If the transaction is not included in a block within the duration, it will return an error.
-func (v *Visitor) WaitFor(duration time.Duration) (*thorest.TransactionReceipt, error) {
+func (v *Visitor) Wait(ctx context.Context) (*thorest.TransactionReceipt, error) {
 	receipt, err := v.client.TransactionReceipt(v.hash)
 	if err == nil {
 		return receipt, nil
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
-	defer cancel()
-
-	ticker := v.blocks.Ticker()
+	blks := blocks.New(ctx, v.client)
+	ticker := blks.Ticker()
 
 	for {
 		select {

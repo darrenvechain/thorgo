@@ -1,6 +1,7 @@
 package accounts
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"math/big"
@@ -23,7 +24,10 @@ func NewDeployer(client *thorest.Client, bytecode []byte, abi *abi.ABI) *Deploye
 	return &Deployer{client: client, bytecode: bytecode, abi: abi, value: big.NewInt(0)}
 }
 
-func (d *Deployer) Deploy(sender TxManager, opts *transactions.Options, args ...interface{}) (*Contract, common.Hash, error) {
+func (d *Deployer) Deploy(ctx context.Context, sender TxManager, opts *transactions.Options, args ...interface{}) (*Contract, common.Hash, error) {
+	if opts == nil {
+		opts = &transactions.Options{}
+	}
 	clause, err := d.AsClause(args...)
 	txID := common.Hash{}
 	if err != nil {
@@ -33,7 +37,7 @@ func (d *Deployer) Deploy(sender TxManager, opts *transactions.Options, args ...
 	if err != nil {
 		return nil, txID, fmt.Errorf("failed to send contract deployment transaction: %w", err)
 	}
-	receipt, err := transactions.New(d.client, txID).Wait()
+	receipt, err := transactions.New(d.client, txID).Wait(ctx)
 	if err != nil {
 		return nil, txID, fmt.Errorf("failed to wait for contract deployment: %w", err)
 	}

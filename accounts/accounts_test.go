@@ -4,7 +4,6 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/builtins"
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
@@ -17,7 +16,6 @@ import (
 
 var (
 	thorClient   *thorest.Client
-	thor         *thorgo.Thor
 	vthoContract *builtins.VTHO
 	vthoRaw      *accounts.Contract
 	account1     *txmanager.PKManager
@@ -27,11 +25,10 @@ func TestMain(m *testing.M) {
 	var cancel func()
 	thorClient, cancel = testcontainer.NewSolo()
 	defer cancel()
-	thor = thorgo.NewFromClient(thorClient)
-	vthoContract, _ = builtins.NewVTHO(thor)
+	vthoContract, _ = builtins.NewVTHO(thorClient)
 	abi, _ := builtins.VTHOMetaData.GetAbi()
 	vthoRaw = accounts.NewContract(thorClient, vthoContract.Address(), abi)
-	account1 = txmanager.FromPK(solo.Keys()[0], thor)
+	account1 = txmanager.FromPK(solo.Keys()[0], thorClient)
 	m.Run()
 }
 

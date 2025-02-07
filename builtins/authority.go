@@ -9,8 +9,8 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/accounts"
+	"github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
@@ -31,6 +31,7 @@ var (
 	_ = hexutil.MustDecode
 	_ = context.Background
 	_ = tx.NewClause
+	_ = blocks.New
 )
 
 // AuthorityMetaData contains all meta data concerning the Authority contract.
@@ -40,7 +41,7 @@ var AuthorityMetaData = &bind.MetaData{
 
 // Authority is an auto generated Go binding around an Ethereum contract, allowing you to query and create clauses.
 type Authority struct {
-	thor     *thorgo.Thor       // Thor connection to use
+	thor     *thorest.Client    // Thor client connection to use
 	contract *accounts.Contract // Generic contract wrapper for the low level calls
 }
 
@@ -52,17 +53,17 @@ type AuthorityTransactor struct {
 }
 
 // NewAuthority creates a new instance of Authority, bound to a specific deployed contract.
-func NewAuthority(thor *thorgo.Thor) (*Authority, error) {
+func NewAuthority(thor *thorest.Client) (*Authority, error) {
 	parsed, err := AuthorityMetaData.GetAbi()
 	if err != nil {
 		return nil, err
 	}
-	contract := thor.Account(common.HexToAddress("0x0000000000000000000000417574686f72697479")).Contract(parsed)
+	contract := accounts.New(thor, common.HexToAddress("0x0000000000000000000000417574686f72697479")).Contract(parsed)
 	return &Authority{thor: thor, contract: contract}, nil
 }
 
 // NewAuthorityTransactor creates a new instance of AuthorityTransactor, bound to a specific deployed contract.
-func NewAuthorityTransactor(thor *thorgo.Thor, manager accounts.TxManager) (*AuthorityTransactor, error) {
+func NewAuthorityTransactor(thor *thorest.Client, manager accounts.TxManager) (*AuthorityTransactor, error) {
 	base, err := NewAuthority(thor)
 	if err != nil {
 		return nil, err
@@ -282,7 +283,7 @@ func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriter
 		})
 	}
 
-	logs, err := _Authority.thor.Client.FilterEvents(criteriaSet, filters)
+	logs, err := _Authority.thor.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -334,7 +335,8 @@ func (_Authority *Authority) WatchCandidate(criteria []AuthorityCandidateCriteri
 	}
 
 	eventChan := make(chan *AuthorityCandidate, bufferSize)
-	ticker := _Authority.thor.Blocks.Ticker()
+	blocks := blocks.New(ctx, _Authority.thor)
+	ticker := blocks.Ticker()
 
 	go func() {
 		defer close(eventChan)
@@ -342,7 +344,7 @@ func (_Authority *Authority) WatchCandidate(criteria []AuthorityCandidateCriteri
 		for {
 			select {
 			case <-ticker.C():
-				block, err := _Authority.thor.Blocks.Best()
+				block, err := blocks.Best()
 				if err != nil {
 					continue
 				}

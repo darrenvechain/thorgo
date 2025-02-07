@@ -1,10 +1,10 @@
 package transactions_test
 
 import (
+	"context"
 	"math/big"
 	"testing"
 
-	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/internal/testcontract"
@@ -18,7 +18,6 @@ import (
 
 var (
 	thorClient *thorest.Client
-	thor       *thorgo.Thor
 	account1   *txmanager.PKManager
 	account2   *txmanager.PKManager
 )
@@ -27,9 +26,8 @@ func TestMain(m *testing.M) {
 	var cancel func()
 	thorClient, cancel = testcontainer.NewSolo()
 	defer cancel()
-	thor = thorgo.NewFromClient(thorClient)
-	account1 = txmanager.FromPK(solo.Keys()[0], thor)
-	account2 = txmanager.FromPK(solo.Keys()[1], thor)
+	account1 = txmanager.FromPK(solo.Keys()[0], thorClient)
+	account2 = txmanager.FromPK(solo.Keys()[1], thorClient)
 	m.Run()
 }
 
@@ -58,7 +56,7 @@ func TestTransactions(t *testing.T) {
 	assert.NotNil(t, pending)
 
 	// wait for the receipt
-	receipt, err := tx.Wait()
+	receipt, err := tx.Wait(context.Background())
 	assert.NoError(t, err)
 	assert.False(t, receipt.Reverted)
 
@@ -73,19 +71,19 @@ func TestVisitor_RevertReason(t *testing.T) {
 	transferAmount := big.NewInt(1001)
 
 	// setup contracts + funding
-	deploymentTxID, erc20, err := testcontract.DeployErc20(thor, account1, &transactions.Options{}, "Erc20", "ERC")
+	deploymentTxID, erc20, err := testcontract.DeployErc20(context.Background(), thorClient, account1, &transactions.Options{}, "Erc20", "ERC")
 	assert.NoError(t, err)
-	_, err = transactions.New(thorClient, deploymentTxID).Wait()
+	_, err = transactions.New(thorClient, deploymentTxID).Wait(context.Background())
 	assert.NoError(t, err)
 	erc20Funding, err := erc20.Mint(account1.Address(), balance, &transactions.Options{})
 	assert.NoError(t, err)
-	_, err = erc20Funding.Wait()
+	_, err = erc20Funding.Wait(context.Background())
 	assert.NoError(t, err)
 
 	// send funds too much erc20 tokens
 	transfer, err := erc20.Transfer(account2.Address(), transferAmount, &transactions.Options{})
 	assert.NoError(t, err)
-	receipt, err := transfer.Wait()
+	receipt, err := transfer.Wait(context.Background())
 	assert.NoError(t, err)
 	assert.True(t, receipt.Reverted)
 
