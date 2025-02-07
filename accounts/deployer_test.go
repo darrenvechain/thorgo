@@ -1,6 +1,7 @@
 package accounts_test
 
 import (
+	"context"
 	"strings"
 	"testing"
 
@@ -17,7 +18,7 @@ func TestDeployer_Deploy(t *testing.T) {
 
 	deployedName := "MyERC20"
 	deployer := accounts.NewDeployer(thorClient, common.Hex2Bytes(erc20Bytecode), &abi)
-	erc20, txID, err := deployer.Deploy(account1, &transactions.Options{}, deployedName, "ERC20")
+	erc20, txID, err := deployer.Deploy(context.Background(), account1, &transactions.Options{}, deployedName, "ERC20")
 	assert.NoError(t, err)
 	assert.NotEqual(t, common.Hash{}, txID)
 

@@ -9,8 +9,8 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/darrenvechain/thorgo"
 	"github.com/darrenvechain/thorgo/accounts"
+	"github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
@@ -31,6 +31,7 @@ var (
 	_ = hexutil.MustDecode
 	_ = context.Background
 	_ = tx.NewClause
+	_ = blocks.New
 )
 
 // ExecutorMetaData contains all meta data concerning the Executor contract.
@@ -40,7 +41,7 @@ var ExecutorMetaData = &bind.MetaData{
 
 // Executor is an auto generated Go binding around an Ethereum contract, allowing you to query and create clauses.
 type Executor struct {
-	thor     *thorgo.Thor       // Thor connection to use
+	thor     *thorest.Client    // Thor client connection to use
 	contract *accounts.Contract // Generic contract wrapper for the low level calls
 }
 
@@ -52,17 +53,17 @@ type ExecutorTransactor struct {
 }
 
 // NewExecutor creates a new instance of Executor, bound to a specific deployed contract.
-func NewExecutor(thor *thorgo.Thor) (*Executor, error) {
+func NewExecutor(thor *thorest.Client) (*Executor, error) {
 	parsed, err := ExecutorMetaData.GetAbi()
 	if err != nil {
 		return nil, err
 	}
-	contract := thor.Account(common.HexToAddress("0x0000000000000000000000004578656375746f72")).Contract(parsed)
+	contract := accounts.New(thor, common.HexToAddress("0x0000000000000000000000004578656375746f72")).Contract(parsed)
 	return &Executor{thor: thor, contract: contract}, nil
 }
 
 // NewExecutorTransactor creates a new instance of ExecutorTransactor, bound to a specific deployed contract.
-func NewExecutorTransactor(thor *thorgo.Thor, manager accounts.TxManager) (*ExecutorTransactor, error) {
+func NewExecutorTransactor(thor *thorest.Client, manager accounts.TxManager) (*ExecutorTransactor, error) {
 	base, err := NewExecutor(thor)
 	if err != nil {
 		return nil, err
@@ -400,7 +401,7 @@ func (_Executor *Executor) FilterApprover(criteria []ExecutorApproverCriteria, f
 		})
 	}
 
-	logs, err := _Executor.thor.Client.FilterEvents(criteriaSet, filters)
+	logs, err := _Executor.thor.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -452,7 +453,8 @@ func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ct
 	}
 
 	eventChan := make(chan *ExecutorApprover, bufferSize)
-	ticker := _Executor.thor.Blocks.Ticker()
+	blocks := blocks.New(ctx, _Executor.thor)
+	ticker := blocks.Ticker()
 
 	go func() {
 		defer close(eventChan)
@@ -460,7 +462,7 @@ func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ct
 		for {
 			select {
 			case <-ticker.C():
-				block, err := _Executor.thor.Blocks.Best()
+				block, err := blocks.Best()
 				if err != nil {
 					continue
 				}
@@ -547,7 +549,7 @@ func (_Executor *Executor) FilterProposal(criteria []ExecutorProposalCriteria, f
 		})
 	}
 
-	logs, err := _Executor.thor.Client.FilterEvents(criteriaSet, filters)
+	logs, err := _Executor.thor.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -599,7 +601,8 @@ func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ct
 	}
 
 	eventChan := make(chan *ExecutorProposal, bufferSize)
-	ticker := _Executor.thor.Blocks.Ticker()
+	blocks := blocks.New(ctx, _Executor.thor)
+	ticker := blocks.Ticker()
 
 	go func() {
 		defer close(eventChan)
@@ -607,7 +610,7 @@ func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ct
 		for {
 			select {
 			case <-ticker.C():
-				block, err := _Executor.thor.Blocks.Best()
+				block, err := blocks.Best()
 				if err != nil {
 					continue
 				}
@@ -694,7 +697,7 @@ func (_Executor *Executor) FilterVotingContract(criteria []ExecutorVotingContrac
 		})
 	}
 
-	logs, err := _Executor.thor.Client.FilterEvents(criteriaSet, filters)
+	logs, err := _Executor.thor.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -746,7 +749,8 @@ func (_Executor *Executor) WatchVotingContract(criteria []ExecutorVotingContract
 	}
 
 	eventChan := make(chan *ExecutorVotingContract, bufferSize)
-	ticker := _Executor.thor.Blocks.Ticker()
+	blocks := blocks.New(ctx, _Executor.thor)
+	ticker := blocks.Ticker()
 
 	go func() {
 		defer close(eventChan)
@@ -754,7 +758,7 @@ func (_Executor *Executor) WatchVotingContract(criteria []ExecutorVotingContract
 		for {
 			select {
 			case <-ticker.C():
-				block, err := _Executor.thor.Blocks.Best()
+				block, err := blocks.Best()
 				if err != nil {
 					continue
 				}

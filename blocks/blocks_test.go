@@ -1,6 +1,7 @@
 package blocks
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -13,13 +14,14 @@ import (
 var (
 	thorClient *thorest.Client
 	blocks     *Blocks
+	ctx        = context.Background()
 )
 
 func TestMain(m *testing.M) {
 	var cancel func()
 	thorClient, cancel = testcontainer.NewSolo()
 	defer cancel()
-	blocks = New(thorClient)
+	blocks = New(ctx, thorClient)
 	m.Run()
 }
 

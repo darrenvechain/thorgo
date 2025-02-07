@@ -1,6 +1,8 @@
 package thorgo
 
 import (
+	"context"
+
 	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/crypto/tx"
@@ -15,13 +17,13 @@ type Thor struct {
 	Client *thorest.Client
 }
 
-func New(url string) *Thor {
+func New(ctx context.Context, url string) *Thor {
 	c := thorest.NewClientFromURL(url)
-	return &Thor{Client: c, Blocks: blocks.New(c)}
+	return &Thor{Client: c, Blocks: blocks.New(ctx, c)}
 }
 
-func NewFromClient(c *thorest.Client) *Thor {
-	return &Thor{Client: c, Blocks: blocks.New(c)}
+func NewFromClient(ctx context.Context, c *thorest.Client) *Thor {
+	return &Thor{Client: c, Blocks: blocks.New(ctx, c)}
 }
 
 // Account can be used to query account information such as balance, code, storage, etc.
