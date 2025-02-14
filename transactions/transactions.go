@@ -59,9 +59,7 @@ func (v *Visitor) Pending() (*thorest.Transaction, error) {
 	return v.client.PendingTransaction(v.hash)
 }
 
-// Wait the transaction to be included in a block.
-// It will wait for the given duration.
-// If the transaction is not included in a block within the duration, it will return an error.
+// Wait for the transaction to be mined. This function will block until the transaction has been mined or the context is cancelled.
 func (v *Visitor) Wait(ctx context.Context) (*thorest.TransactionReceipt, error) {
 	receipt, err := v.client.TransactionReceipt(v.hash)
 	if err == nil {
