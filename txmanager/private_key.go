@@ -36,20 +36,20 @@ func (p *PKManager) PublicKey() *ecdsa.PublicKey {
 	return &p.key.PublicKey
 }
 
-func (p *PKManager) SendClauses(clauses []*tx.Clause, opts *transactions.Options) (common.Hash, error) {
+func (p *PKManager) SendClauses(clauses []*tx.Clause, opts *transactions.Options) (*transactions.Visitor, error) {
 	tx, err := transactions.NewTransactor(p.thor, clauses).Build(p.Address(), opts)
 	if err != nil {
-		return common.Hash{}, err
+		return nil, err
 	}
 	signature, err := p.SignTransaction(tx)
 	if err != nil {
-		return common.Hash{}, err
+		return nil, err
 	}
 	res, err := p.thor.SendTransaction(tx.WithSignature(signature))
 	if err != nil {
-		return common.Hash{}, err
+		return nil, err
 	}
-	return res.ID, nil
+	return transactions.New(p.thor, res.ID), nil
 }
 
 func (p *PKManager) SignTransaction(tx *tx.Transaction) ([]byte, error) {

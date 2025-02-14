@@ -6,11 +6,10 @@ import (
 
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/transactions"
-	"github.com/ethereum/go-ethereum/common"
 )
 
 type TxManager interface {
-	SendClauses(clauses []*tx.Clause, opts *transactions.Options) (common.Hash, error)
+	SendClauses(clauses []*tx.Clause, opts *transactions.Options) (*transactions.Visitor, error)
 }
 
 type ContractTransactor struct {
@@ -30,9 +29,5 @@ func (c *ContractTransactor) Send(opts *transactions.Options, method string, arg
 	if err != nil {
 		return &transactions.Visitor{}, fmt.Errorf("failed to pack method %s: %w", method, err)
 	}
-	txId, err := c.manager.SendClauses([]*tx.Clause{clause}, opts)
-	if err != nil {
-		return &transactions.Visitor{}, fmt.Errorf("failed to send transaction: %w", err)
-	}
-	return transactions.New(c.client, txId), nil
+	return c.manager.SendClauses([]*tx.Clause{clause}, opts)
 }

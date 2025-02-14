@@ -48,7 +48,7 @@ func (d *DelegatedManager) SignTransaction(tx *tx.Transaction) ([]byte, error) {
 	return signature, nil
 }
 
-func (d *DelegatedManager) SendClauses(clauses []*tx.Clause, opts *transactions.Options) (common.Hash, error) {
+func (d *DelegatedManager) SendClauses(clauses []*tx.Clause, opts *transactions.Options) (*transactions.Visitor, error) {
 	if opts == nil {
 		opts = &transactions.Options{}
 	}
@@ -59,18 +59,18 @@ func (d *DelegatedManager) SendClauses(clauses []*tx.Clause, opts *transactions.
 
 	tx, err := transactions.NewTransactor(d.thor, clauses).Build(d.origin.Address(), opts)
 	if err != nil {
-		return common.Hash{}, err
+		return nil, err
 	}
 	signature, err := d.SignTransaction(tx)
 	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to sign transaction: %w", err)
+		return nil, fmt.Errorf("failed to sign transaction: %w", err)
 	}
 	tx = tx.WithSignature(signature)
 	res, err := d.thor.SendTransaction(tx)
 	if err != nil {
-		return common.Hash{}, fmt.Errorf("failed to send transaction: %w", err)
+		return nil, fmt.Errorf("failed to send transaction: %w", err)
 	}
-	return res.ID, nil
+	return transactions.New(d.thor, res.ID), nil
 }
 
 // Address returns the address of the origin manager

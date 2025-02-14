@@ -33,11 +33,11 @@ func (d *Deployer) Deploy(ctx context.Context, sender TxManager, opts *transacti
 	if err != nil {
 		return nil, txID, fmt.Errorf("failed to pack contract arguments: %w", err)
 	}
-	txID, err = sender.SendClauses([]*tx.Clause{clause}, opts)
+	trx, err := sender.SendClauses([]*tx.Clause{clause}, opts)
 	if err != nil {
 		return nil, txID, fmt.Errorf("failed to send contract deployment transaction: %w", err)
 	}
-	receipt, err := transactions.New(d.client, txID).Wait(ctx)
+	receipt, err := trx.Wait(ctx)
 	if err != nil {
 		return nil, txID, fmt.Errorf("failed to wait for contract deployment: %w", err)
 	}
@@ -47,7 +47,7 @@ func (d *Deployer) Deploy(ctx context.Context, sender TxManager, opts *transacti
 
 	address := receipt.Outputs[0].ContractAddress
 
-	return NewContract(d.client, *address, d.abi), txID, nil
+	return NewContract(d.client, *address, d.abi), trx.ID(), nil
 }
 
 // AsClause returns the contract deployment clause.

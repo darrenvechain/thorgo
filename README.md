@@ -175,41 +175,41 @@ func main() {
 package main
 
 import (
-	"context"
-	"log/slog"
-	"math/big"
+  "context"
+  "log/slog"
+  "math/big"
 
-	"github.com/darrenvechain/thorgo"
-	"github.com/darrenvechain/thorgo/builtins"
-	"github.com/darrenvechain/thorgo/crypto/tx"
-	"github.com/darrenvechain/thorgo/solo"
-	"github.com/darrenvechain/thorgo/transactions"
-	"github.com/darrenvechain/thorgo/txmanager"
+  "github.com/darrenvechain/thorgo"
+  "github.com/darrenvechain/thorgo/builtins"
+  "github.com/darrenvechain/thorgo/crypto/tx"
+  "github.com/darrenvechain/thorgo/solo"
+  "github.com/darrenvechain/thorgo/transactions"
+  "github.com/darrenvechain/thorgo/txmanager"
 )
 
 func main() {
-	thor := thorgo.New(context.Background(), "http://localhost:8669")
+  thor := thorgo.New(context.Background(), "http://localhost:8669")
 
-	// Create a delegated transaction manager
-	origin := txmanager.FromPK(solo.Keys()[0], thor.Client)
-	recipient1, _ := txmanager.GeneratePK(thor.Client)
-	recipient2, _ := txmanager.GeneratePK(thor.Client)
+  // Create a delegated transaction manager
+  origin := txmanager.FromPK(solo.Keys()[0], thor.Client)
+  recipient1, _ := txmanager.GeneratePK(thor.Client)
+  recipient2, _ := txmanager.GeneratePK(thor.Client)
 
-	vtho, _ := builtins.NewVTHOTransactor(thor.Client, origin)
+  vtho, _ := builtins.NewVTHOTransactor(thor.Client, origin)
 
-	clause1, _ := vtho.TransferAsClause(recipient1.Address(), big.NewInt(1000))
-	clause2, _ := vtho.TransferAsClause(recipient2.Address(), big.NewInt(9999))
+  clause1, _ := vtho.TransferAsClause(recipient1.Address(), big.NewInt(1000))
+  clause2, _ := vtho.TransferAsClause(recipient2.Address(), big.NewInt(9999))
 
-	txID, _ := origin.SendClauses([]*tx.Clause{clause1, clause2}, &transactions.Options{})
-	slog.Info("transaction sent", "id", txID)
-	trx, _ := thor.Transaction(txID).Wait(context.Background())
-	slog.Info("transaction mined", "reverted", trx.Reverted)
+  tx, _ := origin.SendClauses([]*tx.Clause{clause1, clause2}, &transactions.Options{})
+  slog.Info("transaction sent", "id", tx.ID())
+  trx, _ := tx.Wait(context.Background())
+  slog.Info("transaction mined", "reverted", trx.Reverted)
 
-	balance1, _ := vtho.BalanceOf(recipient1.Address())
-	balance2, _ := vtho.BalanceOf(recipient2.Address())
+  balance1, _ := vtho.BalanceOf(recipient1.Address())
+  balance2, _ := vtho.BalanceOf(recipient2.Address())
 
-	slog.Info("recipient1", "balance", balance1)
-	slog.Info("recipient2", "balance", balance2)
+  slog.Info("recipient1", "balance", balance1)
+  slog.Info("recipient2", "balance", balance2)
 }
 
 ```
