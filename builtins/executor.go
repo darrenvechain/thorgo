@@ -469,10 +469,15 @@ func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ct
 				for _, tx := range block.Transactions {
 					for index, outputs := range tx.Outputs {
 						for _, event := range outputs.Events {
+							matches := false
 							for _, c := range criteriaSet {
-								if !c.Matches(event) {
-									continue
+								if c.Matches(event) {
+									matches = true
+									break
 								}
+							}
+							if !matches {
+								continue
 							}
 
 							log := thorest.EventLog{
@@ -617,10 +622,15 @@ func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ct
 				for _, tx := range block.Transactions {
 					for index, outputs := range tx.Outputs {
 						for _, event := range outputs.Events {
+							matches := false
 							for _, c := range criteriaSet {
-								if !c.Matches(event) {
-									continue
+								if c.Matches(event) {
+									matches = true
+									break
 								}
+							}
+							if !matches {
+								continue
 							}
 
 							log := thorest.EventLog{
@@ -765,10 +775,15 @@ func (_Executor *Executor) WatchVotingContract(criteria []ExecutorVotingContract
 				for _, tx := range block.Transactions {
 					for index, outputs := range tx.Outputs {
 						for _, event := range outputs.Events {
+							matches := false
 							for _, c := range criteriaSet {
-								if !c.Matches(event) {
-									continue
+								if c.Matches(event) {
+									matches = true
+									break
 								}
+							}
+							if !matches {
+								continue
 							}
 
 							log := thorest.EventLog{

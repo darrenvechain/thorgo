@@ -54,10 +54,7 @@ func (a *Visitor) Storage(key common.Hash) (*thorest.AccountStorage, error) {
 // Call executes a read-only contract call.
 func (a *Visitor) Call(calldata []byte) (*thorest.InspectResponse, error) {
 	clause := tx.NewClause(&a.account).WithData(calldata).WithValue(big.NewInt(0))
-
-	request := thorest.InspectRequest{
-		Clauses: []*tx.Clause{clause},
-	}
+	request := thorest.InspectRequest{Clauses: []*tx.Clause{clause}}
 	var (
 		inspection []thorest.InspectResponse
 		err        error

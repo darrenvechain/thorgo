@@ -29,19 +29,6 @@ func (s *Signal) init() {
 	}
 }
 
-// Signal wakes one goroutine that is waiting on s.
-func (s *Signal) Signal() {
-	s.l.Lock()
-
-	s.init()
-	select {
-	case s.ch <- true:
-	default:
-	}
-
-	s.l.Unlock()
-}
-
 // Broadcast wakes all goroutines that are waiting on s.
 func (s *Signal) Broadcast() {
 	s.l.Lock()

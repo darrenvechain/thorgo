@@ -72,7 +72,7 @@ func (v *Visitor) Wait(ctx context.Context) (*thorest.TransactionReceipt, error)
 	for {
 		select {
 		case <-ctx.Done():
-			return nil, fmt.Errorf("timed out waiting for the tx receipt %s", v.hash.String())
+			return nil, fmt.Errorf("context cancelled while waiting for transaction %s", v.hash.Hex())
 		case <-ticker.C():
 			receipt, err = v.client.TransactionReceipt(v.hash)
 			if err == nil {

@@ -9,6 +9,7 @@ import (
 
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 type Client struct {
@@ -149,9 +150,9 @@ func (c *Client) SendTransaction(tx *tx.Transaction) (*SendTransactionResponse, 
 }
 
 // SendRawTransaction sends a raw transaction to the node.
-func (c *Client) SendRawTransaction(raw string) (*SendTransactionResponse, error) {
+func (c *Client) SendRawTransaction(bytes []byte) (*SendTransactionResponse, error) {
 	body := make(map[string]string)
-	body["raw"] = raw
+	body["raw"] = hexutil.Encode(bytes)
 	return httpPost(c, "/transactions", body, &SendTransactionResponse{})
 }
 
