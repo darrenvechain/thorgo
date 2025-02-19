@@ -8,16 +8,17 @@ import (
 )
 
 type Options struct {
-	Nonce        *uint64
-	GasPayer     *common.Address
-	Delegation   *bool
-	Gas          *uint64
-	GasPriceCoef *uint8
-	Expiration   *uint32
-	BlockRef     *tx.BlockRef
-	DependsOn    *common.Hash
-	ChainTag     *byte
-	VET          *big.Int
+	Nonce                *uint64
+	GasPayer             *common.Address
+	Delegation           *bool
+	Gas                  *uint64
+	MaxFeePerGas         *big.Int
+	MaxPriorityFeePerGas *big.Int
+	Expiration           *uint32
+	BlockRef             *tx.BlockRef
+	DependsOn            *common.Hash
+	ChainTag             *byte
+	VET                  *big.Int
 }
 
 type OptionsBuilder struct {
@@ -49,9 +50,15 @@ func (b *OptionsBuilder) Gas(gas uint64) *OptionsBuilder {
 	return b
 }
 
-// GasPriceCoef sets the gas price coefficient. Defaults to 0 if not set.
-func (b *OptionsBuilder) GasPriceCoef(coef uint8) *OptionsBuilder {
-	b.options.GasPriceCoef = &coef
+// MaxFeePerGas sets the maximum fee per gas for the transaction.
+func (b *OptionsBuilder) MaxFeePerGas(fee *big.Int) *OptionsBuilder {
+	b.options.MaxFeePerGas = fee
+	return b
+}
+
+// MaxPriorityFeePerGas sets the maximum priority fee per gas for the transaction.
+func (b *OptionsBuilder) MaxPriorityFeePerGas(fee *big.Int) *OptionsBuilder {
+	b.options.MaxPriorityFeePerGas = fee
 	return b
 }
 

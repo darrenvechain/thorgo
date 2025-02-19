@@ -63,22 +63,21 @@ func createDelegationServer(key *ecdsa.PrivateKey) *httptest.Server {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-
-		tx, err := tx.Decode(common.Hex2Bytes(req.Raw))
+		trx := tx.Transaction{}
+		err := trx.UnmarshalBinary(req.Raw)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		origin := common.HexToAddress(req.Origin)
-		signingHash := tx.DelegatorSigningHash(origin)
+		signingHash := trx.DelegatorSigningHash(req.Origin)
 		signature, err := crypto.Sign(signingHash.Bytes(), key)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		resp := txmanager.DelegateResponse{Signature: common.Bytes2Hex(signature)}
+		resp := txmanager.DelegateResponse{Signature: signature}
 		if err := json.NewEncoder(w).Encode(resp); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

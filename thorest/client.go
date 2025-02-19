@@ -139,13 +139,13 @@ func (c *Client) ChainTag() (byte, error) {
 }
 
 // SendTransaction sends a transaction to the node.
-func (c *Client) SendTransaction(tx *tx.Transaction) (*SendTransactionResponse, error) {
+func (c *Client) SendTransaction(transaction *tx.Transaction) (*SendTransactionResponse, error) {
 	body := make(map[string]string)
-	encoded, err := tx.Encoded()
+	rlpTx, err := transaction.MarshalBinary()
 	if err != nil {
 		return nil, err
 	}
-	body["raw"] = "0x" + encoded
+	body["raw"] = hexutil.Encode(rlpTx)
 	return httpPost(c, "/transactions", body, &SendTransactionResponse{})
 }
 

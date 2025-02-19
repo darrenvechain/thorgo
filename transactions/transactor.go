@@ -24,19 +24,19 @@ func NewTransactor(client *thorest.Client, clauses []*tx.Clause) *Transactor {
 }
 
 // Simulate estimates the gas usage and checks for errors or reversion in the transaction.
-func (t *Transactor) Simulate(caller common.Address, options *Options) (Simulation, error) {
+func (t *Transactor) Simulate(caller common.Address, options *Options) (*Simulation, error) {
 	request := thorest.InspectRequest{
 		Clauses: t.clauses,
 		Caller:  &caller,
 	}
 
-	if options != nil && options.GasPayer != nil {
+	if options.GasPayer != nil {
 		request.GasPayer = options.GasPayer
 	}
 
 	response, err := t.client.Inspect(request)
 	if err != nil {
-		return Simulation{}, err
+		return nil, err
 	}
 
 	lastResult := response[len(response)-1]
@@ -48,14 +48,14 @@ func (t *Transactor) Simulate(caller common.Address, options *Options) (Simulati
 
 	intrinsicGas, err := tx.IntrinsicGas(t.clauses...)
 	if err != nil {
-		return Simulation{}, err
+		return nil, err
 	}
 
 	if intrinsicGas > math.MaxInt64 {
-		return Simulation{}, fmt.Errorf("intrinsic gas exceeds maximum int64")
+		return nil, fmt.Errorf("intrinsic gas exceeds maximum int64")
 	}
 
-	return Simulation{
+	return &Simulation{
 		consumedGas:  consumedGas,
 		vmError:      lastResult.VmError,
 		reverted:     lastResult.Reverted,
@@ -66,13 +66,16 @@ func (t *Transactor) Simulate(caller common.Address, options *Options) (Simulati
 
 // Build constructs the transaction, applying defaults where necessary.
 func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transaction, error) {
-	builder := new(tx.Builder)
+	if options == nil {
+		options = &Options{}
+	}
+	builder := tx.NewTxBuilder(tx.TypeDynamic)
 
 	for _, clause := range t.clauses {
 		builder.Clause(clause)
 	}
 
-	if options != nil && options.Nonce != nil {
+	if options.Nonce != nil {
 		builder.Nonce(*options.Nonce)
 	} else {
 		randomNonce, err := wire.RandomUint64()
@@ -82,11 +85,11 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 		builder.Nonce(randomNonce)
 	}
 
-	if options != nil && (options.GasPayer != nil || (options.Delegation != nil && *options.Delegation)) {
+	if options.GasPayer != nil || (options.Delegation != nil && *options.Delegation) {
 		builder.Features(tx.DelegationFeature)
 	}
 
-	if options != nil && options.Gas != nil {
+	if options.Gas != nil {
 		builder.Gas(*options.Gas)
 	} else {
 		simulation, err := t.Simulate(caller, options)
@@ -96,17 +99,20 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 		builder.Gas(simulation.TotalGas())
 	}
 
-	if options != nil && options.GasPriceCoef != nil {
-		builder.GasPriceCoef(*options.GasPriceCoef)
+	if options.MaxPriorityFeePerGas != nil {
+		builder.MaxPriorityFeePerGas(options.MaxPriorityFeePerGas)
+	}
+	if options.MaxFeePerGas != nil {
+		builder.MaxFeePerGas(options.MaxFeePerGas)
 	}
 
-	if options != nil && options.Expiration != nil {
+	if options.Expiration != nil {
 		builder.Expiration(*options.Expiration)
 	} else {
 		builder.Expiration(30)
 	}
 
-	if options != nil && options.BlockRef != nil {
+	if options.BlockRef != nil {
 		builder.BlockRef(*options.BlockRef)
 	} else {
 		best, err := t.client.BestBlock()
@@ -116,11 +122,11 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 		builder.BlockRef(best.BlockRef())
 	}
 
-	if options != nil && options.DependsOn != nil {
+	if options.DependsOn != nil {
 		builder.DependsOn(options.DependsOn)
 	}
 
-	if options != nil && options.ChainTag != nil {
+	if options.ChainTag != nil {
 		builder.ChainTag(*options.ChainTag)
 	} else {
 		genesis, err := t.client.GenesisBlock()
@@ -130,5 +136,5 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 		builder.ChainTag(genesis.ChainTag())
 	}
 
-	return builder.Build(), nil
+	return builder.Build()
 }

@@ -18,7 +18,7 @@ func TestWorkToGas(t *testing.T) {
 	testCases := []struct {
 		name     string
 		work     *big.Int
-		blockNum uint64
+		blockNum uint32
 		expected uint64
 	}{
 		{
