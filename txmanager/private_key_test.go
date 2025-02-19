@@ -38,13 +38,14 @@ func TestPKSigner(t *testing.T) {
 	toAddr := to.Address()
 	vetClause := tx.NewClause(&toAddr).WithValue(big.NewInt(1000))
 
-	tx := new(tx.Builder).
+	tx, err := tx.NewTxBuilder(tx.TypeLegacy).
 		GasPriceCoef(1).
 		Gas(100000).
 		Clause(vetClause).
 		ChainTag(10).
 		BlockRef(tx.NewBlockRef(100)).
 		Build()
+	assert.NoError(t, err)
 
 	signature, err := signer.SignTransaction(tx)
 	assert.NoError(t, err)

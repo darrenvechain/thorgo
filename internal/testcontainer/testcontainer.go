@@ -15,7 +15,7 @@ func NewSolo() (*thorest.Client, func()) {
 	cmd := []string{"solo", "-api-addr", "0.0.0.0:8669", "-api-cors", "*", "-on-demand", "-api-allowed-tracers", "call"}
 
 	req := testcontainers.ContainerRequest{
-		Image:        "vechain/thor:latest",
+		Image:        "ghcr.io/vechain/thor:release-galactica-latest",
 		ExposedPorts: []string{"8669"},
 		WaitingFor:   wait.ForLog("prepared to pack block"),
 		Cmd:          cmd,

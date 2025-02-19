@@ -13,7 +13,6 @@ func TestOptionsBuilder_Build(t *testing.T) {
 		Nonce(100).
 		GasPayer(common.Address{1}).
 		Gas(1_000_000).
-		GasPriceCoef(12).
 		Expiration(100).
 		BlockRef(tx.NewBlockRef(100))
 
@@ -22,6 +21,5 @@ func TestOptionsBuilder_Build(t *testing.T) {
 	assert.Equal(t, uint64(100), *o.Nonce)
 	assert.Equal(t, common.Address{1}, *o.GasPayer)
 	assert.Equal(t, uint64(1_000_000), *o.Gas)
-	assert.Equal(t, uint8(12), *o.GasPriceCoef)
 	assert.Equal(t, uint32(100), *o.Expiration)
 }

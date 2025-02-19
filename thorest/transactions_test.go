@@ -21,7 +21,7 @@ func TestClient_SendTransaction(t *testing.T) {
 	tag, err := thorClient.ChainTag()
 	assert.NoError(t, err)
 
-	txBody := new(tx.Builder).
+	txBody, err := tx.NewTxBuilder(tx.TypeLegacy).
 		Gas(3_000_000).
 		GasPriceCoef(255).
 		ChainTag(tag).
@@ -30,6 +30,7 @@ func TestClient_SendTransaction(t *testing.T) {
 		Nonce(tx.Nonce()).
 		Clause(vetClause).
 		Build()
+	assert.NoError(t, err)
 
 	signingHash := txBody.SigningHash()
 	signature, err := crypto.Sign(signingHash[:], account1)

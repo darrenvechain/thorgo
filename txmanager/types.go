@@ -3,6 +3,7 @@ package txmanager
 import (
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 // Delegator handles the payment of transaction fees
@@ -11,10 +12,10 @@ type Delegator interface {
 }
 
 type DelegateRequest struct {
-	Origin string `json:"origin"`
-	Raw    string `json:"raw"`
+	Origin common.Address `json:"origin"`
+	Raw    hexutil.Bytes  `json:"raw"`
 }
 
 type DelegateResponse struct {
-	Signature string `json:"signature"`
+	Signature hexutil.Bytes `json:"signature"`
 }
