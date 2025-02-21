@@ -75,6 +75,11 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 		builder.Clause(clause)
 	}
 
+	best, err := t.client.BestBlock()
+	if err != nil {
+		return nil, err
+	}
+
 	if options.Nonce != nil {
 		builder.Nonce(*options.Nonce)
 	} else {
@@ -102,8 +107,11 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 	if options.MaxPriorityFeePerGas != nil {
 		builder.MaxPriorityFeePerGas(options.MaxPriorityFeePerGas)
 	}
+
 	if options.MaxFeePerGas != nil {
 		builder.MaxFeePerGas(options.MaxFeePerGas)
+	} else {
+		builder.MaxFeePerGas(best.BaseFee)
 	}
 
 	if options.Expiration != nil {
@@ -115,10 +123,6 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 	if options.BlockRef != nil {
 		builder.BlockRef(*options.BlockRef)
 	} else {
-		best, err := t.client.BestBlock()
-		if err != nil {
-			return nil, err
-		}
 		builder.BlockRef(best.BlockRef())
 	}
 

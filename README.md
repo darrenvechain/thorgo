@@ -58,7 +58,7 @@ go get github.com/darrenvechain/thorgo
 ```golang
 // github.com/darrenvechain/thorgo/accounts
 type TxManager interface {
-    SendClauses(clauses []*tx.Clause) (common.Hash, error)
+    SendClauses(clauses []*tx.Clause, opts *transactions.Options) (*transactions.Visitor, error)
 }
 ```
 

@@ -263,7 +263,7 @@ func TestDelegatedTx(t *testing.T) {
 	sig, _ := crypto.Sign(trx.SigningHash().Bytes(), p1)
 
 	o := crypto.PubkeyToAddress(p1.PublicKey)
-	hash := trx.DelegatorSigningHash(common.Address(o))
+	hash := trx.DelegatorSigningHash(o)
 	p2, _ := crypto.ToECDSA(delegator)
 	delegatorSig, _ := crypto.Sign(hash.Bytes(), p2)
 
@@ -316,7 +316,7 @@ func BenchmarkTxMining(b *testing.B) {
 		maxWork := &big.Int{}
 		eval := trx.EvaluateWork(signer)
 		for i := 0; i < b.N; i++ {
-			work := eval(uint64(i))
+			work := eval(uint64(i)) // nolint:gosec
 			if work.Cmp(maxWork) > 0 {
 				maxWork = work
 			}

@@ -9,7 +9,6 @@ import (
 	"crypto/ecdsa"
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/pkg/errors"
 )
@@ -63,7 +62,7 @@ func SignDelegated(tx *Transaction, originPK *ecdsa.PrivateKey, delegatorPK *ecd
 	}
 
 	// Convert the origin's public key to its corresponding address.
-	origin := common.Address(crypto.PubkeyToAddress(originPK.PublicKey))
+	origin := crypto.PubkeyToAddress(originPK.PublicKey)
 
 	// Generate the delegator's signature using the transaction's delegator signing hash.
 	dSig, err := crypto.Sign(tx.DelegatorSigningHash(origin).Bytes(), delegatorPK)

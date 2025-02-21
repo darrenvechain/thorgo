@@ -260,6 +260,12 @@ func (c *Client) DebugRevertReason(receipt *TransactionReceipt) (*TxRevertRespon
 	return httpPost(c, url, body, &TxRevertResponse{})
 }
 
+// FeesHistory fetches the fee history for the given block range.
+func (c *Client) FeesHistory(newestBlock int64, blockCount int64) (*FeesHistory, error) {
+	url := fmt.Sprintf("/fees/history?newestBlock=%d&blockCount=%d", newestBlock, blockCount)
+	return httpGet(c, url, &FeesHistory{})
+}
+
 func httpGet[T any](c *Client, endpoint string, v *T) (*T, error) {
 	req, err := http.NewRequest(http.MethodGet, c.url+endpoint, nil)
 	if err != nil {

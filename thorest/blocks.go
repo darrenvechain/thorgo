@@ -1,6 +1,8 @@
 package thorest
 
 import (
+	"math/big"
+
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -24,6 +26,7 @@ type Block struct {
 	Signer       common.Address `json:"signer"`
 	IsTrunk      bool           `json:"isTrunk"`
 	IsFinalized  bool           `json:"isFinalized"`
+	BaseFee      *big.Int       `json:"baseFee"`
 	Transactions []common.Hash  `json:"transactions"`
 }
 

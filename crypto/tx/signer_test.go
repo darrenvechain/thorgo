@@ -8,7 +8,6 @@ package tx
 import (
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -70,11 +69,11 @@ func TestSignDelegated(t *testing.T) {
 		// Verify address from Origin
 		origin, err := signedTx.Origin()
 		require.NoError(t, err)
-		assert.Equal(t, common.Address(crypto.PubkeyToAddress(originPK.PublicKey)), origin)
+		assert.Equal(t, crypto.PubkeyToAddress(originPK.PublicKey), origin)
 
 		// Verify the delegator
 		delegator, err := signedTx.Delegator()
 		require.NoError(t, err)
-		assert.Equal(t, common.Address(crypto.PubkeyToAddress(delegatorPK.PublicKey)), *delegator)
+		assert.Equal(t, crypto.PubkeyToAddress(delegatorPK.PublicKey), *delegator)
 	}
 }

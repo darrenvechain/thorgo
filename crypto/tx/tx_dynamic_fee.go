@@ -7,7 +7,6 @@ package tx
 
 import (
 	"io"
-	"math"
 	"math/big"
 
 	"github.com/darrenvechain/thorgo/crypto/hash"
@@ -78,10 +77,7 @@ func (t *DynamicFeeTransaction) gas() uint64 {
 }
 
 func (t *DynamicFeeTransaction) gasPriceCoef() uint8 {
-	if t.MaxFeePerGas.Cmp(big.NewInt(math.MaxUint8)) > 0 {
-		return math.MaxUint8
-	}
-	return uint8(t.MaxFeePerGas.Uint64())
+	return 0
 }
 
 func (t *DynamicFeeTransaction) maxFeePerGas() *big.Int {
