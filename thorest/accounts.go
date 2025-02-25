@@ -7,9 +7,9 @@ import (
 )
 
 type Account struct {
-	Balance hexutil.Big `json:"balance"`
-	Energy  hexutil.Big `json:"energy"`
-	HasCode bool        `json:"hasCode"`
+	Balance *hexutil.Big `json:"balance"`
+	Energy  *hexutil.Big `json:"energy"`
+	HasCode bool         `json:"hasCode"`
 }
 
 type AccountCode struct {

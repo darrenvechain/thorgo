@@ -13,3 +13,9 @@ func TestClient_FeesHistory(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, history)
 }
+
+func TestClient_FeesPriority(t *testing.T) {
+	priority, err := thorClient.FeesPriority()
+	assert.NoError(t, err)
+	assert.NotNil(t, priority)
+}

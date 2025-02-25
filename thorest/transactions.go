@@ -35,7 +35,7 @@ type Transaction struct {
 	Gas          int64           `json:"gas"`
 	Origin       common.Address  `json:"origin"`
 	Delegator    *common.Address `json:"delegator"`
-	Nonce        hexutil.Big     `json:"nonce"`
+	Nonce        *hexutil.Big    `json:"nonce"`
 	DependsOn    *common.Hash    `json:"dependsOn"`
 	Size         int64           `json:"size"`
 	Meta         TxMeta          `json:"meta"`

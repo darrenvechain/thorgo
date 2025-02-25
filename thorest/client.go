@@ -266,6 +266,11 @@ func (c *Client) FeesHistory(newestBlock int64, blockCount int64) (*FeesHistory,
 	return httpGet(c, url, &FeesHistory{})
 }
 
+// FeesPriority fetches the suggested priority fee for the next block.
+func (c *Client) FeesPriority() (*FeesPriority, error) {
+	return httpGet(c, "/fees/priority", &FeesPriority{})
+}
+
 func httpGet[T any](c *Client, endpoint string, v *T) (*T, error) {
 	req, err := http.NewRequest(http.MethodGet, c.url+endpoint, nil)
 	if err != nil {

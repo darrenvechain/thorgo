@@ -1,8 +1,6 @@
 package thorest
 
 import (
-	"math/big"
-
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -26,7 +24,7 @@ type Block struct {
 	Signer       common.Address `json:"signer"`
 	IsTrunk      bool           `json:"isTrunk"`
 	IsFinalized  bool           `json:"isFinalized"`
-	BaseFee      *big.Int       `json:"baseFee"`
+	BaseFee      *hexutil.Big   `json:"baseFee"`
 	Transactions []common.Hash  `json:"transactions"`
 }
 
@@ -48,13 +46,13 @@ type BlockTransaction struct {
 	Gas          int64           `json:"gas"`
 	Origin       common.Address  `json:"origin"`
 	Delegator    *common.Address `json:"delegator,omitempty"`
-	Nonce        hexutil.Big     `json:"nonce"`
+	Nonce        *hexutil.Big    `json:"nonce"`
 	DependsOn    *common.Hash    `json:"dependsOn,omitempty"`
 	Size         int64           `json:"size"`
 	GasUsed      int64           `json:"gasUsed"`
 	GasPayer     common.Address  `json:"gasPayer"`
-	Paid         hexutil.Big     `json:"paid"`
-	Reward       hexutil.Big     `json:"reward"`
+	Paid         *hexutil.Big    `json:"paid"`
+	Reward       *hexutil.Big    `json:"reward"`
 	Reverted     bool            `json:"reverted"`
 	Outputs      []Output        `json:"outputs"`
 }
