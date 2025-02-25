@@ -75,5 +75,6 @@ type ExpandedBlock struct {
 	Signer       common.Address     `json:"signer"`
 	IsTrunk      bool               `json:"isTrunk"`
 	IsFinalized  bool               `json:"isFinalized"`
+	BaseFee      *hexutil.Big       `json:"baseFee"`
 	Transactions []BlockTransaction `json:"transactions"`
 }
