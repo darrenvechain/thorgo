@@ -1,6 +1,7 @@
 package thorest
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -261,8 +262,8 @@ func (c *Client) DebugRevertReason(receipt *TransactionReceipt) (*TxRevertRespon
 }
 
 // FeesHistory fetches the fee history for the given block range.
-func (c *Client) FeesHistory(newestBlock int64, blockCount int64) (*FeesHistory, error) {
-	url := fmt.Sprintf("/fees/history?newestBlock=%d&blockCount=%d", newestBlock, blockCount)
+func (c *Client) FeesHistory(revision Revision, blockCount int64) (*FeesHistory, error) {
+	url := fmt.Sprintf("/fees/history?newestBlock=%s&blockCount=%d", revision.value, blockCount)
 	return httpGet(c, url, &FeesHistory{})
 }
 
@@ -284,7 +285,7 @@ func httpPost[T any](c *Client, path string, body interface{}, v *T) (*T, error)
 	if err != nil {
 		return nil, err
 	}
-	request, err := http.NewRequest(http.MethodPost, c.url+path, strings.NewReader(string(reqBody)))
+	request, err := http.NewRequest(http.MethodPost, c.url+path, bytes.NewReader(reqBody))
 	if err != nil {
 		return nil, err
 	}

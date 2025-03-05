@@ -18,6 +18,8 @@ go_version_check:
 	fi
 
 test:| go_version_check #@ Run the tests
+	@docker pull vechain/thor:latest
+	@docker pull ghcr.io/vechain/thor:release-galactica-latest
 	@go test -cover $(PACKAGES)
 
 test-coverage:| go_version_check #@ Run the tests with coverage
