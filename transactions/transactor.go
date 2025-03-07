@@ -101,14 +101,6 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 
 	if options.MaxPriorityFeePerGas != nil {
 		builder.MaxPriorityFeePerGas(options.MaxPriorityFeePerGas)
-	} else {
-		suggestion, err := t.client.FeesPriority()
-		if err != nil {
-			return nil, err
-		}
-		if suggestion != nil {
-			builder.MaxPriorityFeePerGas(suggestion.MaxPriorityFeePerGas.ToInt())
-		}
 	}
 
 	if options.MaxFeePerGas != nil {
@@ -118,7 +110,13 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 		if err != nil {
 			return nil, err
 		}
-		builder.MaxFeePerGas(fees.BaseFees[0].ToInt())
+		suggestion, err := t.client.FeesPriority()
+		if err != nil {
+			return nil, err
+		}
+		maxFee := fees.BaseFees[0].ToInt()
+		maxFee = maxFee.Add(maxFee, suggestion.MaxPriorityFeePerGas.ToInt())
+		builder.MaxFeePerGas(maxFee)
 	}
 
 	if options.Expiration != nil {
