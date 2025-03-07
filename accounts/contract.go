@@ -171,7 +171,7 @@ func (c *Contract) EventCriteria(name string, matchers ...interface{}) (thorest.
 type Event struct {
 	Name string
 	Args map[string]interface{}
-	Log  thorest.EventLog
+	Log  *thorest.EventLog
 }
 
 // DecodeEvents parses logs into a slice of decoded events.
@@ -194,7 +194,7 @@ type Event struct {
 //	}
 //
 // This function returns a slice of decoded event objects and any error encountered.
-func (c *Contract) DecodeEvents(logs []thorest.EventLog) ([]Event, error) {
+func (c *Contract) DecodeEvents(logs []*thorest.EventLog) ([]Event, error) {
 	var decoded []Event
 	for _, log := range logs {
 		if len(log.Topics) < 2 {
@@ -234,7 +234,7 @@ func (c *Contract) DecodeEvents(logs []thorest.EventLog) ([]Event, error) {
 }
 
 // UnpackLog unpacks a retrieved log into the provided output structure.
-func (c *Contract) UnpackLog(out interface{}, event string, log thorest.EventLog) error {
+func (c *Contract) UnpackLog(out interface{}, event string, log *thorest.EventLog) error {
 	if len(log.Topics) == 0 {
 		return errors.New("anonymous events are not supported")
 	}

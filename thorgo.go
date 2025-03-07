@@ -43,12 +43,12 @@ func (t *Thor) Transactor(clauses []*tx.Clause) *transactions.Transactor {
 }
 
 // Events sets up a query builder to fetch smart contract solidity events.
-func (t *Thor) Events(criteria []thorest.EventCriteria, filters *thorest.LogFilters) ([]thorest.EventLog, error) {
+func (t *Thor) Events(criteria []thorest.EventCriteria, filters *thorest.LogFilters) ([]*thorest.EventLog, error) {
 	return t.Client.FilterEvents(criteria, filters)
 }
 
 // Transfers sets up a query builder to fetch VET transfers.
-func (t *Thor) Transfers(criteria []thorest.TransferCriteria, filters *thorest.LogFilters) ([]thorest.TransferLog, error) {
+func (t *Thor) Transfers(criteria []thorest.TransferCriteria, filters *thorest.LogFilters) ([]*thorest.TransferLog, error) {
 	return t.Client.FilterTransfers(criteria, filters)
 }
 

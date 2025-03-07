@@ -54,9 +54,9 @@ type Output struct {
 }
 
 type Event struct {
-	Address common.Address `json:"address"`
-	Topics  []common.Hash  `json:"topics"`
-	Data    hexutil.Bytes  `json:"data"`
+	Address *common.Address `json:"address"`
+	Topics  []common.Hash   `json:"topics"`
+	Data    hexutil.Bytes   `json:"data"`
 }
 
 type ReceiptMeta struct {

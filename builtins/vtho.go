@@ -340,7 +340,7 @@ type VTHOApproval struct {
 	Owner   common.Address
 	Spender common.Address
 	Value   *big.Int
-	Log     thorest.EventLog
+	Log     *thorest.EventLog
 }
 
 type VTHOApprovalCriteria struct {
@@ -390,14 +390,6 @@ func (_VTHO *VTHO) FilterApproval(criteria []VTHOApprovalCriteria, filters *thor
 	logs, err := _VTHO.thor.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
-	}
-
-	inputs := _VTHO.contract.ABI.Events["Approval"].Inputs
-	var indexed abi.Arguments
-	for _, arg := range inputs {
-		if arg.Indexed {
-			indexed = append(indexed, arg)
-		}
 	}
 
 	events := make([]VTHOApproval, len(logs))
@@ -460,42 +452,14 @@ func (_VTHO *VTHO) WatchApproval(criteria []VTHOApprovalCriteria, ctx context.Co
 				if err != nil {
 					continue
 				}
-				for _, tx := range block.Transactions {
-					for index, outputs := range tx.Outputs {
-						for _, event := range outputs.Events {
-							matches := false
-							for _, c := range criteriaSet {
-								if c.Matches(event) {
-									matches = true
-									break
-								}
-							}
-							if !matches {
-								continue
-							}
 
-							log := thorest.EventLog{
-								Address: &_VTHO.contract.Address,
-								Topics:  event.Topics,
-								Data:    event.Data,
-								Meta: thorest.LogMeta{
-									BlockID:     block.ID,
-									BlockNumber: block.Number,
-									BlockTime:   block.Timestamp,
-									TxID:        tx.ID,
-									TxOrigin:    tx.Origin,
-									ClauseIndex: int64(index),
-								},
-							}
-
-							ev := new(VTHOApproval)
-							if err := _VTHO.contract.UnpackLog(ev, "Approval", log); err != nil {
-								continue
-							}
-							ev.Log = log
-							eventChan <- ev
-						}
+				for _, log := range block.FilteredEvents(criteriaSet) {
+					ev := new(VTHOApproval)
+					if err := _VTHO.contract.UnpackLog(ev, "Approval", log); err != nil {
+						continue
 					}
+					ev.Log = log
+					eventChan <- ev
 				}
 			case <-ctx.Done():
 				return
@@ -511,7 +475,7 @@ type VTHOTransfer struct {
 	From  common.Address
 	To    common.Address
 	Value *big.Int
-	Log   thorest.EventLog
+	Log   *thorest.EventLog
 }
 
 type VTHOTransferCriteria struct {
@@ -561,14 +525,6 @@ func (_VTHO *VTHO) FilterTransfer(criteria []VTHOTransferCriteria, filters *thor
 	logs, err := _VTHO.thor.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
-	}
-
-	inputs := _VTHO.contract.ABI.Events["Transfer"].Inputs
-	var indexed abi.Arguments
-	for _, arg := range inputs {
-		if arg.Indexed {
-			indexed = append(indexed, arg)
-		}
 	}
 
 	events := make([]VTHOTransfer, len(logs))
@@ -631,42 +587,14 @@ func (_VTHO *VTHO) WatchTransfer(criteria []VTHOTransferCriteria, ctx context.Co
 				if err != nil {
 					continue
 				}
-				for _, tx := range block.Transactions {
-					for index, outputs := range tx.Outputs {
-						for _, event := range outputs.Events {
-							matches := false
-							for _, c := range criteriaSet {
-								if c.Matches(event) {
-									matches = true
-									break
-								}
-							}
-							if !matches {
-								continue
-							}
 
-							log := thorest.EventLog{
-								Address: &_VTHO.contract.Address,
-								Topics:  event.Topics,
-								Data:    event.Data,
-								Meta: thorest.LogMeta{
-									BlockID:     block.ID,
-									BlockNumber: block.Number,
-									BlockTime:   block.Timestamp,
-									TxID:        tx.ID,
-									TxOrigin:    tx.Origin,
-									ClauseIndex: int64(index),
-								},
-							}
-
-							ev := new(VTHOTransfer)
-							if err := _VTHO.contract.UnpackLog(ev, "Transfer", log); err != nil {
-								continue
-							}
-							ev.Log = log
-							eventChan <- ev
-						}
+				for _, log := range block.FilteredEvents(criteriaSet) {
+					ev := new(VTHOTransfer)
+					if err := _VTHO.contract.UnpackLog(ev, "Transfer", log); err != nil {
+						continue
 					}
+					ev.Log = log
+					eventChan <- ev
 				}
 			case <-ctx.Done():
 				return

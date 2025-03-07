@@ -209,7 +209,7 @@ var (
         // {{$contract.Type}}{{.Normalized.Name}} represents a {{.Normalized.Name}} event raised by the {{$contract.Type}} contract.
 		type {{$contract.Type}}{{.Normalized.Name}} struct { {{- range .Normalized.Inputs }}
 			{{capitalise .Name}} {{if .Indexed}}{{bindtopictype .Type $structs}}{{else}}{{bindtype .Type $structs}}{{end}}{{- end }}
-			Log thorest.EventLog
+			Log *thorest.EventLog
 		}
 
 
@@ -287,14 +287,6 @@ var (
             logs, err := _{{$contract.Type}}.thor.FilterEvents(criteriaSet, filters)
 			if err != nil {
 				return nil, err
-			}
-
-			inputs := _{{$contract.Type}}.contract.ABI.Events["{{.Normalized.Name}}"].Inputs
-			var indexed abi.Arguments
-			for _, arg := range inputs {
-				if arg.Indexed {
-					indexed = append(indexed, arg)
-				}
 			}
 
 			events := make([]{{$contract.Type}}{{.Normalized.Name}}, len(logs))
@@ -377,42 +369,14 @@ var (
                         if err != nil {
                         	continue
                         }
-                        for _, tx := range block.Transactions {
-                            for index, outputs := range tx.Outputs {
-                                for _, event := range outputs.Events {
-                                    matches := false
-                                    for _, c := range criteriaSet {
-                                        if c.Matches(event) {
-                                            matches = true
-                                            break
-                                        }
-                                    }
-                                    if !matches {
-                                        continue
-                                    }
 
-                                    log := thorest.EventLog{
-                                        Address: &_{{$contract.Type}}.contract.Address,
-                                        Topics:  event.Topics,
-                                        Data:    event.Data,
-                                        Meta: thorest.LogMeta{
-                                            BlockID:     block.ID,
-                                            BlockNumber: block.Number,
-                                            BlockTime:   block.Timestamp,
-                                            TxID:        tx.ID,
-                                            TxOrigin:    tx.Origin,
-                                            ClauseIndex: int64(index),
-                                        },
-                                    }
-
-                                    ev := new({{$contract.Type}}{{.Normalized.Name}})
-                                    if err := _{{$contract.Type}}.contract.UnpackLog(ev, "{{.Normalized.Name}}", log); err != nil {
-                                        continue
-                                    }
-                                    ev.Log = log
-                                    eventChan <- ev
-                                }
+                        for _, log := range block.FilteredEvents(criteriaSet) {
+                            ev := new({{$contract.Type}}{{.Normalized.Name}})
+                            if err := _{{$contract.Type}}.contract.UnpackLog(ev, "{{.Normalized.Name}}", log); err != nil {
+                                continue
                             }
+                            ev.Log = log
+                            eventChan <- ev
                         }
                     case <-ctx.Done():
                         return
