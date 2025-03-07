@@ -245,7 +245,7 @@ func (_Authority *Authority) RevokeAsClause(_nodeMaster common.Address, vetValue
 type AuthorityCandidate struct {
 	NodeMaster common.Address
 	Action     [32]byte
-	Log        thorest.EventLog
+	Log        *thorest.EventLog
 }
 
 type AuthorityCandidateCriteria struct {
@@ -286,14 +286,6 @@ func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriter
 	logs, err := _Authority.thor.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
-	}
-
-	inputs := _Authority.contract.ABI.Events["Candidate"].Inputs
-	var indexed abi.Arguments
-	for _, arg := range inputs {
-		if arg.Indexed {
-			indexed = append(indexed, arg)
-		}
 	}
 
 	events := make([]AuthorityCandidate, len(logs))
@@ -348,42 +340,14 @@ func (_Authority *Authority) WatchCandidate(criteria []AuthorityCandidateCriteri
 				if err != nil {
 					continue
 				}
-				for _, tx := range block.Transactions {
-					for index, outputs := range tx.Outputs {
-						for _, event := range outputs.Events {
-							matches := false
-							for _, c := range criteriaSet {
-								if c.Matches(event) {
-									matches = true
-									break
-								}
-							}
-							if !matches {
-								continue
-							}
 
-							log := thorest.EventLog{
-								Address: &_Authority.contract.Address,
-								Topics:  event.Topics,
-								Data:    event.Data,
-								Meta: thorest.LogMeta{
-									BlockID:     block.ID,
-									BlockNumber: block.Number,
-									BlockTime:   block.Timestamp,
-									TxID:        tx.ID,
-									TxOrigin:    tx.Origin,
-									ClauseIndex: int64(index),
-								},
-							}
-
-							ev := new(AuthorityCandidate)
-							if err := _Authority.contract.UnpackLog(ev, "Candidate", log); err != nil {
-								continue
-							}
-							ev.Log = log
-							eventChan <- ev
-						}
+				for _, log := range block.FilteredEvents(criteriaSet) {
+					ev := new(AuthorityCandidate)
+					if err := _Authority.contract.UnpackLog(ev, "Candidate", log); err != nil {
+						continue
 					}
+					ev.Log = log
+					eventChan <- ev
 				}
 			case <-ctx.Done():
 				return

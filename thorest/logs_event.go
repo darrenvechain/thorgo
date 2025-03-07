@@ -9,7 +9,7 @@ type EventLog struct {
 	Address *common.Address `json:"address,omitempty"`
 	Topics  []common.Hash   `json:"topics"`
 	Data    hexutil.Bytes   `json:"data"`
-	Meta    LogMeta         `json:"meta"`
+	Meta    *LogMeta        `json:"meta"`
 }
 
 type eventFilter struct {
@@ -28,8 +28,8 @@ type EventCriteria struct {
 	Topic4  *common.Hash    `json:"topic4,omitempty"`
 }
 
-func (e *EventCriteria) Matches(event Event) bool {
-	if e.Address != nil && *e.Address != event.Address {
+func (e *EventCriteria) Matches(event *EventLog) bool {
+	if e.Address != nil && event.Address != nil && e.Address.Cmp(*event.Address) != 0 {
 		return false
 	}
 

@@ -200,9 +200,9 @@ func (c *Client) TransactionReceiptAt(id common.Hash, head common.Hash) (*Transa
 }
 
 // FilterEvents fetches the event logs that match the given filter.
-func (c *Client) FilterEvents(criteriaSet []EventCriteria, filters *LogFilters) ([]EventLog, error) {
+func (c *Client) FilterEvents(criteriaSet []EventCriteria, filters *LogFilters) ([]*EventLog, error) {
 	path := "/logs/event"
-	events := make([]EventLog, 0)
+	events := make([]*EventLog, 0)
 	request := eventFilter{
 		Criteria: &criteriaSet,
 	}
@@ -219,9 +219,9 @@ func (c *Client) FilterEvents(criteriaSet []EventCriteria, filters *LogFilters) 
 }
 
 // FilterTransfers fetches the transfer logs that match the given filter.
-func (c *Client) FilterTransfers(criteriaSet []TransferCriteria, filters *LogFilters) ([]TransferLog, error) {
+func (c *Client) FilterTransfers(criteriaSet []TransferCriteria, filters *LogFilters) ([]*TransferLog, error) {
 	path := "/logs/transfer"
-	transfers := make([]TransferLog, 0)
+	transfers := make([]*TransferLog, 0)
 	request := transferFilter{
 		Criteria: &criteriaSet,
 	}
