@@ -38,7 +38,7 @@ func (b *Block) BlockRef() tx.BlockRef {
 
 type BlockTransaction struct {
 	ID                   common.Hash     `json:"id"`
-	Type                 uint8           `json:"txType,omitempty"`
+	Type                 uint8           `json:"type,omitempty"`
 	ChainTag             byte            `json:"chainTag"`
 	BlockRef             tx.BlockRef     `json:"blockRef"`
 	Expiration           int64           `json:"expiration"`

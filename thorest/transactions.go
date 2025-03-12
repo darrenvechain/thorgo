@@ -28,7 +28,7 @@ type TransactionReceipt struct {
 type Transaction struct {
 	ID                   common.Hash     `json:"id"`
 	ChainTag             int64           `json:"chainTag"`
-	Type                 uint8           `json:"txType,omitempty"`
+	Type                 uint8           `json:"type,omitempty"`
 	BlockRef             tx.BlockRef     `json:"blockRef"`
 	Expiration           int64           `json:"expiration"`
 	Clauses              []tx.Clause     `json:"clauses"`
