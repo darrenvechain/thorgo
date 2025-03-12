@@ -37,24 +37,27 @@ func (b *Block) BlockRef() tx.BlockRef {
 }
 
 type BlockTransaction struct {
-	ID           common.Hash     `json:"id"`
-	ChainTag     byte            `json:"chainTag"`
-	BlockRef     tx.BlockRef     `json:"blockRef"`
-	Expiration   int64           `json:"expiration"`
-	Clauses      []tx.Clause     `json:"clauses"`
-	GasPriceCoef int64           `json:"gasPriceCoef"`
-	Gas          int64           `json:"gas"`
-	Origin       common.Address  `json:"origin"`
-	Delegator    *common.Address `json:"delegator,omitempty"`
-	Nonce        *hexutil.Big    `json:"nonce"`
-	DependsOn    *common.Hash    `json:"dependsOn,omitempty"`
-	Size         int64           `json:"size"`
-	GasUsed      int64           `json:"gasUsed"`
-	GasPayer     common.Address  `json:"gasPayer"`
-	Paid         *hexutil.Big    `json:"paid"`
-	Reward       *hexutil.Big    `json:"reward"`
-	Reverted     bool            `json:"reverted"`
-	Outputs      []Output        `json:"outputs"`
+	ID                   common.Hash     `json:"id"`
+	Type                 string          `json:"txType,omitempty"`
+	ChainTag             byte            `json:"chainTag"`
+	BlockRef             tx.BlockRef     `json:"blockRef"`
+	Expiration           int64           `json:"expiration"`
+	Clauses              []tx.Clause     `json:"clauses"`
+	GasPriceCoef         int64           `json:"gasPriceCoef,omitempty"`
+	MaxFeePerGas         *hexutil.Big    `json:"maxFeePerGas,omitempty"`
+	MaxPriorityFeePerGas *hexutil.Big    `json:"maxPriorityFeePerGas,omitempty"`
+	Gas                  int64           `json:"gas"`
+	Origin               common.Address  `json:"origin"`
+	Delegator            *common.Address `json:"delegator,omitempty"`
+	Nonce                *hexutil.Big    `json:"nonce"`
+	DependsOn            *common.Hash    `json:"dependsOn,omitempty"`
+	Size                 int64           `json:"size"`
+	GasUsed              int64           `json:"gasUsed"`
+	GasPayer             common.Address  `json:"gasPayer"`
+	Paid                 *hexutil.Big    `json:"paid"`
+	Reward               *hexutil.Big    `json:"reward"`
+	Reverted             bool            `json:"reverted"`
+	Outputs              []Output        `json:"outputs"`
 }
 
 type ExpandedBlock struct {
