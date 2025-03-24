@@ -306,7 +306,8 @@ var (
         //
         // Solidity: {{.Original.String}}
         func (_{{$contract.Type}} *{{$contract.Type}}) Watch{{.Normalized.Name}}({{ if gt $indexedArgCount 0 }}criteria []{{$contract.Type}}{{.Normalized.Name}}Criteria, {{ end }} ctx context.Context, bufferSize int64) (chan *{{$contract.Type}}{{.Normalized.Name}}, error) {
-            topicHash := _{{$contract.Type}}.contract.ABI.Events["{{.Normalized.Name}}"].ID
+            {{ if gt $indexedArgCount 0 }}
+            topicHash := _{{$contract.Type}}.contract.ABI.Events["{{.Normalized.Name}}"].ID{{ end }}
 
             {{ if gt $indexedArgCount 0 }}
             criteriaSet := make([]thorest.EventCriteria, len(criteria))
