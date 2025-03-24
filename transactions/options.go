@@ -8,17 +8,17 @@ import (
 )
 
 type Options struct {
-	Nonce                *uint64
-	GasPayer             *common.Address
-	Delegation           *bool
-	Gas                  *uint64
-	MaxFeePerGas         *big.Int
-	MaxPriorityFeePerGas *big.Int
-	Expiration           *uint32
-	BlockRef             *tx.BlockRef
-	DependsOn            *common.Hash
-	ChainTag             *byte
-	VET                  *big.Int
+	Nonce                *uint64         // Nonce is the transaction nonce.
+	GasPayer             *common.Address // GasPayer is the address that pays for the gas, used for simulating the transaction.
+	Delegation           *bool           // Delegation enables the delegation feature.
+	Gas                  *uint64         // Gas specifies the gas provision for the transaction.
+	MaxFeePerGas         *big.Int        // MaxFeePerGas specifies the maximum fee per gas for the transaction.
+	MaxPriorityFeePerGas *big.Int        // MaxPriorityFeePerGas specifies the maximum priority fee per gas for the transaction.
+	Expiration           *uint32         // Expiration specifies the amount of blocks at which point the transaction will be considered invalid.
+	BlockRef             *tx.BlockRef    // BlockRef specifies the block reference.
+	DependsOn            *common.Hash    // DependsOn specifies the transaction that this transaction depends on.
+	ChainTag             *byte           // ChainTag specifies the chain tag.
+	VET                  *big.Int        // VET is an additional option when sending a single clause transaction, allowing the amount of VET to send.
 }
 
 type OptionsBuilder struct {

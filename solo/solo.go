@@ -12,7 +12,7 @@ import (
 const URL = "http://localhost:8669"
 
 var (
-	keys      = make([]*ecdsa.PrivateKey, 0)
+	keys      = [10]*ecdsa.PrivateKey{}
 	genesisId = common.HexToHash("0x00000000c05a20fbca2bf6ae3affba6af4a74b800b585bf7a4988aba7aea69f6")
 )
 
@@ -30,12 +30,12 @@ func init() {
 		"9d68178cdc934178cca0a0051f40ed46be153cf23cb1805b59cc612c0ad2bbe0",
 	}
 
-	for _, s := range privateKeys {
-		keys = append(keys, mustParseKey(s))
+	for i, s := range privateKeys {
+		keys[i] = mustParseKey(s)
 	}
 }
 
-func Keys() []*ecdsa.PrivateKey {
+func Keys() [10]*ecdsa.PrivateKey {
 	return keys
 }
 
