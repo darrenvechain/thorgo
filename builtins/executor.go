@@ -8,6 +8,7 @@ import (
 	"errors"
 	"math/big"
 	"strings"
+	"time"
 
 	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/blocks"
@@ -32,6 +33,7 @@ var (
 	_ = context.Background
 	_ = tx.NewClause
 	_ = blocks.New
+	_ = time.Sleep
 )
 
 // ExecutorMetaData contains all meta data concerning the Executor contract.
@@ -423,8 +425,8 @@ func (_Executor *Executor) FilterApprover(criteria []ExecutorApproverCriteria, f
 //
 // Solidity: event Approver(address indexed approver, bytes32 action)
 func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ctx context.Context, bufferSize int64) (chan *ExecutorApprover, error) {
-	topicHash := _Executor.contract.ABI.Events["Approver"].ID
 
+	topicHash := _Executor.contract.ABI.Events["Approver"].ID
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
 
 	for i, c := range criteria {
@@ -447,31 +449,42 @@ func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ct
 	eventChan := make(chan *ExecutorApprover, bufferSize)
 	blocks := blocks.New(ctx, _Executor.thor)
 	ticker := blocks.Ticker()
+	best, err := blocks.Best()
+	if err != nil {
+		return nil, err
+	}
 
-	go func() {
+	go func(current int64) {
 		defer close(eventChan)
 
 		for {
 			select {
 			case <-ticker.C():
-				block, err := blocks.Best()
-				if err != nil {
-					continue
-				}
-
-				for _, log := range block.FilteredEvents(criteriaSet) {
-					ev := new(ExecutorApprover)
-					if err := _Executor.contract.UnpackLog(ev, "Approver", log); err != nil {
+				for { // loop until the current block is not found
+					block, err := blocks.Expanded(thorest.RevisionNumber(current))
+					if errors.Is(thorest.ErrNotFound, err) {
+						break
+					}
+					if err != nil {
+						time.Sleep(250 * time.Millisecond)
 						continue
 					}
-					ev.Log = log
-					eventChan <- ev
+					current++
+
+					for _, log := range block.FilteredEvents(criteriaSet) {
+						ev := new(ExecutorApprover)
+						if err := _Executor.contract.UnpackLog(ev, "Approver", log); err != nil {
+							continue
+						}
+						ev.Log = log
+						eventChan <- ev
+					}
 				}
 			case <-ctx.Done():
 				return
 			}
 		}
-	}()
+	}(best.Number + 1)
 
 	return eventChan, nil
 }
@@ -540,8 +553,8 @@ func (_Executor *Executor) FilterProposal(criteria []ExecutorProposalCriteria, f
 //
 // Solidity: event Proposal(bytes32 indexed proposalID, bytes32 action)
 func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ctx context.Context, bufferSize int64) (chan *ExecutorProposal, error) {
-	topicHash := _Executor.contract.ABI.Events["Proposal"].ID
 
+	topicHash := _Executor.contract.ABI.Events["Proposal"].ID
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
 
 	for i, c := range criteria {
@@ -564,31 +577,42 @@ func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ct
 	eventChan := make(chan *ExecutorProposal, bufferSize)
 	blocks := blocks.New(ctx, _Executor.thor)
 	ticker := blocks.Ticker()
+	best, err := blocks.Best()
+	if err != nil {
+		return nil, err
+	}
 
-	go func() {
+	go func(current int64) {
 		defer close(eventChan)
 
 		for {
 			select {
 			case <-ticker.C():
-				block, err := blocks.Best()
-				if err != nil {
-					continue
-				}
-
-				for _, log := range block.FilteredEvents(criteriaSet) {
-					ev := new(ExecutorProposal)
-					if err := _Executor.contract.UnpackLog(ev, "Proposal", log); err != nil {
+				for { // loop until the current block is not found
+					block, err := blocks.Expanded(thorest.RevisionNumber(current))
+					if errors.Is(thorest.ErrNotFound, err) {
+						break
+					}
+					if err != nil {
+						time.Sleep(250 * time.Millisecond)
 						continue
 					}
-					ev.Log = log
-					eventChan <- ev
+					current++
+
+					for _, log := range block.FilteredEvents(criteriaSet) {
+						ev := new(ExecutorProposal)
+						if err := _Executor.contract.UnpackLog(ev, "Proposal", log); err != nil {
+							continue
+						}
+						ev.Log = log
+						eventChan <- ev
+					}
 				}
 			case <-ctx.Done():
 				return
 			}
 		}
-	}()
+	}(best.Number + 1)
 
 	return eventChan, nil
 }
@@ -657,8 +681,8 @@ func (_Executor *Executor) FilterVotingContract(criteria []ExecutorVotingContrac
 //
 // Solidity: event VotingContract(address indexed contractAddr, bytes32 action)
 func (_Executor *Executor) WatchVotingContract(criteria []ExecutorVotingContractCriteria, ctx context.Context, bufferSize int64) (chan *ExecutorVotingContract, error) {
-	topicHash := _Executor.contract.ABI.Events["VotingContract"].ID
 
+	topicHash := _Executor.contract.ABI.Events["VotingContract"].ID
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
 
 	for i, c := range criteria {
@@ -681,31 +705,42 @@ func (_Executor *Executor) WatchVotingContract(criteria []ExecutorVotingContract
 	eventChan := make(chan *ExecutorVotingContract, bufferSize)
 	blocks := blocks.New(ctx, _Executor.thor)
 	ticker := blocks.Ticker()
+	best, err := blocks.Best()
+	if err != nil {
+		return nil, err
+	}
 
-	go func() {
+	go func(current int64) {
 		defer close(eventChan)
 
 		for {
 			select {
 			case <-ticker.C():
-				block, err := blocks.Best()
-				if err != nil {
-					continue
-				}
-
-				for _, log := range block.FilteredEvents(criteriaSet) {
-					ev := new(ExecutorVotingContract)
-					if err := _Executor.contract.UnpackLog(ev, "VotingContract", log); err != nil {
+				for { // loop until the current block is not found
+					block, err := blocks.Expanded(thorest.RevisionNumber(current))
+					if errors.Is(thorest.ErrNotFound, err) {
+						break
+					}
+					if err != nil {
+						time.Sleep(250 * time.Millisecond)
 						continue
 					}
-					ev.Log = log
-					eventChan <- ev
+					current++
+
+					for _, log := range block.FilteredEvents(criteriaSet) {
+						ev := new(ExecutorVotingContract)
+						if err := _Executor.contract.UnpackLog(ev, "VotingContract", log); err != nil {
+							continue
+						}
+						ev.Log = log
+						eventChan <- ev
+					}
 				}
 			case <-ctx.Done():
 				return
 			}
 		}
-	}()
+	}(best.Number + 1)
 
 	return eventChan, nil
 }

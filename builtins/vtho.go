@@ -8,6 +8,7 @@ import (
 	"errors"
 	"math/big"
 	"strings"
+	"time"
 
 	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/blocks"
@@ -32,6 +33,7 @@ var (
 	_ = context.Background
 	_ = tx.NewClause
 	_ = blocks.New
+	_ = time.Sleep
 )
 
 // VTHOMetaData contains all meta data concerning the VTHO contract.
@@ -409,8 +411,8 @@ func (_VTHO *VTHO) FilterApproval(criteria []VTHOApprovalCriteria, filters *thor
 //
 // Solidity: event Approval(address indexed _owner, address indexed _spender, uint256 _value)
 func (_VTHO *VTHO) WatchApproval(criteria []VTHOApprovalCriteria, ctx context.Context, bufferSize int64) (chan *VTHOApproval, error) {
-	topicHash := _VTHO.contract.ABI.Events["Approval"].ID
 
+	topicHash := _VTHO.contract.ABI.Events["Approval"].ID
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
 
 	for i, c := range criteria {
@@ -441,31 +443,42 @@ func (_VTHO *VTHO) WatchApproval(criteria []VTHOApprovalCriteria, ctx context.Co
 	eventChan := make(chan *VTHOApproval, bufferSize)
 	blocks := blocks.New(ctx, _VTHO.thor)
 	ticker := blocks.Ticker()
+	best, err := blocks.Best()
+	if err != nil {
+		return nil, err
+	}
 
-	go func() {
+	go func(current int64) {
 		defer close(eventChan)
 
 		for {
 			select {
 			case <-ticker.C():
-				block, err := blocks.Best()
-				if err != nil {
-					continue
-				}
-
-				for _, log := range block.FilteredEvents(criteriaSet) {
-					ev := new(VTHOApproval)
-					if err := _VTHO.contract.UnpackLog(ev, "Approval", log); err != nil {
+				for { // loop until the current block is not found
+					block, err := blocks.Expanded(thorest.RevisionNumber(current))
+					if errors.Is(thorest.ErrNotFound, err) {
+						break
+					}
+					if err != nil {
+						time.Sleep(250 * time.Millisecond)
 						continue
 					}
-					ev.Log = log
-					eventChan <- ev
+					current++
+
+					for _, log := range block.FilteredEvents(criteriaSet) {
+						ev := new(VTHOApproval)
+						if err := _VTHO.contract.UnpackLog(ev, "Approval", log); err != nil {
+							continue
+						}
+						ev.Log = log
+						eventChan <- ev
+					}
 				}
 			case <-ctx.Done():
 				return
 			}
 		}
-	}()
+	}(best.Number + 1)
 
 	return eventChan, nil
 }
@@ -544,8 +557,8 @@ func (_VTHO *VTHO) FilterTransfer(criteria []VTHOTransferCriteria, filters *thor
 //
 // Solidity: event Transfer(address indexed _from, address indexed _to, uint256 _value)
 func (_VTHO *VTHO) WatchTransfer(criteria []VTHOTransferCriteria, ctx context.Context, bufferSize int64) (chan *VTHOTransfer, error) {
-	topicHash := _VTHO.contract.ABI.Events["Transfer"].ID
 
+	topicHash := _VTHO.contract.ABI.Events["Transfer"].ID
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
 
 	for i, c := range criteria {
@@ -576,31 +589,42 @@ func (_VTHO *VTHO) WatchTransfer(criteria []VTHOTransferCriteria, ctx context.Co
 	eventChan := make(chan *VTHOTransfer, bufferSize)
 	blocks := blocks.New(ctx, _VTHO.thor)
 	ticker := blocks.Ticker()
+	best, err := blocks.Best()
+	if err != nil {
+		return nil, err
+	}
 
-	go func() {
+	go func(current int64) {
 		defer close(eventChan)
 
 		for {
 			select {
 			case <-ticker.C():
-				block, err := blocks.Best()
-				if err != nil {
-					continue
-				}
-
-				for _, log := range block.FilteredEvents(criteriaSet) {
-					ev := new(VTHOTransfer)
-					if err := _VTHO.contract.UnpackLog(ev, "Transfer", log); err != nil {
+				for { // loop until the current block is not found
+					block, err := blocks.Expanded(thorest.RevisionNumber(current))
+					if errors.Is(thorest.ErrNotFound, err) {
+						break
+					}
+					if err != nil {
+						time.Sleep(250 * time.Millisecond)
 						continue
 					}
-					ev.Log = log
-					eventChan <- ev
+					current++
+
+					for _, log := range block.FilteredEvents(criteriaSet) {
+						ev := new(VTHOTransfer)
+						if err := _VTHO.contract.UnpackLog(ev, "Transfer", log); err != nil {
+							continue
+						}
+						ev.Log = log
+						eventChan <- ev
+					}
 				}
 			case <-ctx.Done():
 				return
 			}
 		}
-	}()
+	}(best.Number + 1)
 
 	return eventChan, nil
 }

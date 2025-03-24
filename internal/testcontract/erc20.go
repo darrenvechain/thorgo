@@ -8,6 +8,7 @@ import (
 	"errors"
 	"math/big"
 	"strings"
+	"time"
 
 	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/blocks"
@@ -32,6 +33,7 @@ var (
 	_ = context.Background
 	_ = tx.NewClause
 	_ = blocks.New
+	_ = time.Sleep
 )
 
 // Erc20MetaData contains all meta data concerning the Erc20 contract.
@@ -448,8 +450,8 @@ func (_Erc20 *Erc20) FilterApproval(criteria []Erc20ApprovalCriteria, filters *t
 //
 // Solidity: event Approval(address indexed owner, address indexed spender, uint256 value)
 func (_Erc20 *Erc20) WatchApproval(criteria []Erc20ApprovalCriteria, ctx context.Context, bufferSize int64) (chan *Erc20Approval, error) {
-	topicHash := _Erc20.contract.ABI.Events["Approval"].ID
 
+	topicHash := _Erc20.contract.ABI.Events["Approval"].ID
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
 
 	for i, c := range criteria {
@@ -480,31 +482,42 @@ func (_Erc20 *Erc20) WatchApproval(criteria []Erc20ApprovalCriteria, ctx context
 	eventChan := make(chan *Erc20Approval, bufferSize)
 	blocks := blocks.New(ctx, _Erc20.thor)
 	ticker := blocks.Ticker()
+	best, err := blocks.Best()
+	if err != nil {
+		return nil, err
+	}
 
-	go func() {
+	go func(current int64) {
 		defer close(eventChan)
 
 		for {
 			select {
 			case <-ticker.C():
-				block, err := blocks.Best()
-				if err != nil {
-					continue
-				}
-
-				for _, log := range block.FilteredEvents(criteriaSet) {
-					ev := new(Erc20Approval)
-					if err := _Erc20.contract.UnpackLog(ev, "Approval", log); err != nil {
+				for { // loop until the current block is not found
+					block, err := blocks.Expanded(thorest.RevisionNumber(current))
+					if errors.Is(thorest.ErrNotFound, err) {
+						break
+					}
+					if err != nil {
+						time.Sleep(250 * time.Millisecond)
 						continue
 					}
-					ev.Log = log
-					eventChan <- ev
+					current++
+
+					for _, log := range block.FilteredEvents(criteriaSet) {
+						ev := new(Erc20Approval)
+						if err := _Erc20.contract.UnpackLog(ev, "Approval", log); err != nil {
+							continue
+						}
+						ev.Log = log
+						eventChan <- ev
+					}
 				}
 			case <-ctx.Done():
 				return
 			}
 		}
-	}()
+	}(best.Number + 1)
 
 	return eventChan, nil
 }
@@ -583,8 +596,8 @@ func (_Erc20 *Erc20) FilterTransfer(criteria []Erc20TransferCriteria, filters *t
 //
 // Solidity: event Transfer(address indexed from, address indexed to, uint256 value)
 func (_Erc20 *Erc20) WatchTransfer(criteria []Erc20TransferCriteria, ctx context.Context, bufferSize int64) (chan *Erc20Transfer, error) {
-	topicHash := _Erc20.contract.ABI.Events["Transfer"].ID
 
+	topicHash := _Erc20.contract.ABI.Events["Transfer"].ID
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
 
 	for i, c := range criteria {
@@ -615,31 +628,42 @@ func (_Erc20 *Erc20) WatchTransfer(criteria []Erc20TransferCriteria, ctx context
 	eventChan := make(chan *Erc20Transfer, bufferSize)
 	blocks := blocks.New(ctx, _Erc20.thor)
 	ticker := blocks.Ticker()
+	best, err := blocks.Best()
+	if err != nil {
+		return nil, err
+	}
 
-	go func() {
+	go func(current int64) {
 		defer close(eventChan)
 
 		for {
 			select {
 			case <-ticker.C():
-				block, err := blocks.Best()
-				if err != nil {
-					continue
-				}
-
-				for _, log := range block.FilteredEvents(criteriaSet) {
-					ev := new(Erc20Transfer)
-					if err := _Erc20.contract.UnpackLog(ev, "Transfer", log); err != nil {
+				for { // loop until the current block is not found
+					block, err := blocks.Expanded(thorest.RevisionNumber(current))
+					if errors.Is(thorest.ErrNotFound, err) {
+						break
+					}
+					if err != nil {
+						time.Sleep(250 * time.Millisecond)
 						continue
 					}
-					ev.Log = log
-					eventChan <- ev
+					current++
+
+					for _, log := range block.FilteredEvents(criteriaSet) {
+						ev := new(Erc20Transfer)
+						if err := _Erc20.contract.UnpackLog(ev, "Transfer", log); err != nil {
+							continue
+						}
+						ev.Log = log
+						eventChan <- ev
+					}
 				}
 			case <-ctx.Done():
 				return
 			}
 		}
-	}()
+	}(best.Number + 1)
 
 	return eventChan, nil
 }

@@ -8,6 +8,7 @@ import (
 	"errors"
 	"math/big"
 	"strings"
+	"time"
 
 	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/blocks"
@@ -32,6 +33,7 @@ var (
 	_ = context.Background
 	_ = tx.NewClause
 	_ = blocks.New
+	_ = time.Sleep
 )
 
 {{$structs := .Structs}}
@@ -307,9 +309,7 @@ var (
         // Solidity: {{.Original.String}}
         func (_{{$contract.Type}} *{{$contract.Type}}) Watch{{.Normalized.Name}}({{ if gt $indexedArgCount 0 }}criteria []{{$contract.Type}}{{.Normalized.Name}}Criteria, {{ end }} ctx context.Context, bufferSize int64) (chan *{{$contract.Type}}{{.Normalized.Name}}, error) {
             {{ if gt $indexedArgCount 0 }}
-            topicHash := _{{$contract.Type}}.contract.ABI.Events["{{.Normalized.Name}}"].ID{{ end }}
-
-            {{ if gt $indexedArgCount 0 }}
+            topicHash := _{{$contract.Type}}.contract.ABI.Events["{{.Normalized.Name}}"].ID
             criteriaSet := make([]thorest.EventCriteria, len(criteria))
             {{ else }}
             criteriaSet := make([]thorest.EventCriteria, 0)
@@ -359,31 +359,42 @@ var (
             eventChan := make(chan *{{$contract.Type}}{{.Normalized.Name}}, bufferSize)
             blocks := blocks.New(ctx, _{{$contract.Type}}.thor)
             ticker := blocks.Ticker()
+            best, err := blocks.Best()
+            if err != nil {
+                return nil, err
+            }
 
-            go func() {
+            go func(current int64) {
                 defer close(eventChan)
 
                 for {
                     select {
                     case <-ticker.C():
-                        block, err := blocks.Best()
-                        if err != nil {
-                        	continue
-                        }
-
-                        for _, log := range block.FilteredEvents(criteriaSet) {
-                            ev := new({{$contract.Type}}{{.Normalized.Name}})
-                            if err := _{{$contract.Type}}.contract.UnpackLog(ev, "{{.Normalized.Name}}", log); err != nil {
+                        for { // loop until the current block is not found
+                            block, err := blocks.Expanded(thorest.RevisionNumber(current))
+                            if errors.Is(thorest.ErrNotFound, err) {
+                                break
+                            }
+                            if err != nil {
+                                time.Sleep(250 * time.Millisecond)
                                 continue
                             }
-                            ev.Log = log
-                            eventChan <- ev
+                            current++
+
+                            for _, log := range block.FilteredEvents(criteriaSet) {
+                                ev := new({{$contract.Type}}{{.Normalized.Name}})
+                                if err := _{{$contract.Type}}.contract.UnpackLog(ev, "{{.Normalized.Name}}", log); err != nil {
+                                    continue
+                                }
+                                ev.Log = log
+                                eventChan <- ev
+                            }
                         }
                     case <-ctx.Done():
                         return
                     }
                 }
-            }()
+            }(best.Number+1)
 
             return eventChan, nil
         }

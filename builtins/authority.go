@@ -8,6 +8,7 @@ import (
 	"errors"
 	"math/big"
 	"strings"
+	"time"
 
 	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/blocks"
@@ -32,6 +33,7 @@ var (
 	_ = context.Background
 	_ = tx.NewClause
 	_ = blocks.New
+	_ = time.Sleep
 )
 
 // AuthorityMetaData contains all meta data concerning the Authority contract.
@@ -305,8 +307,8 @@ func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriter
 //
 // Solidity: event Candidate(address indexed nodeMaster, bytes32 action)
 func (_Authority *Authority) WatchCandidate(criteria []AuthorityCandidateCriteria, ctx context.Context, bufferSize int64) (chan *AuthorityCandidate, error) {
-	topicHash := _Authority.contract.ABI.Events["Candidate"].ID
 
+	topicHash := _Authority.contract.ABI.Events["Candidate"].ID
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
 
 	for i, c := range criteria {
@@ -329,31 +331,42 @@ func (_Authority *Authority) WatchCandidate(criteria []AuthorityCandidateCriteri
 	eventChan := make(chan *AuthorityCandidate, bufferSize)
 	blocks := blocks.New(ctx, _Authority.thor)
 	ticker := blocks.Ticker()
+	best, err := blocks.Best()
+	if err != nil {
+		return nil, err
+	}
 
-	go func() {
+	go func(current int64) {
 		defer close(eventChan)
 
 		for {
 			select {
 			case <-ticker.C():
-				block, err := blocks.Best()
-				if err != nil {
-					continue
-				}
-
-				for _, log := range block.FilteredEvents(criteriaSet) {
-					ev := new(AuthorityCandidate)
-					if err := _Authority.contract.UnpackLog(ev, "Candidate", log); err != nil {
+				for { // loop until the current block is not found
+					block, err := blocks.Expanded(thorest.RevisionNumber(current))
+					if errors.Is(thorest.ErrNotFound, err) {
+						break
+					}
+					if err != nil {
+						time.Sleep(250 * time.Millisecond)
 						continue
 					}
-					ev.Log = log
-					eventChan <- ev
+					current++
+
+					for _, log := range block.FilteredEvents(criteriaSet) {
+						ev := new(AuthorityCandidate)
+						if err := _Authority.contract.UnpackLog(ev, "Candidate", log); err != nil {
+							continue
+						}
+						ev.Log = log
+						eventChan <- ev
+					}
 				}
 			case <-ctx.Done():
 				return
 			}
 		}
-	}()
+	}(best.Number + 1)
 
 	return eventChan, nil
 }

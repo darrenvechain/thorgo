@@ -8,6 +8,7 @@ import (
 	"errors"
 	"math/big"
 	"strings"
+	"time"
 
 	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/blocks"
@@ -32,6 +33,7 @@ var (
 	_ = context.Background
 	_ = tx.NewClause
 	_ = blocks.New
+	_ = time.Sleep
 )
 
 // ParamsMetaData contains all meta data concerning the Params contract.
@@ -224,8 +226,8 @@ func (_Params *Params) FilterSet(criteria []ParamsSetCriteria, filters *thorest.
 //
 // Solidity: event Set(bytes32 indexed key, uint256 value)
 func (_Params *Params) WatchSet(criteria []ParamsSetCriteria, ctx context.Context, bufferSize int64) (chan *ParamsSet, error) {
-	topicHash := _Params.contract.ABI.Events["Set"].ID
 
+	topicHash := _Params.contract.ABI.Events["Set"].ID
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
 
 	for i, c := range criteria {
@@ -248,31 +250,42 @@ func (_Params *Params) WatchSet(criteria []ParamsSetCriteria, ctx context.Contex
 	eventChan := make(chan *ParamsSet, bufferSize)
 	blocks := blocks.New(ctx, _Params.thor)
 	ticker := blocks.Ticker()
+	best, err := blocks.Best()
+	if err != nil {
+		return nil, err
+	}
 
-	go func() {
+	go func(current int64) {
 		defer close(eventChan)
 
 		for {
 			select {
 			case <-ticker.C():
-				block, err := blocks.Best()
-				if err != nil {
-					continue
-				}
-
-				for _, log := range block.FilteredEvents(criteriaSet) {
-					ev := new(ParamsSet)
-					if err := _Params.contract.UnpackLog(ev, "Set", log); err != nil {
+				for { // loop until the current block is not found
+					block, err := blocks.Expanded(thorest.RevisionNumber(current))
+					if errors.Is(thorest.ErrNotFound, err) {
+						break
+					}
+					if err != nil {
+						time.Sleep(250 * time.Millisecond)
 						continue
 					}
-					ev.Log = log
-					eventChan <- ev
+					current++
+
+					for _, log := range block.FilteredEvents(criteriaSet) {
+						ev := new(ParamsSet)
+						if err := _Params.contract.UnpackLog(ev, "Set", log); err != nil {
+							continue
+						}
+						ev.Log = log
+						eventChan <- ev
+					}
 				}
 			case <-ctx.Done():
 				return
 			}
 		}
-	}()
+	}(best.Number + 1)
 
 	return eventChan, nil
 }
