@@ -78,8 +78,8 @@ var (
 )
 
 type hhArtifact struct {
-	Abi      interface{} `json:"abi"`
-	Bytecode string      `json:"bytecode"`
+	Abi      any    `json:"abi"`
+	Bytecode string `json:"bytecode"`
 }
 
 func readPathOrURL(path string) ([]byte, error) {

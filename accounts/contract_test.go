@@ -14,19 +14,19 @@ import (
 
 func TestContract_Call(t *testing.T) {
 	// name
-	var name []interface{}
+	var name []any
 	err := vthoRaw.Call("name", &name)
 	assert.NoError(t, err)
 	assert.Equal(t, "VeThor", name[0])
 
 	// symbol
-	var symbol []interface{}
+	var symbol []any
 	err = vthoRaw.Call("symbol", &symbol)
 	assert.NoError(t, err)
 	assert.Equal(t, "VTHO", symbol[0])
 
 	// decimals
-	var decimals []interface{}
+	var decimals []any
 	err = vthoRaw.Call("decimals", &decimals)
 	assert.NoError(t, err)
 	assert.Equal(t, uint8(18), decimals[0])

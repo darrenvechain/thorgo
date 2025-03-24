@@ -2,9 +2,10 @@ package builtins
 
 import (
 	"context"
-	"github.com/darrenvechain/thorgo/thorest"
 	"math/big"
 	"testing"
+
+	"github.com/darrenvechain/thorgo/thorest"
 
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/solo"

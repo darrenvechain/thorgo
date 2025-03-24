@@ -22,7 +22,7 @@ func TestDeployer_Deploy(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotEqual(t, common.Hash{}, txID)
 
-	var name []interface{}
+	var name []any
 	err = erc20.Call("name", &name)
 	assert.NoError(t, err)
 	assert.Equal(t, deployedName, name[0])

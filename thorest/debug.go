@@ -6,9 +6,9 @@ import (
 )
 
 type debugTraceClause struct {
-	Target string      `json:"target"`
-	Name   string      `json:"name"`
-	Config interface{} `json:"config"`
+	Target string `json:"target"`
+	Name   string `json:"name"`
+	Config any    `json:"config"`
 }
 
 type TxRevertResponse struct {

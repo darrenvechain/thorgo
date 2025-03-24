@@ -17,10 +17,10 @@ import (
 
 // deriveBufferPool holds temporary encoder buffers for DeriveSha and TX encoding.
 var encodeBufferPool = sync.Pool{
-	New: func() interface{} { return new(bytes.Buffer) },
+	New: func() any { return new(bytes.Buffer) },
 }
 
-func rlpHash(x interface{}) common.Hash {
+func rlpHash(x any) common.Hash {
 	return hash.Blake2bFn(func(w io.Writer) {
 		rlp.Encode(w, x)
 	})
@@ -28,7 +28,7 @@ func rlpHash(x interface{}) common.Hash {
 
 // prefixedRlpHash writes the prefix into the hasher before rlp-encoding the
 // given interface. It's used for typed transactions.
-func prefixedRlpHash(prefix byte, x interface{}) common.Hash {
+func prefixedRlpHash(prefix byte, x any) common.Hash {
 	return hash.Blake2bFn(func(w io.Writer) {
 		w.Write([]byte{prefix})
 		rlp.Encode(w, x)

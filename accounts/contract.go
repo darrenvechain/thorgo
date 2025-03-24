@@ -29,14 +29,14 @@ func NewContract(
 }
 
 // Call executes a read-only contract call.
-func (c *Contract) Call(method string, results *[]interface{}, args ...interface{}) error {
+func (c *Contract) Call(method string, results *[]any, args ...any) error {
 	return c.CallAt(thorest.RevisionNext(), method, results, args...)
 }
 
 // CallAt executes a read-only contract call at a specific revision.
-func (c *Contract) CallAt(revision thorest.Revision, method string, results *[]interface{}, args ...interface{}) error {
+func (c *Contract) CallAt(revision thorest.Revision, method string, results *[]any, args ...any) error {
 	if results == nil {
-		results = new([]interface{})
+		results = new([]any)
 	}
 	packed, err := c.ABI.Pack(method, args...)
 	if err != nil {
@@ -68,7 +68,7 @@ func (c *Contract) CallAt(revision thorest.Revision, method string, results *[]i
 
 // DecodeCall decodes the result of a contract call, for example, decoding a clause's 'data'.
 // The data must include the method signature.
-func (c *Contract) DecodeCall(data []byte, value interface{}) error {
+func (c *Contract) DecodeCall(data []byte, value any) error {
 	var method string
 	for name, m := range c.ABI.Methods {
 		if len(data) >= 4 && bytes.Equal(data[:4], m.ID) {
@@ -91,7 +91,7 @@ func (c *Contract) DecodeCall(data []byte, value interface{}) error {
 }
 
 // AsClause returns a transaction clause for the given method and arguments.
-func (c *Contract) AsClause(method string, args ...interface{}) (*tx.Clause, error) {
+func (c *Contract) AsClause(method string, args ...any) (*tx.Clause, error) {
 	packed, err := c.ABI.Pack(method, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to pack method %s: %w", method, err)
@@ -100,7 +100,7 @@ func (c *Contract) AsClause(method string, args ...interface{}) (*tx.Clause, err
 }
 
 // AsClauseWithVET returns a transaction clause for the given method, value, and arguments.
-func (c *Contract) AsClauseWithVET(vet *big.Int, method string, args ...interface{}) (*tx.Clause, error) {
+func (c *Contract) AsClauseWithVET(vet *big.Int, method string, args ...any) (*tx.Clause, error) {
 	packed, err := c.ABI.Pack(method, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to pack method %s: %w", method, err)
@@ -126,7 +126,7 @@ func (c *Contract) Transactor(manager TxManager) *ContractTransactor {
 //	criteria, err := contract.EventCriteria("Transfer", nil, &to)
 //
 // Returns an EventCriteria object and any error encountered.
-func (c *Contract) EventCriteria(name string, matchers ...interface{}) (thorest.EventCriteria, error) {
+func (c *Contract) EventCriteria(name string, matchers ...any) (thorest.EventCriteria, error) {
 	ev, ok := c.ABI.Events[name]
 	if !ok {
 		return thorest.EventCriteria{}, fmt.Errorf("event %s not found", name)
@@ -147,7 +147,7 @@ func (c *Contract) EventCriteria(name string, matchers ...interface{}) (thorest.
 			return thorest.EventCriteria{}, errors.New("can't match non-indexed event inputs")
 		}
 		topics, err := abi.MakeTopics(
-			[]interface{}{matchers[i]},
+			[]any{matchers[i]},
 		)
 		if err != nil {
 			return thorest.EventCriteria{}, err
@@ -170,7 +170,7 @@ func (c *Contract) EventCriteria(name string, matchers ...interface{}) (thorest.
 
 type Event struct {
 	Name string
-	Args map[string]interface{}
+	Args map[string]any
 	Log  *thorest.EventLog
 }
 
@@ -213,7 +213,7 @@ func (c *Contract) DecodeEvents(logs []*thorest.EventLog) ([]Event, error) {
 			}
 		}
 
-		values := make(map[string]interface{})
+		values := make(map[string]any)
 		err = abi.ParseTopicsIntoMap(values, indexed, log.Topics[1:])
 		if err != nil {
 			return nil, err
@@ -234,7 +234,7 @@ func (c *Contract) DecodeEvents(logs []*thorest.EventLog) ([]Event, error) {
 }
 
 // UnpackLog unpacks a retrieved log into the provided output structure.
-func (c *Contract) UnpackLog(out interface{}, event string, log *thorest.EventLog) error {
+func (c *Contract) UnpackLog(out any, event string, log *thorest.EventLog) error {
 	if len(log.Topics) == 0 {
 		return errors.New("anonymous events are not supported")
 	}

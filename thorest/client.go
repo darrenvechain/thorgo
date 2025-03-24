@@ -251,7 +251,7 @@ func (c *Client) Peers() ([]Peer, error) {
 // DebugRevertReason fetches the revert reason for the transaction.
 func (c *Client) DebugRevertReason(receipt *TransactionReceipt) (*TxRevertResponse, error) {
 	url := "/debug/tracers"
-	config := make(map[string]interface{})
+	config := make(map[string]any)
 	config["OnlyTopCall"] = true
 	body := debugTraceClause{
 		Config: config,
@@ -280,7 +280,7 @@ func httpGet[T any](c *Client, endpoint string, v *T) (*T, error) {
 	return httpDo(c, req, v)
 }
 
-func httpPost[T any](c *Client, path string, body interface{}, v *T) (*T, error) {
+func httpPost[T any](c *Client, path string, body any, v *T) (*T, error) {
 	reqBody, err := json.Marshal(body)
 	if err != nil {
 		return nil, err

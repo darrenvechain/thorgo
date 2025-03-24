@@ -104,7 +104,7 @@ func (t *LegacyTransaction) setSignature(sig []byte) {
 
 func (t *LegacyTransaction) hashWithoutNonce(origin common.Address) *common.Hash {
 	b := hash.Blake2bFn(func(w io.Writer) {
-		rlp.Encode(w, []interface{}{
+		rlp.Encode(w, []any{
 			t.chainTag(),
 			t.blockRef(),
 			t.expiration(),
@@ -120,7 +120,7 @@ func (t *LegacyTransaction) hashWithoutNonce(origin common.Address) *common.Hash
 }
 
 func (t *LegacyTransaction) encode(w io.Writer) error {
-	return rlp.Encode(w, []interface{}{
+	return rlp.Encode(w, []any{
 		t.ChainTag,
 		t.BlockRef,
 		t.Expiration,

@@ -13,6 +13,7 @@ import (
 	"io"
 	math2 "math"
 	"math/big"
+	"slices"
 	"sync/atomic"
 
 	"github.com/darrenvechain/thorgo/crypto/hash"
@@ -211,7 +212,7 @@ func (t *Transaction) MaxPriorityFeePerGas() *big.Int {
 
 // Clauses returns clauses in tx.
 func (t *Transaction) Clauses() []*Clause {
-	return append([]*Clause(nil), t.body.clauses()...)
+	return slices.Clone(t.body.clauses())
 }
 
 // DependsOn returns depended tx hash.
@@ -225,7 +226,7 @@ func (t *Transaction) DependsOn() *common.Hash {
 
 // Signature returns signature.
 func (t *Transaction) Signature() []byte {
-	return append([]byte(nil), t.body.signature()...)
+	return slices.Clone(t.body.signature())
 }
 
 // Features returns features.
@@ -296,7 +297,7 @@ func (t *Transaction) WithSignature(sig []byte) *Transaction {
 		body: t.body.copy(),
 	}
 	// copy sig
-	newTx.body.setSignature(append([]byte(nil), sig...))
+	newTx.body.setSignature(slices.Clone(sig))
 	return &newTx
 }
 
