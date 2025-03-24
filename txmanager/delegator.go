@@ -12,6 +12,7 @@ import (
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
@@ -109,14 +110,14 @@ func NewUrlDelegator(url string) *URLDelegator {
 }
 
 func (p *URLDelegator) Delegate(tx *tx.Transaction, origin common.Address) ([]byte, error) {
-	encoded, err := tx.Encoded()
+	encoded, err := tx.MarshalBinary()
 	if err != nil {
 		return nil, err
 	}
 
 	req := &DelegateRequest{
-		Origin: origin.String(),
-		Raw:    encoded,
+		Origin: origin,
+		Raw:    hexutil.Bytes(encoded),
 	}
 
 	body, err := json.Marshal(req)
@@ -139,5 +140,5 @@ func (p *URLDelegator) Delegate(tx *tx.Transaction, origin common.Address) ([]by
 		return nil, err
 	}
 
-	return common.FromHex(response.Signature), nil
+	return response.Signature, nil
 }

@@ -18,6 +18,8 @@ go_version_check:
 	fi
 
 test:| go_version_check #@ Run the tests
+	@docker pull vechain/thor:latest
+	@docker pull ghcr.io/vechain/thor:release-galactica-latest
 	@go test -cover $(PACKAGES)
 
 test-coverage:| go_version_check #@ Run the tests with coverage
@@ -28,7 +30,15 @@ lint_command_check:
 	@command -v golangci-lint || (echo "golangci-lint not found, please install it from https://golangci-lint.run/usage/install/" && exit 1)
 
 lint: | go_version_check lint_command_check #@ Run 'golangci-lint'
+	@echo "running golanci-lint..."
 	@golangci-lint run --config .golangci.yml
+	@echo "running modernize..."
+	@go run golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize@v0.18.1 ./...
+	@echo "done."
 
-lint-fix: | go_version_check lint_command_check #@ Run 'golangci-lint' with fix
+lint-fix: | go_version_check lint_command_check #@ Attempt to fix linting issues
+	@echo "running golanci-lint..."
 	@golangci-lint run --config .golangci.yml --fix
+	@echo "running modernize..."
+	@go run golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize@v0.18.1 --fix ./...
+	@echo "done."

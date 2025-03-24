@@ -363,7 +363,7 @@ func (_Executor *Executor) RevokeApproverAsClause(_approver common.Address, vetV
 type ExecutorApprover struct {
 	Approver common.Address
 	Action   [32]byte
-	Log      thorest.EventLog
+	Log      *thorest.EventLog
 }
 
 type ExecutorApproverCriteria struct {
@@ -404,14 +404,6 @@ func (_Executor *Executor) FilterApprover(criteria []ExecutorApproverCriteria, f
 	logs, err := _Executor.thor.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
-	}
-
-	inputs := _Executor.contract.ABI.Events["Approver"].Inputs
-	var indexed abi.Arguments
-	for _, arg := range inputs {
-		if arg.Indexed {
-			indexed = append(indexed, arg)
-		}
 	}
 
 	events := make([]ExecutorApprover, len(logs))
@@ -466,42 +458,14 @@ func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ct
 				if err != nil {
 					continue
 				}
-				for _, tx := range block.Transactions {
-					for index, outputs := range tx.Outputs {
-						for _, event := range outputs.Events {
-							matches := false
-							for _, c := range criteriaSet {
-								if c.Matches(event) {
-									matches = true
-									break
-								}
-							}
-							if !matches {
-								continue
-							}
 
-							log := thorest.EventLog{
-								Address: &_Executor.contract.Address,
-								Topics:  event.Topics,
-								Data:    event.Data,
-								Meta: thorest.LogMeta{
-									BlockID:     block.ID,
-									BlockNumber: block.Number,
-									BlockTime:   block.Timestamp,
-									TxID:        tx.ID,
-									TxOrigin:    tx.Origin,
-									ClauseIndex: int64(index),
-								},
-							}
-
-							ev := new(ExecutorApprover)
-							if err := _Executor.contract.UnpackLog(ev, "Approver", log); err != nil {
-								continue
-							}
-							ev.Log = log
-							eventChan <- ev
-						}
+				for _, log := range block.FilteredEvents(criteriaSet) {
+					ev := new(ExecutorApprover)
+					if err := _Executor.contract.UnpackLog(ev, "Approver", log); err != nil {
+						continue
 					}
+					ev.Log = log
+					eventChan <- ev
 				}
 			case <-ctx.Done():
 				return
@@ -516,7 +480,7 @@ func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ct
 type ExecutorProposal struct {
 	ProposalID [32]byte
 	Action     [32]byte
-	Log        thorest.EventLog
+	Log        *thorest.EventLog
 }
 
 type ExecutorProposalCriteria struct {
@@ -557,14 +521,6 @@ func (_Executor *Executor) FilterProposal(criteria []ExecutorProposalCriteria, f
 	logs, err := _Executor.thor.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
-	}
-
-	inputs := _Executor.contract.ABI.Events["Proposal"].Inputs
-	var indexed abi.Arguments
-	for _, arg := range inputs {
-		if arg.Indexed {
-			indexed = append(indexed, arg)
-		}
 	}
 
 	events := make([]ExecutorProposal, len(logs))
@@ -619,42 +575,14 @@ func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ct
 				if err != nil {
 					continue
 				}
-				for _, tx := range block.Transactions {
-					for index, outputs := range tx.Outputs {
-						for _, event := range outputs.Events {
-							matches := false
-							for _, c := range criteriaSet {
-								if c.Matches(event) {
-									matches = true
-									break
-								}
-							}
-							if !matches {
-								continue
-							}
 
-							log := thorest.EventLog{
-								Address: &_Executor.contract.Address,
-								Topics:  event.Topics,
-								Data:    event.Data,
-								Meta: thorest.LogMeta{
-									BlockID:     block.ID,
-									BlockNumber: block.Number,
-									BlockTime:   block.Timestamp,
-									TxID:        tx.ID,
-									TxOrigin:    tx.Origin,
-									ClauseIndex: int64(index),
-								},
-							}
-
-							ev := new(ExecutorProposal)
-							if err := _Executor.contract.UnpackLog(ev, "Proposal", log); err != nil {
-								continue
-							}
-							ev.Log = log
-							eventChan <- ev
-						}
+				for _, log := range block.FilteredEvents(criteriaSet) {
+					ev := new(ExecutorProposal)
+					if err := _Executor.contract.UnpackLog(ev, "Proposal", log); err != nil {
+						continue
 					}
+					ev.Log = log
+					eventChan <- ev
 				}
 			case <-ctx.Done():
 				return
@@ -669,7 +597,7 @@ func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ct
 type ExecutorVotingContract struct {
 	ContractAddr common.Address
 	Action       [32]byte
-	Log          thorest.EventLog
+	Log          *thorest.EventLog
 }
 
 type ExecutorVotingContractCriteria struct {
@@ -710,14 +638,6 @@ func (_Executor *Executor) FilterVotingContract(criteria []ExecutorVotingContrac
 	logs, err := _Executor.thor.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
-	}
-
-	inputs := _Executor.contract.ABI.Events["VotingContract"].Inputs
-	var indexed abi.Arguments
-	for _, arg := range inputs {
-		if arg.Indexed {
-			indexed = append(indexed, arg)
-		}
 	}
 
 	events := make([]ExecutorVotingContract, len(logs))
@@ -772,42 +692,14 @@ func (_Executor *Executor) WatchVotingContract(criteria []ExecutorVotingContract
 				if err != nil {
 					continue
 				}
-				for _, tx := range block.Transactions {
-					for index, outputs := range tx.Outputs {
-						for _, event := range outputs.Events {
-							matches := false
-							for _, c := range criteriaSet {
-								if c.Matches(event) {
-									matches = true
-									break
-								}
-							}
-							if !matches {
-								continue
-							}
 
-							log := thorest.EventLog{
-								Address: &_Executor.contract.Address,
-								Topics:  event.Topics,
-								Data:    event.Data,
-								Meta: thorest.LogMeta{
-									BlockID:     block.ID,
-									BlockNumber: block.Number,
-									BlockTime:   block.Timestamp,
-									TxID:        tx.ID,
-									TxOrigin:    tx.Origin,
-									ClauseIndex: int64(index),
-								},
-							}
-
-							ev := new(ExecutorVotingContract)
-							if err := _Executor.contract.UnpackLog(ev, "VotingContract", log); err != nil {
-								continue
-							}
-							ev.Log = log
-							eventChan <- ev
-						}
+				for _, log := range block.FilteredEvents(criteriaSet) {
+					ev := new(ExecutorVotingContract)
+					if err := _Executor.contract.UnpackLog(ev, "VotingContract", log); err != nil {
+						continue
 					}
+					ev.Log = log
+					eventChan <- ev
 				}
 			case <-ctx.Done():
 				return

@@ -7,9 +7,9 @@ import (
 )
 
 type Account struct {
-	Balance hexutil.Big `json:"balance"`
-	Energy  hexutil.Big `json:"energy"`
-	HasCode bool        `json:"hasCode"`
+	Balance *hexutil.Big `json:"balance"`
+	Energy  *hexutil.Big `json:"energy"`
+	HasCode bool         `json:"hasCode"`
 }
 
 type AccountCode struct {
@@ -33,8 +33,8 @@ type InspectRequest struct {
 
 type InspectResponse struct {
 	Data      hexutil.Bytes `json:"data"`
-	Events    []Event       `json:"events"`
-	Transfers []Transfer    `json:"transfers"`
+	Events    []*Event      `json:"events"`
+	Transfers []*Transfer   `json:"transfers"`
 	GasUsed   uint64        `json:"gasUsed"`
 	Reverted  bool          `json:"reverted"`
 	VmError   string        `json:"vmError"`

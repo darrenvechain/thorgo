@@ -164,7 +164,7 @@ func (_Params *Params) SetAsClause(_key [32]byte, _value *big.Int, vetValue ...*
 type ParamsSet struct {
 	Key   [32]byte
 	Value *big.Int
-	Log   thorest.EventLog
+	Log   *thorest.EventLog
 }
 
 type ParamsSetCriteria struct {
@@ -205,14 +205,6 @@ func (_Params *Params) FilterSet(criteria []ParamsSetCriteria, filters *thorest.
 	logs, err := _Params.thor.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
-	}
-
-	inputs := _Params.contract.ABI.Events["Set"].Inputs
-	var indexed abi.Arguments
-	for _, arg := range inputs {
-		if arg.Indexed {
-			indexed = append(indexed, arg)
-		}
 	}
 
 	events := make([]ParamsSet, len(logs))
@@ -267,42 +259,14 @@ func (_Params *Params) WatchSet(criteria []ParamsSetCriteria, ctx context.Contex
 				if err != nil {
 					continue
 				}
-				for _, tx := range block.Transactions {
-					for index, outputs := range tx.Outputs {
-						for _, event := range outputs.Events {
-							matches := false
-							for _, c := range criteriaSet {
-								if c.Matches(event) {
-									matches = true
-									break
-								}
-							}
-							if !matches {
-								continue
-							}
 
-							log := thorest.EventLog{
-								Address: &_Params.contract.Address,
-								Topics:  event.Topics,
-								Data:    event.Data,
-								Meta: thorest.LogMeta{
-									BlockID:     block.ID,
-									BlockNumber: block.Number,
-									BlockTime:   block.Timestamp,
-									TxID:        tx.ID,
-									TxOrigin:    tx.Origin,
-									ClauseIndex: int64(index),
-								},
-							}
-
-							ev := new(ParamsSet)
-							if err := _Params.contract.UnpackLog(ev, "Set", log); err != nil {
-								continue
-							}
-							ev.Log = log
-							eventChan <- ev
-						}
+				for _, log := range block.FilteredEvents(criteriaSet) {
+					ev := new(ParamsSet)
+					if err := _Params.contract.UnpackLog(ev, "Set", log); err != nil {
+						continue
 					}
+					ev.Log = log
+					eventChan <- ev
 				}
 			case <-ctx.Done():
 				return

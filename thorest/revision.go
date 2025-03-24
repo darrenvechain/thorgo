@@ -11,9 +11,9 @@ type Revision struct {
 	value string
 }
 
-// RevisionID creates a revision based on the block hash.
-func RevisionID(hash common.Hash) Revision {
-	return Revision{value: hash.Hex()}
+// RevisionID creates a revision based on the block ID.
+func RevisionID(id common.Hash) Revision {
+	return Revision{value: id.Hex()}
 }
 
 // RevisionNumber creates a revision based on the block number.

@@ -18,13 +18,13 @@ var (
 
 // workToGas exchange proved work to gas.
 // The decay curve follows Moore's law.
-func workToGas(work *big.Int, blockNum uint64) uint64 {
+func workToGas(work *big.Int, blockNum uint32) uint64 {
 	gas := new(big.Int).Div(work, workPerGas)
 	if gas.Sign() == 0 {
 		return 0
 	}
 
-	months := new(big.Int).SetUint64(blockNum * blockInterval / 3600 / 24 / 30)
+	months := new(big.Int).SetUint64(uint64(blockNum) * blockInterval / 3600 / 24 / 30)
 	if months.Sign() != 0 {
 		x := &big.Int{}
 		gas.Mul(gas, x.Exp(big100, months, nil))

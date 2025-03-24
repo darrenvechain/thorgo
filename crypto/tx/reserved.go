@@ -18,7 +18,7 @@ type reserved struct {
 	Unused   []rlp.RawValue
 }
 
-func (r reserved) EncodeRLP(w io.Writer) error {
+func (r *reserved) EncodeRLP(w io.Writer) error {
 	featuresRaw, _ := rlp.EncodeToBytes(r.Features)
 	raws := append([]rlp.RawValue{featuresRaw}, r.Unused...)
 

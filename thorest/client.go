@@ -1,6 +1,7 @@
 package thorest
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -139,13 +140,13 @@ func (c *Client) ChainTag() (byte, error) {
 }
 
 // SendTransaction sends a transaction to the node.
-func (c *Client) SendTransaction(tx *tx.Transaction) (*SendTransactionResponse, error) {
+func (c *Client) SendTransaction(transaction *tx.Transaction) (*SendTransactionResponse, error) {
 	body := make(map[string]string)
-	encoded, err := tx.Encoded()
+	rlpTx, err := transaction.MarshalBinary()
 	if err != nil {
 		return nil, err
 	}
-	body["raw"] = "0x" + encoded
+	body["raw"] = hexutil.Encode(rlpTx)
 	return httpPost(c, "/transactions", body, &SendTransactionResponse{})
 }
 
@@ -199,9 +200,9 @@ func (c *Client) TransactionReceiptAt(id common.Hash, head common.Hash) (*Transa
 }
 
 // FilterEvents fetches the event logs that match the given filter.
-func (c *Client) FilterEvents(criteriaSet []EventCriteria, filters *LogFilters) ([]EventLog, error) {
+func (c *Client) FilterEvents(criteriaSet []EventCriteria, filters *LogFilters) ([]*EventLog, error) {
 	path := "/logs/event"
-	events := make([]EventLog, 0)
+	events := make([]*EventLog, 0)
 	request := eventFilter{
 		Criteria: &criteriaSet,
 	}
@@ -218,9 +219,9 @@ func (c *Client) FilterEvents(criteriaSet []EventCriteria, filters *LogFilters) 
 }
 
 // FilterTransfers fetches the transfer logs that match the given filter.
-func (c *Client) FilterTransfers(criteriaSet []TransferCriteria, filters *LogFilters) ([]TransferLog, error) {
+func (c *Client) FilterTransfers(criteriaSet []TransferCriteria, filters *LogFilters) ([]*TransferLog, error) {
 	path := "/logs/transfer"
-	transfers := make([]TransferLog, 0)
+	transfers := make([]*TransferLog, 0)
 	request := transferFilter{
 		Criteria: &criteriaSet,
 	}
@@ -250,7 +251,7 @@ func (c *Client) Peers() ([]Peer, error) {
 // DebugRevertReason fetches the revert reason for the transaction.
 func (c *Client) DebugRevertReason(receipt *TransactionReceipt) (*TxRevertResponse, error) {
 	url := "/debug/tracers"
-	config := make(map[string]interface{})
+	config := make(map[string]any)
 	config["OnlyTopCall"] = true
 	body := debugTraceClause{
 		Config: config,
@@ -258,6 +259,17 @@ func (c *Client) DebugRevertReason(receipt *TransactionReceipt) (*TxRevertRespon
 		Target: fmt.Sprintf("%s/%s/%d", receipt.Meta.BlockID.Hex(), receipt.Meta.TxID.Hex(), len(receipt.Outputs)),
 	}
 	return httpPost(c, url, body, &TxRevertResponse{})
+}
+
+// FeesHistory fetches the fee history for the given block range.
+func (c *Client) FeesHistory(revision Revision, blockCount int64) (*FeesHistory, error) {
+	url := fmt.Sprintf("/fees/history?newestBlock=%s&blockCount=%d", revision.value, blockCount)
+	return httpGet(c, url, &FeesHistory{})
+}
+
+// FeesPriority fetches the suggested priority fee for the next block.
+func (c *Client) FeesPriority() (*FeesPriority, error) {
+	return httpGet(c, "/fees/priority", &FeesPriority{})
 }
 
 func httpGet[T any](c *Client, endpoint string, v *T) (*T, error) {
@@ -268,12 +280,12 @@ func httpGet[T any](c *Client, endpoint string, v *T) (*T, error) {
 	return httpDo(c, req, v)
 }
 
-func httpPost[T any](c *Client, path string, body interface{}, v *T) (*T, error) {
+func httpPost[T any](c *Client, path string, body any, v *T) (*T, error) {
 	reqBody, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
-	request, err := http.NewRequest(http.MethodPost, c.url+path, strings.NewReader(string(reqBody)))
+	request, err := http.NewRequest(http.MethodPost, c.url+path, bytes.NewReader(reqBody))
 	if err != nil {
 		return nil, err
 	}

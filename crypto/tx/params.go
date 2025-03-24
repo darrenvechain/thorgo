@@ -13,7 +13,8 @@ import (
 const (
 	blockInterval             uint64 = 10 // time interval between two consecutive blocks.
 	txGas                     uint64 = 5000
-	clauseGas                 uint64 = params.TxGas - txGas
-	clauseGasContractCreation uint64 = params.TxGasContractCreation - txGas
-	maxTxWorkDelay            uint64 = 30 // (unit: block) if tx delay exceeds this value, no energy can be exchanged.
+	clauseGas                        = params.TxGas - txGas
+	clauseGasContractCreation        = params.TxGasContractCreation - txGas
+	maxTxWorkDelay            uint32 = 30 // (unit: block) if tx delay exceeds this value, no energy can be exchanged.
+	txDataNonZeroGas          uint64 = 68
 )

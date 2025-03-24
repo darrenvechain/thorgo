@@ -34,7 +34,7 @@ func (r *RevertReason) MatchesABI(abiErr abi.Error) bool {
 }
 
 // DecodeInto will decode
-func (r *RevertReason) DecodeInto(abiErr abi.Error, value interface{}) error {
+func (r *RevertReason) DecodeInto(abiErr abi.Error, value any) error {
 	if !r.MatchesABI(abiErr) {
 		return errors.New("revert reason does not match ABI error")
 	}

@@ -78,8 +78,8 @@ var (
 )
 
 type hhArtifact struct {
-	Abi      interface{} `json:"abi"`
-	Bytecode string      `json:"bytecode"`
+	Abi      any    `json:"abi"`
+	Bytecode string `json:"bytecode"`
 }
 
 func readPathOrURL(path string) ([]byte, error) {
@@ -95,7 +95,19 @@ func readPathOrURL(path string) ([]byte, error) {
 }
 
 func thorgen(c *cli.Context) error {
-	utils.CheckExclusive(c, abiFlag, jsonFlag, artifactFlag) // Only one source can be selected.
+	flagsSet := 0
+	if c.IsSet(abiFlag.Name) {
+		flagsSet++
+	}
+	if c.IsSet(jsonFlag.Name) {
+		flagsSet++
+	}
+	if c.IsSet(artifactFlag.Name) {
+		flagsSet++
+	}
+	if flagsSet != 1 {
+		utils.Fatalf("Exactly one of --abi, --combined-json or --artifact must be specified")
+	}
 
 	if c.String(pkgFlag.Name) == "" {
 		utils.Fatalf("No destination package specified (--pkg)")

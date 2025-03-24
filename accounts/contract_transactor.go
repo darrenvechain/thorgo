@@ -18,7 +18,7 @@ type ContractTransactor struct {
 }
 
 // Send sends a transaction to the contract with the given method and arguments.
-func (c *ContractTransactor) Send(opts *transactions.Options, method string, args ...interface{}) (*transactions.Visitor, error) {
+func (c *ContractTransactor) Send(opts *transactions.Options, method string, args ...any) (*transactions.Visitor, error) {
 	if opts == nil {
 		opts = &transactions.Options{}
 	}

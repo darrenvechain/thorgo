@@ -379,7 +379,7 @@ type Erc20Approval struct {
 	Owner   common.Address
 	Spender common.Address
 	Value   *big.Int
-	Log     thorest.EventLog
+	Log     *thorest.EventLog
 }
 
 type Erc20ApprovalCriteria struct {
@@ -429,14 +429,6 @@ func (_Erc20 *Erc20) FilterApproval(criteria []Erc20ApprovalCriteria, filters *t
 	logs, err := _Erc20.thor.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
-	}
-
-	inputs := _Erc20.contract.ABI.Events["Approval"].Inputs
-	var indexed abi.Arguments
-	for _, arg := range inputs {
-		if arg.Indexed {
-			indexed = append(indexed, arg)
-		}
 	}
 
 	events := make([]Erc20Approval, len(logs))
@@ -499,42 +491,14 @@ func (_Erc20 *Erc20) WatchApproval(criteria []Erc20ApprovalCriteria, ctx context
 				if err != nil {
 					continue
 				}
-				for _, tx := range block.Transactions {
-					for index, outputs := range tx.Outputs {
-						for _, event := range outputs.Events {
-							matches := false
-							for _, c := range criteriaSet {
-								if c.Matches(event) {
-									matches = true
-									break
-								}
-							}
-							if !matches {
-								continue
-							}
 
-							log := thorest.EventLog{
-								Address: &_Erc20.contract.Address,
-								Topics:  event.Topics,
-								Data:    event.Data,
-								Meta: thorest.LogMeta{
-									BlockID:     block.ID,
-									BlockNumber: block.Number,
-									BlockTime:   block.Timestamp,
-									TxID:        tx.ID,
-									TxOrigin:    tx.Origin,
-									ClauseIndex: int64(index),
-								},
-							}
-
-							ev := new(Erc20Approval)
-							if err := _Erc20.contract.UnpackLog(ev, "Approval", log); err != nil {
-								continue
-							}
-							ev.Log = log
-							eventChan <- ev
-						}
+				for _, log := range block.FilteredEvents(criteriaSet) {
+					ev := new(Erc20Approval)
+					if err := _Erc20.contract.UnpackLog(ev, "Approval", log); err != nil {
+						continue
 					}
+					ev.Log = log
+					eventChan <- ev
 				}
 			case <-ctx.Done():
 				return
@@ -550,7 +514,7 @@ type Erc20Transfer struct {
 	From  common.Address
 	To    common.Address
 	Value *big.Int
-	Log   thorest.EventLog
+	Log   *thorest.EventLog
 }
 
 type Erc20TransferCriteria struct {
@@ -600,14 +564,6 @@ func (_Erc20 *Erc20) FilterTransfer(criteria []Erc20TransferCriteria, filters *t
 	logs, err := _Erc20.thor.FilterEvents(criteriaSet, filters)
 	if err != nil {
 		return nil, err
-	}
-
-	inputs := _Erc20.contract.ABI.Events["Transfer"].Inputs
-	var indexed abi.Arguments
-	for _, arg := range inputs {
-		if arg.Indexed {
-			indexed = append(indexed, arg)
-		}
 	}
 
 	events := make([]Erc20Transfer, len(logs))
@@ -670,42 +626,14 @@ func (_Erc20 *Erc20) WatchTransfer(criteria []Erc20TransferCriteria, ctx context
 				if err != nil {
 					continue
 				}
-				for _, tx := range block.Transactions {
-					for index, outputs := range tx.Outputs {
-						for _, event := range outputs.Events {
-							matches := false
-							for _, c := range criteriaSet {
-								if c.Matches(event) {
-									matches = true
-									break
-								}
-							}
-							if !matches {
-								continue
-							}
 
-							log := thorest.EventLog{
-								Address: &_Erc20.contract.Address,
-								Topics:  event.Topics,
-								Data:    event.Data,
-								Meta: thorest.LogMeta{
-									BlockID:     block.ID,
-									BlockNumber: block.Number,
-									BlockTime:   block.Timestamp,
-									TxID:        tx.ID,
-									TxOrigin:    tx.Origin,
-									ClauseIndex: int64(index),
-								},
-							}
-
-							ev := new(Erc20Transfer)
-							if err := _Erc20.contract.UnpackLog(ev, "Transfer", log); err != nil {
-								continue
-							}
-							ev.Log = log
-							eventChan <- ev
-						}
+				for _, log := range block.FilteredEvents(criteriaSet) {
+					ev := new(Erc20Transfer)
+					if err := _Erc20.contract.UnpackLog(ev, "Transfer", log); err != nil {
+						continue
 					}
+					ev.Log = log
+					eventChan <- ev
 				}
 			case <-ctx.Done():
 				return

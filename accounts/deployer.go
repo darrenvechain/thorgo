@@ -24,7 +24,7 @@ func NewDeployer(client *thorest.Client, bytecode []byte, abi *abi.ABI) *Deploye
 	return &Deployer{client: client, bytecode: bytecode, abi: abi, value: big.NewInt(0)}
 }
 
-func (d *Deployer) Deploy(ctx context.Context, sender TxManager, opts *transactions.Options, args ...interface{}) (*Contract, common.Hash, error) {
+func (d *Deployer) Deploy(ctx context.Context, sender TxManager, opts *transactions.Options, args ...any) (*Contract, common.Hash, error) {
 	if opts == nil {
 		opts = &transactions.Options{}
 	}
@@ -51,7 +51,7 @@ func (d *Deployer) Deploy(ctx context.Context, sender TxManager, opts *transacti
 }
 
 // AsClause returns the contract deployment clause.
-func (d *Deployer) AsClause(args ...interface{}) (*tx.Clause, error) {
+func (d *Deployer) AsClause(args ...any) (*tx.Clause, error) {
 	contractArgs, err := d.abi.Pack("", args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to pack contract arguments: %w", err)

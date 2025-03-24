@@ -1,5 +1,7 @@
 # Thor GO SDK
 
+⚠️ `Note`: The latest version targets the galactica version for `vechain/thor` and is incompatible with `v2.2.1` and earlier ⚠️
+
 `thorgo` is a Golang library designed to provide an easy and intuitive way to interact with the VeChainThor
 blockchain. It simplifies blockchain interactions, making it straightforward for developers to build and manage
 applications on VeChainThor.
@@ -58,7 +60,7 @@ go get github.com/darrenvechain/thorgo
 ```golang
 // github.com/darrenvechain/thorgo/accounts
 type TxManager interface {
-    SendClauses(clauses []*tx.Clause) (common.Hash, error)
+    SendClauses(clauses []*tx.Clause, opts *transactions.Options) (*transactions.Visitor, error)
 }
 ```
 

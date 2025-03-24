@@ -52,7 +52,7 @@ type blake2bState struct {
 }
 
 var blake2bStatePool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		return &blake2bState{
 			Hash: NewBlake2b(),
 		}
@@ -73,7 +73,7 @@ type keccak256 struct {
 }
 
 var keccak256Pool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		return &keccak256{
 			state: sha3.NewLegacyKeccak256().(keccakState),
 		}

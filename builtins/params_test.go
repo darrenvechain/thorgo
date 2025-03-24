@@ -5,6 +5,8 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/darrenvechain/thorgo/thorest"
+
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/solo"
 	"github.com/darrenvechain/thorgo/transactions"
@@ -46,4 +48,16 @@ func TestParams_Set(t *testing.T) {
 	res, err = params.Get(KeyExecutorAddress)
 	assert.NoError(t, err)
 	assert.Equal(t, solo2.Address(), common.BytesToAddress(res.Bytes()))
+}
+
+func TestParams_MBP(t *testing.T) {
+	client := thorest.NewClientFromURL("https://testnet.vechain.org")
+	params, err := NewParams(client)
+	assert.NoError(t, err)
+
+	mpbKey := common.BytesToHash([]byte("max-block-proposers"))
+
+	res, err := params.Get(mpbKey)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(14), res.Int64())
 }

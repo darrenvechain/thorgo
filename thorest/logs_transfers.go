@@ -8,8 +8,8 @@ import (
 type TransferLog struct {
 	Sender    common.Address `json:"sender"`
 	Recipient common.Address `json:"recipient"`
-	Amount    hexutil.Big    `json:"amount"`
-	Meta      LogMeta        `json:"meta"`
+	Amount    *hexutil.Big   `json:"amount"`
+	Meta      *LogMeta       `json:"meta"`
 }
 
 type TransferCriteria struct {

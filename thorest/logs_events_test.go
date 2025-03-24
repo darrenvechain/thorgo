@@ -15,19 +15,19 @@ func TestEventCriteria_Matches(t *testing.T) {
 	tests := []struct {
 		name     string
 		criteria EventCriteria
-		event    Event
+		event    *EventLog
 		expected bool
 	}{
 		{
 			name:     "Match on Address only",
 			criteria: EventCriteria{Address: &common.Address{0x1}},
-			event:    Event{Address: common.Address{0x1}, Topics: nil},
+			event:    &EventLog{Address: &common.Address{0x1}, Topics: nil},
 			expected: true,
 		},
 		{
 			name:     "Address mismatch",
 			criteria: EventCriteria{Address: &common.Address{0x1}},
-			event:    Event{Address: common.Address{0x2}, Topics: nil},
+			event:    &EventLog{Address: &common.Address{0x2}, Topics: nil},
 			expected: false,
 		},
 		{
@@ -35,7 +35,7 @@ func TestEventCriteria_Matches(t *testing.T) {
 			criteria: EventCriteria{
 				Topic0: hexToHash("0xabc123"),
 			},
-			event: Event{
+			event: &EventLog{
 				Topics: []common.Hash{
 					common.HexToHash("0xabc123"),
 				},
@@ -47,7 +47,7 @@ func TestEventCriteria_Matches(t *testing.T) {
 			criteria: EventCriteria{
 				Topic0: hexToHash("0xabc123"),
 			},
-			event: Event{
+			event: &EventLog{
 				Topics: []common.Hash{
 					common.HexToHash("0xdef456"),
 				},
@@ -59,7 +59,7 @@ func TestEventCriteria_Matches(t *testing.T) {
 			criteria: EventCriteria{
 				Topic1: hexToHash("0xabc123"),
 			},
-			event: Event{
+			event: &EventLog{
 				Topics: []common.Hash{
 					common.HexToHash("0xabc123"),
 				},
@@ -72,7 +72,7 @@ func TestEventCriteria_Matches(t *testing.T) {
 				Topic0: hexToHash("0xabc123"),
 				Topic1: hexToHash("0xdef456"),
 			},
-			event: Event{
+			event: &EventLog{
 				Topics: []common.Hash{
 					common.HexToHash("0xabc123"),
 					common.HexToHash("0xdef456"),
@@ -87,7 +87,7 @@ func TestEventCriteria_Matches(t *testing.T) {
 				Topic1: hexToHash("0xdef456"),
 				Topic2: hexToHash("0xfed789"),
 			},
-			event: Event{
+			event: &EventLog{
 				Topics: []common.Hash{
 					common.HexToHash("0xabc123"),
 					common.HexToHash("0xdef456"),
@@ -102,8 +102,8 @@ func TestEventCriteria_Matches(t *testing.T) {
 				Topic0:  nil,
 				Topic1:  nil,
 			},
-			event: Event{
-				Address: common.Address{0x1},
+			event: &EventLog{
+				Address: &common.Address{0x1},
 				Topics: []common.Hash{
 					common.HexToHash("0xabc123"),
 				},
@@ -115,7 +115,7 @@ func TestEventCriteria_Matches(t *testing.T) {
 			criteria: EventCriteria{
 				Topic0: hexToHash("0xabc123"),
 			},
-			event: Event{
+			event: &EventLog{
 				Topics: []common.Hash{},
 			},
 			expected: false,
