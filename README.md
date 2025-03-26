@@ -1,6 +1,7 @@
 # Thor GO SDK
 
 ⚠️ `Note`: The latest version targets the galactica version for `vechain/thor` and is incompatible with `v2.2.1` and earlier ⚠️
+ - TODO: Test against `ghcr.io/vechain/thor:master-latest` instead of `ghcr.io/vechain/thor:release-galactica-latest`
 
 `thorgo` is a Golang library designed to provide an easy and intuitive way to interact with the VeChainThor
 blockchain. It simplifies blockchain interactions, making it straightforward for developers to build and manage
@@ -139,15 +140,15 @@ func main() {
 	thor := thorgo.New(context.Background(), "http://localhost:8669")
 
 	// Create a delegated transaction manager
-	origin := txmanager.FromPK(solo.Keys()[0], thor.Client)
+	origin := txmanager.FromPK(solo.Keys()[0], thor.Client())
 	gasPayer := txmanager.NewDelegator(solo.Keys()[1])
-	txSender := txmanager.NewDelegatedManager(thor.Client, origin, gasPayer)
+	txSender := txmanager.NewDelegatedManager(thor.Client(), origin, gasPayer)
 
 	// Use the `thorgen` CLI to build your own smart contract wrapper
-	vtho, _ := builtins.NewVTHOTransactor(thor.Client, txSender)
+	vtho, _ := builtins.NewVTHOTransactor(thor.Client(), txSender)
 
 	// Create a new account to receive the tokens
-	recipient, _ := txmanager.GeneratePK(thor.Client)
+	recipient, _ := txmanager.GeneratePK(thor.Client())
 
 	// Call the balanceOf function
 	balance, err := vtho.BalanceOf(recipient.Address())
@@ -193,11 +194,11 @@ func main() {
   thor := thorgo.New(context.Background(), "http://localhost:8669")
 
   // Create a delegated transaction manager
-  origin := txmanager.FromPK(solo.Keys()[0], thor.Client)
-  recipient1, _ := txmanager.GeneratePK(thor.Client)
-  recipient2, _ := txmanager.GeneratePK(thor.Client)
+  origin := txmanager.FromPK(solo.Keys()[0], thor.Client())
+  recipient1, _ := txmanager.GeneratePK(thor.Client())
+  recipient2, _ := txmanager.GeneratePK(thor.Client())
 
-  vtho, _ := builtins.NewVTHOTransactor(thor.Client, origin)
+  vtho, _ := builtins.NewVTHOTransactor(thor.Client(), origin)
 
   clause1, _ := vtho.TransferAsClause(recipient1.Address(), big.NewInt(1000))
   clause2, _ := vtho.TransferAsClause(recipient2.Address(), big.NewInt(9999))

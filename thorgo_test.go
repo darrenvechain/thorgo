@@ -22,15 +22,15 @@ func TestMain(t *testing.M) {
 }
 
 func TestFromClient(t *testing.T) {
-	thor := NewFromClient(ctx, thor.Client)
+	thor := NewFromClient(ctx, thor.Client())
 	assert.NotNil(t, thor)
-	tag, err := thor.Client.ChainTag()
+	tag, err := thor.Client().ChainTag()
 	assert.NoError(t, err)
 	assert.Equal(t, solo.ChainTag(), tag)
 }
 
 func TestBlock(t *testing.T) {
-	block, err := thor.Blocks.ByNumber(0)
+	block, err := thor.Blocks().ByNumber(0)
 	assert.NoError(t, err)
 	assert.NotNil(t, block)
 }
