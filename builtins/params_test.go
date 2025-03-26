@@ -29,7 +29,7 @@ func TestParams_Set(t *testing.T) {
 	params, err := NewParamsTransactor(client, solo1)
 	assert.NoError(t, err)
 
-	res, err := params.Get(KeyExecutorAddress)
+	res, err := params.Get(KeyExecutorAddress, thorest.RevisionBest())
 	assert.NoError(t, err)
 
 	// check that solo 1 is the current executor
@@ -45,7 +45,7 @@ func TestParams_Set(t *testing.T) {
 	assert.NoError(t, err)
 
 	// check that solo 2 is the updated executor
-	res, err = params.Get(KeyExecutorAddress)
+	res, err = params.Get(KeyExecutorAddress, thorest.RevisionBest())
 	assert.NoError(t, err)
 	assert.Equal(t, solo2.Address(), common.BytesToAddress(res.Bytes()))
 }
@@ -57,7 +57,7 @@ func TestParams_MBP(t *testing.T) {
 
 	mpbKey := common.BytesToHash([]byte("max-block-proposers"))
 
-	res, err := params.Get(mpbKey)
+	res, err := params.Get(mpbKey, thorest.RevisionBest())
 	assert.NoError(t, err)
 	assert.Equal(t, int64(14), res.Int64())
 }

@@ -99,16 +99,9 @@ func (_ParamsTransactor *ParamsTransactor) Transact(opts *transactions.Options, 
 // Executor is a free data retrieval call binding the contract method 0xc34c08e5.
 //
 // Solidity: function executor() view returns(address)
-func (_Params *Params) Executor(revision ...thorest.Revision) (common.Address, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Params *Params) Executor(revision thorest.Revision) (common.Address, error) {
 	var out []interface{}
-	err := _Params.Call(rev, &out, "executor")
+	err := _Params.Call(revision, &out, "executor")
 
 	if err != nil {
 		return *new(common.Address), err
@@ -122,16 +115,9 @@ func (_Params *Params) Executor(revision ...thorest.Revision) (common.Address, e
 // Get is a free data retrieval call binding the contract method 0x8eaa6ac0.
 //
 // Solidity: function get(bytes32 _key) view returns(uint256)
-func (_Params *Params) Get(_key [32]byte, revision ...thorest.Revision) (*big.Int, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Params *Params) Get(_key [32]byte, revision thorest.Revision) (*big.Int, error) {
 	var out []interface{}
-	err := _Params.Call(rev, &out, "get", _key)
+	err := _Params.Call(revision, &out, "get", _key)
 
 	if err != nil {
 		return *new(*big.Int), err
@@ -152,14 +138,8 @@ func (_ParamsTransactor *ParamsTransactor) Set(_key [32]byte, _value *big.Int, o
 // SetAsClause is a transaction clause generator 0x273f4940.
 //
 // Solidity: function set(bytes32 _key, uint256 _value) returns()
-func (_Params *Params) SetAsClause(_key [32]byte, _value *big.Int, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Params.contract.AsClauseWithVET(val, "set", _key, _value)
+func (_Params *Params) SetAsClause(_key [32]byte, _value *big.Int) (*tx.Clause, error) {
+	return _Params.contract.AsClause("set", _key, _value)
 }
 
 // ParamsSet represents a Set event raised by the Params contract.
@@ -226,7 +206,6 @@ func (_Params *Params) FilterSet(criteria []ParamsSetCriteria, filters *thorest.
 //
 // Solidity: event Set(bytes32 indexed key, uint256 value)
 func (_Params *Params) WatchSet(criteria []ParamsSetCriteria, ctx context.Context, bufferSize int64) (chan *ParamsSet, error) {
-
 	topicHash := _Params.contract.ABI.Events["Set"].ID
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
 

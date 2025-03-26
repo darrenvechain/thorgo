@@ -2,6 +2,10 @@
 
 ⚠️ `Note`: The latest version targets the galactica version for `vechain/thor` and is incompatible with `v2.2.1` and earlier ⚠️
  - TODO: Test against `ghcr.io/vechain/thor:master-latest` instead of `ghcr.io/vechain/thor:release-galactica-latest`
+ - To use an earlier version, supporting `v2.2.1` and earlier:
+```
+go get github.com/darrenvechain/thorgo@e1a1d8d7fd692a4e586388bccc60b73adbd7bc6f
+```
 
 `thorgo` is a Golang library designed to provide an easy and intuitive way to interact with the VeChainThor
 blockchain. It simplifies blockchain interactions, making it straightforward for developers to build and manage

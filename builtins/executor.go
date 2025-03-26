@@ -99,16 +99,9 @@ func (_ExecutorTransactor *ExecutorTransactor) Transact(opts *transactions.Optio
 // ApproverCount is a free data retrieval call binding the contract method 0x128e9be6.
 //
 // Solidity: function approverCount() view returns(uint8)
-func (_Executor *Executor) ApproverCount(revision ...thorest.Revision) (uint8, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Executor *Executor) ApproverCount(revision thorest.Revision) (uint8, error) {
 	var out []interface{}
-	err := _Executor.Call(rev, &out, "approverCount")
+	err := _Executor.Call(revision, &out, "approverCount")
 
 	if err != nil {
 		return *new(uint8), err
@@ -122,19 +115,12 @@ func (_Executor *Executor) ApproverCount(revision ...thorest.Revision) (uint8, e
 // Approvers is a free data retrieval call binding the contract method 0x0a144391.
 //
 // Solidity: function approvers(address ) view returns(bytes32 identity, bool inPower)
-func (_Executor *Executor) Approvers(arg0 common.Address, revision ...thorest.Revision) (struct {
+func (_Executor *Executor) Approvers(arg0 common.Address, revision thorest.Revision) (struct {
 	Identity [32]byte
 	InPower  bool
 }, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
 	var out []interface{}
-	err := _Executor.Call(rev, &out, "approvers", arg0)
+	err := _Executor.Call(revision, &out, "approvers", arg0)
 
 	outstruct := new(struct {
 		Identity [32]byte
@@ -154,7 +140,7 @@ func (_Executor *Executor) Approvers(arg0 common.Address, revision ...thorest.Re
 // Proposals is a free data retrieval call binding the contract method 0x32ed5b12.
 //
 // Solidity: function proposals(bytes32 ) view returns(uint64 timeProposed, address proposer, uint8 quorum, uint8 approvalCount, bool executed, address target, bytes data)
-func (_Executor *Executor) Proposals(arg0 [32]byte, revision ...thorest.Revision) (struct {
+func (_Executor *Executor) Proposals(arg0 [32]byte, revision thorest.Revision) (struct {
 	TimeProposed  uint64
 	Proposer      common.Address
 	Quorum        uint8
@@ -163,15 +149,8 @@ func (_Executor *Executor) Proposals(arg0 [32]byte, revision ...thorest.Revision
 	Target        common.Address
 	Data          []byte
 }, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
 	var out []interface{}
-	err := _Executor.Call(rev, &out, "proposals", arg0)
+	err := _Executor.Call(revision, &out, "proposals", arg0)
 
 	outstruct := new(struct {
 		TimeProposed  uint64
@@ -201,16 +180,9 @@ func (_Executor *Executor) Proposals(arg0 [32]byte, revision ...thorest.Revision
 // VotingContracts is a free data retrieval call binding the contract method 0xfa06792b.
 //
 // Solidity: function votingContracts(address ) view returns(bool)
-func (_Executor *Executor) VotingContracts(arg0 common.Address, revision ...thorest.Revision) (bool, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Executor *Executor) VotingContracts(arg0 common.Address, revision thorest.Revision) (bool, error) {
 	var out []interface{}
-	err := _Executor.Call(rev, &out, "votingContracts", arg0)
+	err := _Executor.Call(revision, &out, "votingContracts", arg0)
 
 	if err != nil {
 		return *new(bool), err
@@ -231,14 +203,8 @@ func (_ExecutorTransactor *ExecutorTransactor) AddApprover(_approver common.Addr
 // AddApproverAsClause is a transaction clause generator 0x3ef0c09e.
 //
 // Solidity: function addApprover(address _approver, bytes32 _identity) returns()
-func (_Executor *Executor) AddApproverAsClause(_approver common.Address, _identity [32]byte, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Executor.contract.AsClauseWithVET(val, "addApprover", _approver, _identity)
+func (_Executor *Executor) AddApproverAsClause(_approver common.Address, _identity [32]byte) (*tx.Clause, error) {
+	return _Executor.contract.AsClause("addApprover", _approver, _identity)
 }
 
 // Approve is a paid mutator transaction binding the contract method 0xa53a1adf.
@@ -251,14 +217,8 @@ func (_ExecutorTransactor *ExecutorTransactor) Approve(_proposalID [32]byte, opt
 // ApproveAsClause is a transaction clause generator 0xa53a1adf.
 //
 // Solidity: function approve(bytes32 _proposalID) returns()
-func (_Executor *Executor) ApproveAsClause(_proposalID [32]byte, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Executor.contract.AsClauseWithVET(val, "approve", _proposalID)
+func (_Executor *Executor) ApproveAsClause(_proposalID [32]byte) (*tx.Clause, error) {
+	return _Executor.contract.AsClause("approve", _proposalID)
 }
 
 // AttachVotingContract is a paid mutator transaction binding the contract method 0xa1fb668f.
@@ -271,14 +231,8 @@ func (_ExecutorTransactor *ExecutorTransactor) AttachVotingContract(_contract co
 // AttachVotingContractAsClause is a transaction clause generator 0xa1fb668f.
 //
 // Solidity: function attachVotingContract(address _contract) returns()
-func (_Executor *Executor) AttachVotingContractAsClause(_contract common.Address, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Executor.contract.AsClauseWithVET(val, "attachVotingContract", _contract)
+func (_Executor *Executor) AttachVotingContractAsClause(_contract common.Address) (*tx.Clause, error) {
+	return _Executor.contract.AsClause("attachVotingContract", _contract)
 }
 
 // DetachVotingContract is a paid mutator transaction binding the contract method 0xa83b3bd8.
@@ -291,14 +245,8 @@ func (_ExecutorTransactor *ExecutorTransactor) DetachVotingContract(_contract co
 // DetachVotingContractAsClause is a transaction clause generator 0xa83b3bd8.
 //
 // Solidity: function detachVotingContract(address _contract) returns()
-func (_Executor *Executor) DetachVotingContractAsClause(_contract common.Address, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Executor.contract.AsClauseWithVET(val, "detachVotingContract", _contract)
+func (_Executor *Executor) DetachVotingContractAsClause(_contract common.Address) (*tx.Clause, error) {
+	return _Executor.contract.AsClause("detachVotingContract", _contract)
 }
 
 // Execute is a paid mutator transaction binding the contract method 0xe751f271.
@@ -311,14 +259,8 @@ func (_ExecutorTransactor *ExecutorTransactor) Execute(_proposalID [32]byte, opt
 // ExecuteAsClause is a transaction clause generator 0xe751f271.
 //
 // Solidity: function execute(bytes32 _proposalID) returns()
-func (_Executor *Executor) ExecuteAsClause(_proposalID [32]byte, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Executor.contract.AsClauseWithVET(val, "execute", _proposalID)
+func (_Executor *Executor) ExecuteAsClause(_proposalID [32]byte) (*tx.Clause, error) {
+	return _Executor.contract.AsClause("execute", _proposalID)
 }
 
 // Propose is a paid mutator transaction binding the contract method 0x9d481848.
@@ -331,14 +273,8 @@ func (_ExecutorTransactor *ExecutorTransactor) Propose(_target common.Address, _
 // ProposeAsClause is a transaction clause generator 0x9d481848.
 //
 // Solidity: function propose(address _target, bytes _data) returns(bytes32)
-func (_Executor *Executor) ProposeAsClause(_target common.Address, _data []byte, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Executor.contract.AsClauseWithVET(val, "propose", _target, _data)
+func (_Executor *Executor) ProposeAsClause(_target common.Address, _data []byte) (*tx.Clause, error) {
+	return _Executor.contract.AsClause("propose", _target, _data)
 }
 
 // RevokeApprover is a paid mutator transaction binding the contract method 0x18d13ef7.
@@ -351,14 +287,8 @@ func (_ExecutorTransactor *ExecutorTransactor) RevokeApprover(_approver common.A
 // RevokeApproverAsClause is a transaction clause generator 0x18d13ef7.
 //
 // Solidity: function revokeApprover(address _approver) returns()
-func (_Executor *Executor) RevokeApproverAsClause(_approver common.Address, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Executor.contract.AsClauseWithVET(val, "revokeApprover", _approver)
+func (_Executor *Executor) RevokeApproverAsClause(_approver common.Address) (*tx.Clause, error) {
+	return _Executor.contract.AsClause("revokeApprover", _approver)
 }
 
 // ExecutorApprover represents a Approver event raised by the Executor contract.
@@ -425,7 +355,6 @@ func (_Executor *Executor) FilterApprover(criteria []ExecutorApproverCriteria, f
 //
 // Solidity: event Approver(address indexed approver, bytes32 action)
 func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ctx context.Context, bufferSize int64) (chan *ExecutorApprover, error) {
-
 	topicHash := _Executor.contract.ABI.Events["Approver"].ID
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
 
@@ -553,7 +482,6 @@ func (_Executor *Executor) FilterProposal(criteria []ExecutorProposalCriteria, f
 //
 // Solidity: event Proposal(bytes32 indexed proposalID, bytes32 action)
 func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ctx context.Context, bufferSize int64) (chan *ExecutorProposal, error) {
-
 	topicHash := _Executor.contract.ABI.Events["Proposal"].ID
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
 
@@ -681,7 +609,6 @@ func (_Executor *Executor) FilterVotingContract(criteria []ExecutorVotingContrac
 //
 // Solidity: event VotingContract(address indexed contractAddr, bytes32 action)
 func (_Executor *Executor) WatchVotingContract(criteria []ExecutorVotingContractCriteria, ctx context.Context, bufferSize int64) (chan *ExecutorVotingContract, error) {
-
 	topicHash := _Executor.contract.ABI.Events["VotingContract"].ID
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
 

@@ -99,16 +99,9 @@ func (_AuthorityTransactor *AuthorityTransactor) Transact(opts *transactions.Opt
 // Executor is a free data retrieval call binding the contract method 0xc34c08e5.
 //
 // Solidity: function executor() view returns(address)
-func (_Authority *Authority) Executor(revision ...thorest.Revision) (common.Address, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Authority *Authority) Executor(revision thorest.Revision) (common.Address, error) {
 	var out []interface{}
-	err := _Authority.Call(rev, &out, "executor")
+	err := _Authority.Call(revision, &out, "executor")
 
 	if err != nil {
 		return *new(common.Address), err
@@ -122,16 +115,9 @@ func (_Authority *Authority) Executor(revision ...thorest.Revision) (common.Addr
 // First is a free data retrieval call binding the contract method 0x3df4ddf4.
 //
 // Solidity: function first() view returns(address)
-func (_Authority *Authority) First(revision ...thorest.Revision) (common.Address, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Authority *Authority) First(revision thorest.Revision) (common.Address, error) {
 	var out []interface{}
-	err := _Authority.Call(rev, &out, "first")
+	err := _Authority.Call(revision, &out, "first")
 
 	if err != nil {
 		return *new(common.Address), err
@@ -145,21 +131,14 @@ func (_Authority *Authority) First(revision ...thorest.Revision) (common.Address
 // Get is a free data retrieval call binding the contract method 0xc2bc2efc.
 //
 // Solidity: function get(address _nodeMaster) view returns(bool listed, address endorsor, bytes32 identity, bool active)
-func (_Authority *Authority) Get(_nodeMaster common.Address, revision ...thorest.Revision) (struct {
+func (_Authority *Authority) Get(_nodeMaster common.Address, revision thorest.Revision) (struct {
 	Listed   bool
 	Endorsor common.Address
 	Identity [32]byte
 	Active   bool
 }, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
 	var out []interface{}
-	err := _Authority.Call(rev, &out, "get", _nodeMaster)
+	err := _Authority.Call(revision, &out, "get", _nodeMaster)
 
 	outstruct := new(struct {
 		Listed   bool
@@ -183,16 +162,9 @@ func (_Authority *Authority) Get(_nodeMaster common.Address, revision ...thorest
 // Next is a free data retrieval call binding the contract method 0xab73e316.
 //
 // Solidity: function next(address _nodeMaster) view returns(address)
-func (_Authority *Authority) Next(_nodeMaster common.Address, revision ...thorest.Revision) (common.Address, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Authority *Authority) Next(_nodeMaster common.Address, revision thorest.Revision) (common.Address, error) {
 	var out []interface{}
-	err := _Authority.Call(rev, &out, "next", _nodeMaster)
+	err := _Authority.Call(revision, &out, "next", _nodeMaster)
 
 	if err != nil {
 		return *new(common.Address), err
@@ -213,14 +185,8 @@ func (_AuthorityTransactor *AuthorityTransactor) Add(_nodeMaster common.Address,
 // AddAsClause is a transaction clause generator 0xdc0094b8.
 //
 // Solidity: function add(address _nodeMaster, address _endorsor, bytes32 _identity) returns()
-func (_Authority *Authority) AddAsClause(_nodeMaster common.Address, _endorsor common.Address, _identity [32]byte, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Authority.contract.AsClauseWithVET(val, "add", _nodeMaster, _endorsor, _identity)
+func (_Authority *Authority) AddAsClause(_nodeMaster common.Address, _endorsor common.Address, _identity [32]byte) (*tx.Clause, error) {
+	return _Authority.contract.AsClause("add", _nodeMaster, _endorsor, _identity)
 }
 
 // Revoke is a paid mutator transaction binding the contract method 0x74a8f103.
@@ -233,14 +199,8 @@ func (_AuthorityTransactor *AuthorityTransactor) Revoke(_nodeMaster common.Addre
 // RevokeAsClause is a transaction clause generator 0x74a8f103.
 //
 // Solidity: function revoke(address _nodeMaster) returns()
-func (_Authority *Authority) RevokeAsClause(_nodeMaster common.Address, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Authority.contract.AsClauseWithVET(val, "revoke", _nodeMaster)
+func (_Authority *Authority) RevokeAsClause(_nodeMaster common.Address) (*tx.Clause, error) {
+	return _Authority.contract.AsClause("revoke", _nodeMaster)
 }
 
 // AuthorityCandidate represents a Candidate event raised by the Authority contract.
@@ -307,7 +267,6 @@ func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriter
 //
 // Solidity: event Candidate(address indexed nodeMaster, bytes32 action)
 func (_Authority *Authority) WatchCandidate(criteria []AuthorityCandidateCriteria, ctx context.Context, bufferSize int64) (chan *AuthorityCandidate, error) {
-
 	topicHash := _Authority.contract.ABI.Events["Candidate"].ID
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
 

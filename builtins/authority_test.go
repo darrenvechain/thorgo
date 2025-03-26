@@ -15,7 +15,7 @@ func TestAuthority(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotEmpty(t, candidates)
 
-	res, err := authority.Get(candidates[0].NodeMaster)
+	res, err := authority.Get(candidates[0].NodeMaster, thorest.RevisionBest())
 	assert.NoError(t, err)
 	assert.NotNil(t, res)
 }

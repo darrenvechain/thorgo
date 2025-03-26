@@ -99,16 +99,9 @@ func (_PrototypeTransactor *PrototypeTransactor) Transact(opts *transactions.Opt
 // Balance is a free data retrieval call binding the contract method 0x6d8c859a.
 //
 // Solidity: function balance(address _self, uint256 _blockNumber) view returns(uint256)
-func (_Prototype *Prototype) Balance(_self common.Address, _blockNumber *big.Int, revision ...thorest.Revision) (*big.Int, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Prototype *Prototype) Balance(_self common.Address, _blockNumber *big.Int, revision thorest.Revision) (*big.Int, error) {
 	var out []interface{}
-	err := _Prototype.Call(rev, &out, "balance", _self, _blockNumber)
+	err := _Prototype.Call(revision, &out, "balance", _self, _blockNumber)
 
 	if err != nil {
 		return *new(*big.Int), err
@@ -122,19 +115,12 @@ func (_Prototype *Prototype) Balance(_self common.Address, _blockNumber *big.Int
 // CreditPlan is a free data retrieval call binding the contract method 0x80df45b4.
 //
 // Solidity: function creditPlan(address _self) view returns(uint256 credit, uint256 recoveryRate)
-func (_Prototype *Prototype) CreditPlan(_self common.Address, revision ...thorest.Revision) (struct {
+func (_Prototype *Prototype) CreditPlan(_self common.Address, revision thorest.Revision) (struct {
 	Credit       *big.Int
 	RecoveryRate *big.Int
 }, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
 	var out []interface{}
-	err := _Prototype.Call(rev, &out, "creditPlan", _self)
+	err := _Prototype.Call(revision, &out, "creditPlan", _self)
 
 	outstruct := new(struct {
 		Credit       *big.Int
@@ -154,16 +140,9 @@ func (_Prototype *Prototype) CreditPlan(_self common.Address, revision ...thores
 // CurrentSponsor is a free data retrieval call binding the contract method 0x23d8c7db.
 //
 // Solidity: function currentSponsor(address _self) view returns(address)
-func (_Prototype *Prototype) CurrentSponsor(_self common.Address, revision ...thorest.Revision) (common.Address, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Prototype *Prototype) CurrentSponsor(_self common.Address, revision thorest.Revision) (common.Address, error) {
 	var out []interface{}
-	err := _Prototype.Call(rev, &out, "currentSponsor", _self)
+	err := _Prototype.Call(revision, &out, "currentSponsor", _self)
 
 	if err != nil {
 		return *new(common.Address), err
@@ -177,16 +156,9 @@ func (_Prototype *Prototype) CurrentSponsor(_self common.Address, revision ...th
 // Energy is a free data retrieval call binding the contract method 0x1e95be45.
 //
 // Solidity: function energy(address _self, uint256 _blockNumber) view returns(uint256)
-func (_Prototype *Prototype) Energy(_self common.Address, _blockNumber *big.Int, revision ...thorest.Revision) (*big.Int, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Prototype *Prototype) Energy(_self common.Address, _blockNumber *big.Int, revision thorest.Revision) (*big.Int, error) {
 	var out []interface{}
-	err := _Prototype.Call(rev, &out, "energy", _self, _blockNumber)
+	err := _Prototype.Call(revision, &out, "energy", _self, _blockNumber)
 
 	if err != nil {
 		return *new(*big.Int), err
@@ -200,16 +172,9 @@ func (_Prototype *Prototype) Energy(_self common.Address, _blockNumber *big.Int,
 // HasCode is a free data retrieval call binding the contract method 0x9538c4b3.
 //
 // Solidity: function hasCode(address _self) view returns(bool)
-func (_Prototype *Prototype) HasCode(_self common.Address, revision ...thorest.Revision) (bool, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Prototype *Prototype) HasCode(_self common.Address, revision thorest.Revision) (bool, error) {
 	var out []interface{}
-	err := _Prototype.Call(rev, &out, "hasCode", _self)
+	err := _Prototype.Call(revision, &out, "hasCode", _self)
 
 	if err != nil {
 		return *new(bool), err
@@ -223,16 +188,9 @@ func (_Prototype *Prototype) HasCode(_self common.Address, revision ...thorest.R
 // IsSponsor is a free data retrieval call binding the contract method 0xd87333ac.
 //
 // Solidity: function isSponsor(address _self, address _sponsor) view returns(bool)
-func (_Prototype *Prototype) IsSponsor(_self common.Address, _sponsor common.Address, revision ...thorest.Revision) (bool, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Prototype *Prototype) IsSponsor(_self common.Address, _sponsor common.Address, revision thorest.Revision) (bool, error) {
 	var out []interface{}
-	err := _Prototype.Call(rev, &out, "isSponsor", _self, _sponsor)
+	err := _Prototype.Call(revision, &out, "isSponsor", _self, _sponsor)
 
 	if err != nil {
 		return *new(bool), err
@@ -246,16 +204,9 @@ func (_Prototype *Prototype) IsSponsor(_self common.Address, _sponsor common.Add
 // IsUser is a free data retrieval call binding the contract method 0x02d43dc8.
 //
 // Solidity: function isUser(address _self, address _user) view returns(bool)
-func (_Prototype *Prototype) IsUser(_self common.Address, _user common.Address, revision ...thorest.Revision) (bool, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Prototype *Prototype) IsUser(_self common.Address, _user common.Address, revision thorest.Revision) (bool, error) {
 	var out []interface{}
-	err := _Prototype.Call(rev, &out, "isUser", _self, _user)
+	err := _Prototype.Call(revision, &out, "isUser", _self, _user)
 
 	if err != nil {
 		return *new(bool), err
@@ -269,16 +220,9 @@ func (_Prototype *Prototype) IsUser(_self common.Address, _user common.Address, 
 // Master is a free data retrieval call binding the contract method 0x9ed153c0.
 //
 // Solidity: function master(address _self) view returns(address)
-func (_Prototype *Prototype) Master(_self common.Address, revision ...thorest.Revision) (common.Address, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Prototype *Prototype) Master(_self common.Address, revision thorest.Revision) (common.Address, error) {
 	var out []interface{}
-	err := _Prototype.Call(rev, &out, "master", _self)
+	err := _Prototype.Call(revision, &out, "master", _self)
 
 	if err != nil {
 		return *new(common.Address), err
@@ -292,16 +236,9 @@ func (_Prototype *Prototype) Master(_self common.Address, revision ...thorest.Re
 // StorageFor is a free data retrieval call binding the contract method 0x04e7a457.
 //
 // Solidity: function storageFor(address _self, bytes32 _key) view returns(bytes32)
-func (_Prototype *Prototype) StorageFor(_self common.Address, _key [32]byte, revision ...thorest.Revision) ([32]byte, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Prototype *Prototype) StorageFor(_self common.Address, _key [32]byte, revision thorest.Revision) ([32]byte, error) {
 	var out []interface{}
-	err := _Prototype.Call(rev, &out, "storageFor", _self, _key)
+	err := _Prototype.Call(revision, &out, "storageFor", _self, _key)
 
 	if err != nil {
 		return *new([32]byte), err
@@ -315,16 +252,9 @@ func (_Prototype *Prototype) StorageFor(_self common.Address, _key [32]byte, rev
 // UserCredit is a free data retrieval call binding the contract method 0xc9c4fc41.
 //
 // Solidity: function userCredit(address _self, address _user) view returns(uint256)
-func (_Prototype *Prototype) UserCredit(_self common.Address, _user common.Address, revision ...thorest.Revision) (*big.Int, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Prototype *Prototype) UserCredit(_self common.Address, _user common.Address, revision thorest.Revision) (*big.Int, error) {
 	var out []interface{}
-	err := _Prototype.Call(rev, &out, "userCredit", _self, _user)
+	err := _Prototype.Call(revision, &out, "userCredit", _self, _user)
 
 	if err != nil {
 		return *new(*big.Int), err
@@ -345,14 +275,8 @@ func (_PrototypeTransactor *PrototypeTransactor) AddUser(_self common.Address, _
 // AddUserAsClause is a transaction clause generator 0x8ca3b448.
 //
 // Solidity: function addUser(address _self, address _user) returns()
-func (_Prototype *Prototype) AddUserAsClause(_self common.Address, _user common.Address, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Prototype.contract.AsClauseWithVET(val, "addUser", _self, _user)
+func (_Prototype *Prototype) AddUserAsClause(_self common.Address, _user common.Address) (*tx.Clause, error) {
+	return _Prototype.contract.AsClause("addUser", _self, _user)
 }
 
 // RemoveUser is a paid mutator transaction binding the contract method 0x22928d6b.
@@ -365,14 +289,8 @@ func (_PrototypeTransactor *PrototypeTransactor) RemoveUser(_self common.Address
 // RemoveUserAsClause is a transaction clause generator 0x22928d6b.
 //
 // Solidity: function removeUser(address _self, address _user) returns()
-func (_Prototype *Prototype) RemoveUserAsClause(_self common.Address, _user common.Address, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Prototype.contract.AsClauseWithVET(val, "removeUser", _self, _user)
+func (_Prototype *Prototype) RemoveUserAsClause(_self common.Address, _user common.Address) (*tx.Clause, error) {
+	return _Prototype.contract.AsClause("removeUser", _self, _user)
 }
 
 // SelectSponsor is a paid mutator transaction binding the contract method 0x3871a9fb.
@@ -385,14 +303,8 @@ func (_PrototypeTransactor *PrototypeTransactor) SelectSponsor(_self common.Addr
 // SelectSponsorAsClause is a transaction clause generator 0x3871a9fb.
 //
 // Solidity: function selectSponsor(address _self, address _sponsor) returns()
-func (_Prototype *Prototype) SelectSponsorAsClause(_self common.Address, _sponsor common.Address, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Prototype.contract.AsClauseWithVET(val, "selectSponsor", _self, _sponsor)
+func (_Prototype *Prototype) SelectSponsorAsClause(_self common.Address, _sponsor common.Address) (*tx.Clause, error) {
+	return _Prototype.contract.AsClause("selectSponsor", _self, _sponsor)
 }
 
 // SetCreditPlan is a paid mutator transaction binding the contract method 0x3659f8ed.
@@ -405,14 +317,8 @@ func (_PrototypeTransactor *PrototypeTransactor) SetCreditPlan(_self common.Addr
 // SetCreditPlanAsClause is a transaction clause generator 0x3659f8ed.
 //
 // Solidity: function setCreditPlan(address _self, uint256 _credit, uint256 _recoveryRate) returns()
-func (_Prototype *Prototype) SetCreditPlanAsClause(_self common.Address, _credit *big.Int, _recoveryRate *big.Int, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Prototype.contract.AsClauseWithVET(val, "setCreditPlan", _self, _credit, _recoveryRate)
+func (_Prototype *Prototype) SetCreditPlanAsClause(_self common.Address, _credit *big.Int, _recoveryRate *big.Int) (*tx.Clause, error) {
+	return _Prototype.contract.AsClause("setCreditPlan", _self, _credit, _recoveryRate)
 }
 
 // SetMaster is a paid mutator transaction binding the contract method 0x01378b58.
@@ -425,14 +331,8 @@ func (_PrototypeTransactor *PrototypeTransactor) SetMaster(_self common.Address,
 // SetMasterAsClause is a transaction clause generator 0x01378b58.
 //
 // Solidity: function setMaster(address _self, address _newMaster) returns()
-func (_Prototype *Prototype) SetMasterAsClause(_self common.Address, _newMaster common.Address, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Prototype.contract.AsClauseWithVET(val, "setMaster", _self, _newMaster)
+func (_Prototype *Prototype) SetMasterAsClause(_self common.Address, _newMaster common.Address) (*tx.Clause, error) {
+	return _Prototype.contract.AsClause("setMaster", _self, _newMaster)
 }
 
 // Sponsor is a paid mutator transaction binding the contract method 0x766c4f37.
@@ -445,14 +345,8 @@ func (_PrototypeTransactor *PrototypeTransactor) Sponsor(_self common.Address, o
 // SponsorAsClause is a transaction clause generator 0x766c4f37.
 //
 // Solidity: function sponsor(address _self) returns()
-func (_Prototype *Prototype) SponsorAsClause(_self common.Address, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Prototype.contract.AsClauseWithVET(val, "sponsor", _self)
+func (_Prototype *Prototype) SponsorAsClause(_self common.Address) (*tx.Clause, error) {
+	return _Prototype.contract.AsClause("sponsor", _self)
 }
 
 // Unsponsor is a paid mutator transaction binding the contract method 0xcdd2a99f.
@@ -465,12 +359,6 @@ func (_PrototypeTransactor *PrototypeTransactor) Unsponsor(_self common.Address,
 // UnsponsorAsClause is a transaction clause generator 0xcdd2a99f.
 //
 // Solidity: function unsponsor(address _self) returns()
-func (_Prototype *Prototype) UnsponsorAsClause(_self common.Address, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Prototype.contract.AsClauseWithVET(val, "unsponsor", _self)
+func (_Prototype *Prototype) UnsponsorAsClause(_self common.Address) (*tx.Clause, error) {
+	return _Prototype.contract.AsClause("unsponsor", _self)
 }

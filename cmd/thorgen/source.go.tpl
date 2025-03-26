@@ -147,16 +147,9 @@ var (
 		// {{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.ID}}.
 		//
 		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}({{range .Normalized.Inputs}} {{.Name}} {{bindtype .Type $structs}}, {{end}} revision ...thorest.Revision) ({{if .Structured}}struct{ {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};{{end}} },{{else}}{{range .Normalized.Outputs}}{{bindtype .Type $structs}},{{end}}{{end}} error) {
-		    var rev thorest.Revision
-		    if len(revision) > 0 {
-                rev = revision[0]
-            } else {
-                rev = thorest.RevisionBest()
-            }
-
+		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}({{range .Normalized.Inputs}} {{.Name}} {{bindtype .Type $structs}}, {{end}} revision thorest.Revision) ({{if .Structured}}struct{ {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};{{end}} },{{else}}{{range .Normalized.Outputs}}{{bindtype .Type $structs}},{{end}}{{end}} error) {
 			var out []interface{}
-			err := _{{$contract.Type}}.Call(rev, &out, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
+			err := _{{$contract.Type}}.Call(revision, &out, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
 			{{if .Structured}}
 			outstruct := new(struct{ {{range .Normalized.Outputs}} {{.Name}} {{bindtype .Type $structs}}; {{end}} })
 			if err != nil {
@@ -188,14 +181,9 @@ var (
 		// {{.Normalized.Name}}AsClause is a transaction clause generator 0x{{printf "%x" .Original.ID}}.
 		//
 		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}AsClause({{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}}, {{end}} vetValue ... *big.Int) (*tx.Clause, error) {
-            var val *big.Int
-            if len(vetValue) > 0 {
-                val = vetValue[0]
-            } else {
-                val = big.NewInt(0)
-            }
-			return _{{$contract.Type}}.contract.AsClauseWithVET(val, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
+		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}AsClause({{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}}, {{end}} {{if .Normalized.Payable}}, vetValue *big.Int{{end}}) (*tx.Clause, error) {
+		    {{if .Normalized.Payable }}return _{{$contract.Type}}.contract.AsClauseWithVET(vetValue, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
+		    {{else}}return _{{$contract.Type}}.contract.AsClause("{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}}){{end}}
 		}
 	{{end}}
 
@@ -230,7 +218,6 @@ var (
 		// Solidity: {{.Original.String}}
 		func (_{{$contract.Type}} *{{$contract.Type}}) Filter{{.Normalized.Name}}({{ if gt $indexedArgCount 0 }}criteria []{{$contract.Type}}{{.Normalized.Name}}Criteria, {{ end }}filters *thorest.LogFilters) ([]{{$contract.Type}}{{.Normalized.Name}}, error) {
 			topicHash := _{{$contract.Type}}.contract.ABI.Events["{{.Normalized.Name}}"].ID
-
             {{ if gt $indexedArgCount 0 }}
                 criteriaSet := make([]thorest.EventCriteria, len(criteria))
                 for i, c := range criteria {
@@ -308,15 +295,13 @@ var (
         //
         // Solidity: {{.Original.String}}
         func (_{{$contract.Type}} *{{$contract.Type}}) Watch{{.Normalized.Name}}({{ if gt $indexedArgCount 0 }}criteria []{{$contract.Type}}{{.Normalized.Name}}Criteria, {{ end }} ctx context.Context, bufferSize int64) (chan *{{$contract.Type}}{{.Normalized.Name}}, error) {
-            {{ if gt $indexedArgCount 0 }}
-            topicHash := _{{$contract.Type}}.contract.ABI.Events["{{.Normalized.Name}}"].ID
+            {{ if gt $indexedArgCount 0 }}topicHash := _{{$contract.Type}}.contract.ABI.Events["{{.Normalized.Name}}"].ID
             criteriaSet := make([]thorest.EventCriteria, len(criteria))
             {{ else }}
             criteriaSet := make([]thorest.EventCriteria, 0)
             {{ end }}
 
             {{ if gt $indexedArgCount 0 }}
-
                 for i, c := range criteria {
                     crteria := thorest.EventCriteria{
                         Address: &_{{$contract.Type}}.contract.Address,
