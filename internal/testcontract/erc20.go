@@ -121,16 +121,9 @@ func (_Erc20Transactor *Erc20Transactor) Transact(opts *transactions.Options, me
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
 //
 // Solidity: function allowance(address owner, address spender) view returns(uint256)
-func (_Erc20 *Erc20) Allowance(owner common.Address, spender common.Address, revision ...thorest.Revision) (*big.Int, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Erc20 *Erc20) Allowance(owner common.Address, spender common.Address, revision thorest.Revision) (*big.Int, error) {
 	var out []interface{}
-	err := _Erc20.Call(rev, &out, "allowance", owner, spender)
+	err := _Erc20.Call(revision, &out, "allowance", owner, spender)
 
 	if err != nil {
 		return *new(*big.Int), err
@@ -144,16 +137,9 @@ func (_Erc20 *Erc20) Allowance(owner common.Address, spender common.Address, rev
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
 // Solidity: function balanceOf(address account) view returns(uint256)
-func (_Erc20 *Erc20) BalanceOf(account common.Address, revision ...thorest.Revision) (*big.Int, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Erc20 *Erc20) BalanceOf(account common.Address, revision thorest.Revision) (*big.Int, error) {
 	var out []interface{}
-	err := _Erc20.Call(rev, &out, "balanceOf", account)
+	err := _Erc20.Call(revision, &out, "balanceOf", account)
 
 	if err != nil {
 		return *new(*big.Int), err
@@ -167,16 +153,9 @@ func (_Erc20 *Erc20) BalanceOf(account common.Address, revision ...thorest.Revis
 // Decimals is a free data retrieval call binding the contract method 0x313ce567.
 //
 // Solidity: function decimals() view returns(uint8)
-func (_Erc20 *Erc20) Decimals(revision ...thorest.Revision) (uint8, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Erc20 *Erc20) Decimals(revision thorest.Revision) (uint8, error) {
 	var out []interface{}
-	err := _Erc20.Call(rev, &out, "decimals")
+	err := _Erc20.Call(revision, &out, "decimals")
 
 	if err != nil {
 		return *new(uint8), err
@@ -190,16 +169,9 @@ func (_Erc20 *Erc20) Decimals(revision ...thorest.Revision) (uint8, error) {
 // Name is a free data retrieval call binding the contract method 0x06fdde03.
 //
 // Solidity: function name() view returns(string)
-func (_Erc20 *Erc20) Name(revision ...thorest.Revision) (string, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Erc20 *Erc20) Name(revision thorest.Revision) (string, error) {
 	var out []interface{}
-	err := _Erc20.Call(rev, &out, "name")
+	err := _Erc20.Call(revision, &out, "name")
 
 	if err != nil {
 		return *new(string), err
@@ -213,16 +185,9 @@ func (_Erc20 *Erc20) Name(revision ...thorest.Revision) (string, error) {
 // Symbol is a free data retrieval call binding the contract method 0x95d89b41.
 //
 // Solidity: function symbol() view returns(string)
-func (_Erc20 *Erc20) Symbol(revision ...thorest.Revision) (string, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Erc20 *Erc20) Symbol(revision thorest.Revision) (string, error) {
 	var out []interface{}
-	err := _Erc20.Call(rev, &out, "symbol")
+	err := _Erc20.Call(revision, &out, "symbol")
 
 	if err != nil {
 		return *new(string), err
@@ -236,16 +201,9 @@ func (_Erc20 *Erc20) Symbol(revision ...thorest.Revision) (string, error) {
 // TotalSupply is a free data retrieval call binding the contract method 0x18160ddd.
 //
 // Solidity: function totalSupply() view returns(uint256)
-func (_Erc20 *Erc20) TotalSupply(revision ...thorest.Revision) (*big.Int, error) {
-	var rev thorest.Revision
-	if len(revision) > 0 {
-		rev = revision[0]
-	} else {
-		rev = thorest.RevisionBest()
-	}
-
+func (_Erc20 *Erc20) TotalSupply(revision thorest.Revision) (*big.Int, error) {
 	var out []interface{}
-	err := _Erc20.Call(rev, &out, "totalSupply")
+	err := _Erc20.Call(revision, &out, "totalSupply")
 
 	if err != nil {
 		return *new(*big.Int), err
@@ -266,14 +224,8 @@ func (_Erc20Transactor *Erc20Transactor) Approve(spender common.Address, value *
 // ApproveAsClause is a transaction clause generator 0x095ea7b3.
 //
 // Solidity: function approve(address spender, uint256 value) returns(bool)
-func (_Erc20 *Erc20) ApproveAsClause(spender common.Address, value *big.Int, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Erc20.contract.AsClauseWithVET(val, "approve", spender, value)
+func (_Erc20 *Erc20) ApproveAsClause(spender common.Address, value *big.Int) (*tx.Clause, error) {
+	return _Erc20.contract.AsClause("approve", spender, value)
 }
 
 // Burn is a paid mutator transaction binding the contract method 0x42966c68.
@@ -286,14 +238,8 @@ func (_Erc20Transactor *Erc20Transactor) Burn(value *big.Int, opts *transactions
 // BurnAsClause is a transaction clause generator 0x42966c68.
 //
 // Solidity: function burn(uint256 value) returns()
-func (_Erc20 *Erc20) BurnAsClause(value *big.Int, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Erc20.contract.AsClauseWithVET(val, "burn", value)
+func (_Erc20 *Erc20) BurnAsClause(value *big.Int) (*tx.Clause, error) {
+	return _Erc20.contract.AsClause("burn", value)
 }
 
 // BurnFrom is a paid mutator transaction binding the contract method 0x79cc6790.
@@ -306,14 +252,8 @@ func (_Erc20Transactor *Erc20Transactor) BurnFrom(account common.Address, value 
 // BurnFromAsClause is a transaction clause generator 0x79cc6790.
 //
 // Solidity: function burnFrom(address account, uint256 value) returns()
-func (_Erc20 *Erc20) BurnFromAsClause(account common.Address, value *big.Int, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Erc20.contract.AsClauseWithVET(val, "burnFrom", account, value)
+func (_Erc20 *Erc20) BurnFromAsClause(account common.Address, value *big.Int) (*tx.Clause, error) {
+	return _Erc20.contract.AsClause("burnFrom", account, value)
 }
 
 // Mint is a paid mutator transaction binding the contract method 0x40c10f19.
@@ -326,14 +266,8 @@ func (_Erc20Transactor *Erc20Transactor) Mint(to common.Address, amount *big.Int
 // MintAsClause is a transaction clause generator 0x40c10f19.
 //
 // Solidity: function mint(address to, uint256 amount) returns()
-func (_Erc20 *Erc20) MintAsClause(to common.Address, amount *big.Int, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Erc20.contract.AsClauseWithVET(val, "mint", to, amount)
+func (_Erc20 *Erc20) MintAsClause(to common.Address, amount *big.Int) (*tx.Clause, error) {
+	return _Erc20.contract.AsClause("mint", to, amount)
 }
 
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
@@ -346,14 +280,8 @@ func (_Erc20Transactor *Erc20Transactor) Transfer(to common.Address, value *big.
 // TransferAsClause is a transaction clause generator 0xa9059cbb.
 //
 // Solidity: function transfer(address to, uint256 value) returns(bool)
-func (_Erc20 *Erc20) TransferAsClause(to common.Address, value *big.Int, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Erc20.contract.AsClauseWithVET(val, "transfer", to, value)
+func (_Erc20 *Erc20) TransferAsClause(to common.Address, value *big.Int) (*tx.Clause, error) {
+	return _Erc20.contract.AsClause("transfer", to, value)
 }
 
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
@@ -366,14 +294,8 @@ func (_Erc20Transactor *Erc20Transactor) TransferFrom(from common.Address, to co
 // TransferFromAsClause is a transaction clause generator 0x23b872dd.
 //
 // Solidity: function transferFrom(address from, address to, uint256 value) returns(bool)
-func (_Erc20 *Erc20) TransferFromAsClause(from common.Address, to common.Address, value *big.Int, vetValue ...*big.Int) (*tx.Clause, error) {
-	var val *big.Int
-	if len(vetValue) > 0 {
-		val = vetValue[0]
-	} else {
-		val = big.NewInt(0)
-	}
-	return _Erc20.contract.AsClauseWithVET(val, "transferFrom", from, to, value)
+func (_Erc20 *Erc20) TransferFromAsClause(from common.Address, to common.Address, value *big.Int) (*tx.Clause, error) {
+	return _Erc20.contract.AsClause("transferFrom", from, to, value)
 }
 
 // Erc20Approval represents a Approval event raised by the Erc20 contract.
@@ -450,7 +372,6 @@ func (_Erc20 *Erc20) FilterApproval(criteria []Erc20ApprovalCriteria, filters *t
 //
 // Solidity: event Approval(address indexed owner, address indexed spender, uint256 value)
 func (_Erc20 *Erc20) WatchApproval(criteria []Erc20ApprovalCriteria, ctx context.Context, bufferSize int64) (chan *Erc20Approval, error) {
-
 	topicHash := _Erc20.contract.ABI.Events["Approval"].ID
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
 
@@ -596,7 +517,6 @@ func (_Erc20 *Erc20) FilterTransfer(criteria []Erc20TransferCriteria, filters *t
 //
 // Solidity: event Transfer(address indexed from, address indexed to, uint256 value)
 func (_Erc20 *Erc20) WatchTransfer(criteria []Erc20TransferCriteria, ctx context.Context, bufferSize int64) (chan *Erc20Transfer, error) {
-
 	topicHash := _Erc20.contract.ABI.Events["Transfer"].ID
 	criteriaSet := make([]thorest.EventCriteria, len(criteria))
 

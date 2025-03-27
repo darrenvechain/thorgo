@@ -42,7 +42,7 @@ func TestCall(t *testing.T) {
 	_, erc20, err := deployErc20(client, txsender)
 	assert.NoError(t, err)
 
-	supply, err := erc20.TotalSupply()
+	supply, err := erc20.TotalSupply(thorest.RevisionBest())
 	assert.NoError(t, err)
 
 	assert.True(t, supply.Cmp(big.NewInt(0)) == 0)
@@ -61,7 +61,7 @@ func TestTransactor(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, receipt)
 
-	supply, err := erc20.TotalSupply()
+	supply, err := erc20.TotalSupply(thorest.RevisionBest())
 	assert.NoError(t, err)
 
 	assert.True(t, supply.Cmp(big.NewInt(1000)) == 0)
