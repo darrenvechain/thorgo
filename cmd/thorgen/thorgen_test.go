@@ -116,3 +116,35 @@ func TestWatch(t *testing.T) {
 		assert.Fail(t, "timeout")
 	}
 }
+
+func TestPayable_AsClause(t *testing.T) {
+	txsender := txmanager.FromPK(solo.Keys()[0], client)
+
+	_, staker, err := testcontract.DeployStaker(context.Background(), client, txsender, &transactions.Options{})
+	assert.NoError(t, err)
+
+	blocks := big.NewInt(1)
+	vet := big.NewInt(1000)
+
+	clause, err := staker.StakeAsClause(blocks, vet)
+	assert.NoError(t, err)
+
+	assert.Equal(t, vet, clause.Value())
+}
+
+func TestPayable_Send(t *testing.T) {
+	txsender := txmanager.FromPK(solo.Keys()[0], client)
+
+	_, staker, err := testcontract.DeployStaker(context.Background(), client, txsender, &transactions.Options{})
+	assert.NoError(t, err)
+
+	blocks := big.NewInt(1)
+	vet := big.NewInt(1000)
+
+	tx, err := staker.Stake(blocks, vet, &transactions.Options{})
+	assert.NoError(t, err)
+
+	receipt, err := tx.Wait(context.Background())
+	assert.NoError(t, err)
+	assert.Len(t, receipt.Outputs[0].Transfers, 1)
+}

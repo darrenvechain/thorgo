@@ -174,17 +174,27 @@ var (
 		// {{.Normalized.Name}} is a paid mutator transaction binding the contract method 0x{{printf "%x" .Original.ID}}.
 		//
 		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}}Transactor *{{$contract.Type}}Transactor) {{.Normalized.Name}}({{range .Normalized.Inputs}} {{.Name}} {{bindtype .Type $structs}}, {{end}} opts *transactions.Options) (*transactions.Visitor, error) {
+		{{- if eq .Normalized.StateMutability "payable" }}
+        //
+        // Setting the value in options is replaced by the vetValue argument.
+        {{- end }}
+		func (_{{$contract.Type}}Transactor *{{$contract.Type}}Transactor) {{.Normalized.Name}}({{range .Normalized.Inputs}} {{.Name}} {{bindtype .Type $structs}}, {{end}} {{- if eq .Normalized.StateMutability "payable" }}vetValue *big.Int, {{end}}  opts *transactions.Options) (*transactions.Visitor, error) {
+            {{- if eq .Normalized.StateMutability "payable" }}
+            if opts == nil {
+                opts = &transactions.Options{}
+            }
+            opts.VET = vetValue
+            {{- end }}
 			return _{{$contract.Type}}Transactor.Transact(opts, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
 		}
 
-		// {{.Normalized.Name}}AsClause is a transaction clause generator 0x{{printf "%x" .Original.ID}}.
-		//
-		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}AsClause({{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}}, {{end}} {{if .Normalized.Payable}}, vetValue *big.Int{{end}}) (*tx.Clause, error) {
-		    {{if .Normalized.Payable }}return _{{$contract.Type}}.contract.AsClauseWithVET(vetValue, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
-		    {{else}}return _{{$contract.Type}}.contract.AsClause("{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}}){{end}}
-		}
+        // {{.Normalized.Name}}AsClause is a transaction clause generator 0x{{printf "%x" .Original.ID}}.
+        //
+        // Solidity: {{.Original.String}}
+        func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}AsClause({{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}}, {{end}} {{- if eq .Normalized.StateMutability "payable" }}vetValue *big.Int{{end}}) (*tx.Clause, error) {
+            {{- if eq .Normalized.StateMutability "payable" }}return _{{$contract.Type}}.contract.AsClauseWithVET(vetValue, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
+            {{else}}return _{{$contract.Type}}.contract.AsClause("{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}}){{end -}}
+        }
 	{{end}}
 
 	{{range .Events}}
