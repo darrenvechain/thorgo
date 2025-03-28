@@ -7,7 +7,7 @@ import (
 
 type FeesHistory struct {
 	OldestBlock   common.Hash    `json:"oldestBlock"`
-	BaseFees      []*hexutil.Big `json:"baseFees"`
+	BaseFeePerGas []*hexutil.Big `json:"baseFeePerGas"`
 	GasUsedRatios []float64      `json:"gasUsedRatios"`
 }
 

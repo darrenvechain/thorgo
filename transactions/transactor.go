@@ -114,7 +114,7 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 		if err != nil {
 			return nil, err
 		}
-		maxFee := fees.BaseFees[0].ToInt()
+		maxFee := fees.BaseFeePerGas[0].ToInt()
 		maxFee = maxFee.Add(maxFee, suggestion.MaxPriorityFeePerGas.ToInt())
 		builder.MaxFeePerGas(maxFee)
 	}

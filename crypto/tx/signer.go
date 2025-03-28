@@ -7,10 +7,10 @@ package tx
 
 import (
 	"crypto/ecdsa"
+	"errors"
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/pkg/errors"
 )
 
 // MustSign signs a transaction using the provided private key and the default signing function.

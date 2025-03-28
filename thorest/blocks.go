@@ -24,7 +24,7 @@ type Block struct {
 	Signer       common.Address `json:"signer"`
 	IsTrunk      bool           `json:"isTrunk"`
 	IsFinalized  bool           `json:"isFinalized"`
-	BaseFee      *hexutil.Big   `json:"baseFee"`
+	BaseFee      *hexutil.Big   `json:"baseFeePerGas"`
 	Transactions []common.Hash  `json:"transactions"`
 }
 
@@ -78,7 +78,7 @@ type ExpandedBlock struct {
 	Signer       common.Address      `json:"signer"`
 	IsTrunk      bool                `json:"isTrunk"`
 	IsFinalized  bool                `json:"isFinalized"`
-	BaseFee      *hexutil.Big        `json:"baseFee"`
+	BaseFee      *hexutil.Big        `json:"baseFeePerGas"`
 	Transactions []*BlockTransaction `json:"transactions"`
 }
 
