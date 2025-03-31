@@ -69,7 +69,7 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 	if options == nil {
 		options = &Options{}
 	}
-	builder := tx.NewTxBuilder(tx.TypeDynamic)
+	builder := tx.NewBuilder(tx.TypeDynamicFee)
 
 	for _, clause := range t.clauses {
 		builder.Clause(clause)
@@ -149,5 +149,5 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 		builder.ChainTag(genesis.ChainTag())
 	}
 
-	return builder.Build()
+	return builder.Build(), nil
 }

@@ -22,7 +22,7 @@ import (
 
 var (
 	// PKDelegator should implement Delegator
-	_ txmanager.Delegator = &txmanager.PKDelegator{}
+	_ txmanager.Delegator = &txmanager.PKManager{}
 	// URLDelegator should implement Delegator
 	_ txmanager.Delegator = &txmanager.URLDelegator{}
 	// DelegatedManager should implement accounts.TxManager
@@ -31,7 +31,7 @@ var (
 
 func TestPKDelegator(t *testing.T) {
 	origin := txmanager.FromPK(solo.Keys()[0], client)
-	delegator := txmanager.NewDelegator(solo.Keys()[1])
+	delegator := txmanager.FromPK(solo.Keys()[1], client)
 
 	opts := new(transactions.OptionsBuilder).GasPayer(delegator.Address()).Build()
 
@@ -119,7 +119,7 @@ func TestNewUrlDelegator(t *testing.T) {
 
 func TestNewDelegatedManager(t *testing.T) {
 	origin := txmanager.FromPK(solo.Keys()[0], client)
-	gasPayer := txmanager.NewDelegator(solo.Keys()[1])
+	gasPayer := txmanager.FromPK(solo.Keys()[1], client)
 	manager := txmanager.NewDelegatedManager(client, origin, gasPayer)
 
 	contract, _ := builtins.NewVTHOTransactor(client, manager)

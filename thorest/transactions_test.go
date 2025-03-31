@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/darrenvechain/thorgo/crypto/tx"
+	"github.com/darrenvechain/thorgo/internal/datagen"
 	"github.com/darrenvechain/thorgo/solo"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/stretchr/testify/assert"
@@ -21,16 +22,15 @@ func TestClient_SendTransaction(t *testing.T) {
 	tag, err := thorClient.ChainTag()
 	assert.NoError(t, err)
 
-	txBody, err := tx.NewTxBuilder(tx.TypeLegacy).
+	txBody := tx.NewBuilder(tx.TypeLegacy).
 		Gas(3_000_000).
 		GasPriceCoef(255).
 		ChainTag(tag).
 		Expiration(100000000).
 		BlockRef(tx.NewBlockRef(0)).
-		Nonce(tx.Nonce()).
+		Nonce(datagen.RandUint64()).
 		Clause(vetClause).
 		Build()
-	assert.NoError(t, err)
 
 	signingHash := txBody.SigningHash()
 	signature, err := crypto.Sign(signingHash[:], account1)

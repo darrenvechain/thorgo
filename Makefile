@@ -1,7 +1,7 @@
 PACKAGE = github.com/vechain/thor-go-sdk
 MAJOR = $(shell go version | cut -d' ' -f3 | cut -b 3- | cut -d. -f1)
 MINOR = $(shell go version | cut -d' ' -f3 | cut -b 3- | cut -d. -f2)
-PACKAGES = `go list ./... | grep -v '/vendor/'`
+PACKAGES = `go list ./... | grep -v '/vendor/' | grep -v '/cmd/test/'`
 
 help:
 	@egrep -h '\s#@\s' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?#@ "}; {printf "\033[36m  %-30s\033[0m %s\n", $$1, $$2}'

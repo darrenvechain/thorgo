@@ -60,3 +60,7 @@ func (p *PKManager) SignTransaction(tx *tx.Transaction) ([]byte, error) {
 
 	return signature, nil
 }
+
+func (p *PKManager) Delegate(tx *tx.Transaction, origin common.Address) ([]byte, error) {
+	return crypto.Sign(tx.DelegatorSigningHash(origin).Bytes(), p.key)
+}
