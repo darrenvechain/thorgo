@@ -1,8 +1,6 @@
 package solo
 
 import (
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"log/slog"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/crypto"
@@ -27,8 +25,6 @@ func TestKey(t *testing.T) {
 		t.Run(tc.address, func(t *testing.T) {
 			key := Keys()[i]
 			addr := crypto.PubkeyToAddress(key.PublicKey).Hex()
-			slog.Info(addr)
-			slog.Info(hexutil.Encode(key.D.Bytes()))
 			assert.Equal(t, tc.address, addr)
 		})
 	}
