@@ -125,6 +125,9 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 			if err != nil {
 				return nil, err
 			}
+			if len(fees.BaseFeePerGas) < 1 {
+				return nil, fmt.Errorf("missing base fees from fees history")
+			}
 			suggestion, err := t.client.FeesPriority()
 			if err != nil {
 				return nil, err
