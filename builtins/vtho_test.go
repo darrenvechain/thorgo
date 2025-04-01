@@ -10,7 +10,7 @@ import (
 
 var thor = thorest.NewClientFromURL("https://mainnet.vechain.org")
 var eventLimit = int64(10)
-var logFilter = new(thorest.LogFilters).Limit(eventLimit)
+var logFilter = thorest.NewFilter().Limit(eventLimit)
 
 func TestEnergy_Name(t *testing.T) {
 	energy, err := NewVTHO(thor)

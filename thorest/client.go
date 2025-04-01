@@ -136,7 +136,7 @@ func (c *Client) ChainTag() (byte, error) {
 	if err != nil {
 		return 0, err
 	}
-	return gen.ChainTag(), nil
+	return gen.ID[:][31], nil
 }
 
 // SendTransaction sends a transaction to the node.

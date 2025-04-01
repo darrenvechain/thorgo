@@ -14,6 +14,7 @@ type Options struct {
 	Gas                  *uint64         // Gas specifies the gas provision for the transaction.
 	MaxFeePerGas         *big.Int        // MaxFeePerGas specifies the maximum fee per gas for the transaction.
 	MaxPriorityFeePerGas *big.Int        // MaxPriorityFeePerGas specifies the maximum priority fee per gas for the transaction.
+	GasPriceCoef         *uint8          // GasPriceCoef specifies the gas price coefficient for legacy transactions.
 	Expiration           *uint32         // Expiration specifies the amount of blocks at which point the transaction will be considered invalid.
 	BlockRef             *tx.BlockRef    // BlockRef specifies the block reference.
 	DependsOn            *common.Hash    // DependsOn specifies the transaction that this transaction depends on.

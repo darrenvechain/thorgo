@@ -8,13 +8,13 @@ import (
 )
 
 type HttpError struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-	Status  string `json:"states"`
-	Path    string `json:"path"`
+	Code    int
+	Message string
+	Status  string
+	Path    string
 }
 
-var ErrNotFound = &HttpError{Code: 404, Status: "not found", Message: "resource not found"}
+var ErrNotFound = &HttpError{Code: http.StatusNotFound, Status: "404 not found", Message: "resource not found"}
 
 func (e *HttpError) Error() string {
 	return e.Message
@@ -22,9 +22,9 @@ func (e *HttpError) Error() string {
 
 func (e *HttpError) String() string {
 	if e.Path != "" {
-		return fmt.Sprintf("HTTP(%s) %d: %s", e.Path, e.Code, e.Message)
+		return fmt.Sprintf("HTTP(%s) %s: %s", e.Path, e.Status, e.Message)
 	}
-	return fmt.Sprintf("HTTP %d: %s", e.Code, e.Message)
+	return fmt.Sprintf("HTTP %s: %s", e.Status, e.Message)
 }
 
 func newHttpError(resp *http.Response) *HttpError {

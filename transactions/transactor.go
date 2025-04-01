@@ -69,7 +69,17 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 	if options == nil {
 		options = &Options{}
 	}
-	builder := tx.NewBuilder(tx.TypeDynamicFee)
+	best, err := t.client.BestBlock()
+	if err != nil {
+		return nil, err
+	}
+
+	txType := tx.TypeLegacy
+	if best.BaseFee != nil {
+		txType = tx.TypeDynamicFee
+	}
+
+	builder := tx.NewBuilder(txType)
 
 	for _, clause := range t.clauses {
 		builder.Clause(clause)
@@ -99,24 +109,33 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 		builder.Gas(simulation.TotalGas())
 	}
 
-	if options.MaxPriorityFeePerGas != nil {
-		builder.MaxPriorityFeePerGas(options.MaxPriorityFeePerGas)
-	}
-
-	if options.MaxFeePerGas != nil {
-		builder.MaxFeePerGas(options.MaxFeePerGas)
-	} else {
-		fees, err := t.client.FeesHistory(thorest.RevisionNext(), 1)
-		if err != nil {
-			return nil, err
+	switch txType {
+	case tx.TypeLegacy:
+		if options.GasPriceCoef != nil {
+			builder.GasPriceCoef(*options.GasPriceCoef)
 		}
-		suggestion, err := t.client.FeesPriority()
-		if err != nil {
-			return nil, err
+	case tx.TypeDynamicFee:
+		if options.MaxPriorityFeePerGas != nil {
+			builder.MaxPriorityFeePerGas(options.MaxPriorityFeePerGas)
 		}
-		maxFee := fees.BaseFeePerGas[0].ToInt()
-		maxFee = maxFee.Add(maxFee, suggestion.MaxPriorityFeePerGas.ToInt())
-		builder.MaxFeePerGas(maxFee)
+		if options.MaxFeePerGas != nil {
+			builder.MaxFeePerGas(options.MaxFeePerGas)
+		} else {
+			fees, err := t.client.FeesHistory(thorest.RevisionNext(), 1)
+			if err != nil {
+				return nil, err
+			}
+			if len(fees.BaseFeePerGas) < 1 {
+				return nil, fmt.Errorf("missing base fees from fees history")
+			}
+			suggestion, err := t.client.FeesPriority()
+			if err != nil {
+				return nil, err
+			}
+			maxFee := fees.BaseFeePerGas[0].ToInt()
+			maxFee = maxFee.Add(maxFee, suggestion.MaxPriorityFeePerGas.ToInt())
+			builder.MaxFeePerGas(maxFee)
+		}
 	}
 
 	if options.Expiration != nil {
@@ -128,10 +147,6 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 	if options.BlockRef != nil {
 		builder.BlockRef(*options.BlockRef)
 	} else {
-		best, err := t.client.BestBlock()
-		if err != nil {
-			return nil, err
-		}
 		builder.BlockRef(best.BlockRef())
 	}
 
@@ -142,11 +157,11 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 	if options.ChainTag != nil {
 		builder.ChainTag(*options.ChainTag)
 	} else {
-		genesis, err := t.client.GenesisBlock()
+		chainTag, err := t.client.ChainTag()
 		if err != nil {
 			return nil, err
 		}
-		builder.ChainTag(genesis.ChainTag())
+		builder.ChainTag(chainTag)
 	}
 
 	return builder.Build(), nil
