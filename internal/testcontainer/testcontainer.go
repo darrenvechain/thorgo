@@ -22,7 +22,7 @@ func NewSolo() (*thorest.Client, func()) {
 	req := testcontainers.ContainerRequest{
 		Image:        imageEnv,
 		ExposedPorts: []string{"8669"},
-		WaitingFor:   wait.ForLog("prepared to pack block"),
+		WaitingFor:   wait.ForLog("new block packed"),
 		Cmd:          cmd,
 	}
 

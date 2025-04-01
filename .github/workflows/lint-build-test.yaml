@@ -45,10 +45,13 @@ jobs:
   test:
     strategy:
       matrix:
-        image:
-            - ghcr.io/vechain/thor:release-galactica-latest
-            - vechain/thor:latest
-            - ghcr.io/vechain/thor:master-latest
+        include:
+          - image: ghcr.io/vechain/thor:release-galactica-latest
+            galactica: true
+          - image: vechain/thor:latest
+            galactica: false
+          - image: ghcr.io/vechain/thor:master-latest
+            galactica: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -62,3 +65,4 @@ jobs:
         run: make test
         env:
           SOLO_IMAGE: ${{ matrix.image }}
+          IS_GALACTICA: ${{ matrix.galactica }}
