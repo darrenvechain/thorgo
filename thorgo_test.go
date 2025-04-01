@@ -49,7 +49,7 @@ func TestGetAccount(t *testing.T) {
 func TestTransfers(t *testing.T) {
 	criteria := make([]thorest.TransferCriteria, 0)
 
-	transfers, err := thor.Transfers(criteria, new(thorest.LogFilters))
+	transfers, err := thor.Transfers(criteria, thorest.NewFilter())
 
 	assert.NoError(t, err)
 	assert.NotNil(t, transfers)
@@ -58,7 +58,7 @@ func TestTransfers(t *testing.T) {
 func TestEvents(t *testing.T) {
 	criteria := make([]thorest.EventCriteria, 0)
 
-	events, err := thor.Events(criteria, new(thorest.LogFilters))
+	events, err := thor.Events(criteria, thorest.NewFilter())
 
 	assert.NoError(t, err)
 	assert.NotNil(t, events)

@@ -11,8 +11,8 @@ type SendTransactionResponse struct {
 }
 
 type RawTransaction struct {
-	Raw  string `json:"raw"`
-	Meta TxMeta `json:"meta"`
+	Raw  string  `json:"raw"`
+	Meta *TxMeta `json:"meta,omitempty"` // Meta is null if the transaction is pending
 }
 
 type TransactionReceipt struct {
@@ -21,7 +21,7 @@ type TransactionReceipt struct {
 	Paid     *hexutil.Big   `json:"paid"`
 	Reward   *hexutil.Big   `json:"reward"`
 	Reverted bool           `json:"reverted"`
-	Meta     ReceiptMeta    `json:"meta"`
+	Meta     *ReceiptMeta   `json:"meta"`
 	Outputs  []Output       `json:"outputs"`
 }
 
@@ -32,16 +32,16 @@ type Transaction struct {
 	BlockRef             tx.BlockRef     `json:"blockRef"`
 	Expiration           int64           `json:"expiration"`
 	Clauses              []tx.Clause     `json:"clauses"`
-	GasPriceCoef         int64           `json:"gasPriceCoef,omitempty"`
-	MaxFeePerGas         *hexutil.Big    `json:"maxFeePerGas,omitempty"`
-	MaxPriorityFeePerGas *hexutil.Big    `json:"maxPriorityFeePerGas,omitempty"`
+	GasPriceCoef         int64           `json:"gasPriceCoef,omitempty"`         // GasPriceCoef is present if it is a legacy transaction
+	MaxFeePerGas         *hexutil.Big    `json:"maxFeePerGas,omitempty"`         // MaxFeePerGas is present if it is a dynamic fee transaction
+	MaxPriorityFeePerGas *hexutil.Big    `json:"maxPriorityFeePerGas,omitempty"` // MaxPriorityFeePerGas is present if it is a dynamic fee transaction
 	Gas                  int64           `json:"gas"`
 	Origin               common.Address  `json:"origin"`
-	Delegator            *common.Address `json:"delegator"`
+	Delegator            *common.Address `json:"delegator,omitempty"` // Delegator is null if the transaction is not delegated
 	Nonce                *hexutil.Big    `json:"nonce"`
-	DependsOn            *common.Hash    `json:"dependsOn"`
+	DependsOn            *common.Hash    `json:"dependsOn,omitempty"` // DependsOn is null if the transaction is not dependent
 	Size                 int64           `json:"size"`
-	Meta                 TxMeta          `json:"meta"`
+	Meta                 *TxMeta         `json:"meta,omitempty"` // Meta is null if the transaction is pending
 }
 
 type Transfer struct {

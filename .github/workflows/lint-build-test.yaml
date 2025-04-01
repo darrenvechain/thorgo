@@ -11,7 +11,7 @@ on:
   workflow_call:
 
 jobs:
-  unit-tests:
+  lint:
     runs-on: ubuntu-latest
 
     steps:
@@ -42,5 +42,23 @@ jobs:
         # if it has any changes in the 'testcontracts' dir after running `go generate`, echo an error and fail the workflow
         run: git diff --exit-code internal/testcontract || (echo "\n\n\n internal/testcontract directory is not up to date, run 'go generate ./...' to update it" && exit 1)
 
-      - name: Run tests
+  test:
+    strategy:
+      matrix:
+        image:
+            - ghcr.io/vechain/thor:release-galactica-latest
+            - vechain/thor:latest
+            - ghcr.io/vechain/thor:master-latest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go 1.22
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.22
+
+      - name: Test
         run: make test
+        env:
+          SOLO_IMAGE: ${{ matrix.image }}

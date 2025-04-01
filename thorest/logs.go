@@ -27,11 +27,15 @@ type filterOptions struct {
 // LogFilters is used to filter transfer and event logs.
 // Example:
 //
-//	filters := new(thorest.LogFilters).BlockRange(0, 1000).Limit(10).Offset(0).Order("desc")
+//	filters := thorest.NewFilter().BlockRange(0, 1000).Limit(10).Offset(0).Order("desc")
 type LogFilters struct {
 	filterRange *filterRange
 	options     *filterOptions
 	order       *string
+}
+
+func NewFilter() *LogFilters {
+	return &LogFilters{}
 }
 
 // Order sets the order of the logs, either "asc" or "desc".

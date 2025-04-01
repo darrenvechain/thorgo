@@ -24,12 +24,8 @@ type Block struct {
 	Signer       common.Address `json:"signer"`
 	IsTrunk      bool           `json:"isTrunk"`
 	IsFinalized  bool           `json:"isFinalized"`
-	BaseFee      *hexutil.Big   `json:"baseFeePerGas"`
+	BaseFee      *hexutil.Big   `json:"baseFeePerGas,omitempty"` // BaseFee is present after the GALACTICA hardfork
 	Transactions []common.Hash  `json:"transactions"`
-}
-
-func (b *Block) ChainTag() byte {
-	return b.ID[len(b.ID)-1]
 }
 
 func (b *Block) BlockRef() tx.BlockRef {
@@ -78,7 +74,7 @@ type ExpandedBlock struct {
 	Signer       common.Address      `json:"signer"`
 	IsTrunk      bool                `json:"isTrunk"`
 	IsFinalized  bool                `json:"isFinalized"`
-	BaseFee      *hexutil.Big        `json:"baseFeePerGas"`
+	BaseFee      *hexutil.Big        `json:"baseFeePerGas,omitempty"` // BaseFee is present after the GALACTICA hardfork
 	Transactions []*BlockTransaction `json:"transactions"`
 }
 

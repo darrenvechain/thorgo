@@ -14,8 +14,13 @@ func NewSolo() (*thorest.Client, func()) {
 	ctx := context.Background()
 	cmd := []string{"solo", "-api-addr", "0.0.0.0:8669", "-api-cors", "*", "-on-demand", "-api-allowed-tracers", "call"}
 
+	imageEnv, ok := os.LookupEnv("SOLO_IMAGE")
+	if !ok {
+		imageEnv = "ghcr.io/vechain/thor:release-galactica-latest"
+	}
+
 	req := testcontainers.ContainerRequest{
-		Image:        "ghcr.io/vechain/thor:release-galactica-latest",
+		Image:        imageEnv,
 		ExposedPorts: []string{"8669"},
 		WaitingFor:   wait.ForLog("prepared to pack block"),
 		Cmd:          cmd,
