@@ -18,7 +18,7 @@ func TestClient_FeesHistory(t *testing.T) {
 		t.Skip("Skipping test as it is only available in Galactica")
 	}
 
-	history, err := thorClient.FeesHistory(thorest.RevisionBest(), 100)
+	history, err := thorClient.FeesHistory(thorest.RevisionBest(), 100, []float64{})
 	assert.NoError(t, err)
 	assert.NotNil(t, history)
 }

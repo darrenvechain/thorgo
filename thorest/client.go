@@ -266,7 +266,7 @@ func (c *Client) DebugRevertReason(receipt *TransactionReceipt) (*TxRevertRespon
 // FeesHistory fetches the fee history for the given block range.
 func (c *Client) FeesHistory(revision Revision, blockCount int64, rewardPercentiles []float64) (*FeesHistory, error) {
 	var url strings.Builder
-	url.WriteString(c.url + "/fees/history?blockCount=" + fmt.Sprint(blockCount) + "&newestBlock=" + revision.value)
+	url.WriteString("/fees/history?blockCount=" + fmt.Sprint(blockCount) + "&newestBlock=" + revision.value)
 	if len(rewardPercentiles) > 0 {
 		var values []string
 		for _, v := range rewardPercentiles {
