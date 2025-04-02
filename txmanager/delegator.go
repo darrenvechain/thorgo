@@ -21,7 +21,7 @@ type DelegatedManager struct {
 	origin   Signer
 }
 
-func NewDelegatedManager(thor *thorest.Client, origin Signer, gasPayer Delegator) *DelegatedManager {
+func NewDelegated(thor *thorest.Client, origin Signer, gasPayer Delegator) *DelegatedManager {
 	return &DelegatedManager{
 		thor:     thor,
 		origin:   origin,

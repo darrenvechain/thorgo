@@ -23,13 +23,11 @@ import (
 
 // Reference imports to suppress errors if they are not otherwise used.
 var (
-	_ = errors.New
+	_ = errors.Is
 	_ = big.NewInt
-	_ = strings.NewReader
-	_ = bind.Bind
-	_ = common.Big1
+	_ = strings.ReplaceAll
 	_ = abi.ConvertType
-	_ = hexutil.MustDecode
+	_ = hexutil.Decode
 	_ = context.Background
 	_ = tx.NewClause
 	_ = blocks.New
@@ -67,9 +65,6 @@ var (
             parsed, err := {{.Type}}MetaData.GetAbi()
             if err != nil {
                 return common.Hash{}, nil, err
-            }
-            if parsed == nil {
-                return common.Hash{}, nil, errors.New("GetABI returned nil")
             }
             {{range $pattern, $name := .Libraries}}
                 {{decapitalise $name}}Addr, _, _, _ := Deploy{{capitalise $name}}(auth, backend)

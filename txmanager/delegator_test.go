@@ -120,7 +120,7 @@ func TestNewUrlDelegator(t *testing.T) {
 func TestNewDelegatedManager(t *testing.T) {
 	origin := txmanager.FromPK(solo.Keys()[0], client)
 	gasPayer := txmanager.FromPK(solo.Keys()[1], client)
-	manager := txmanager.NewDelegatedManager(client, origin, gasPayer)
+	manager := txmanager.NewDelegated(client, origin, gasPayer)
 
 	contract, _ := builtins.NewVTHOTransactor(client, manager)
 

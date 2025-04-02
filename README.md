@@ -58,7 +58,7 @@ go get github.com/darrenvechain/thorgo
 ```golang
 // github.com/darrenvechain/thorgo/accounts
 type TxManager interface {
-    SendClauses(clauses []*tx.Clause, opts *transactions.Options) (*transactions.Visitor, error)
+	SendClauses(clauses []*tx.Clause, opts *transactions.Options) (*transactions.Visitor, error)
 }
 ```
 
@@ -104,7 +104,7 @@ func main() {
   thor := thorgo.New(context.Background(), solo.URL)
 
   // Get an accounts balance
-  acc, err := thor.Account(common.HexToAddress("0x0000000000000000000000000000456e6570")).Get()
+  acc, _ := thor.Account(common.HexToAddress("0x0000000000000000000000000000456e6570")).Get()
   fmt.Println(acc.Balance)
 }
 
@@ -122,46 +122,48 @@ func main() {
 package main
 
 import (
-	"context"
-	"log/slog"
-	"math/big"
+  "context"
+  "log/slog"
+  "math/big"
 
-	"github.com/darrenvechain/thorgo"
-	"github.com/darrenvechain/thorgo/builtins"
-	"github.com/darrenvechain/thorgo/solo"
-	"github.com/darrenvechain/thorgo/transactions"
-	"github.com/darrenvechain/thorgo/txmanager"
+  "github.com/darrenvechain/thorgo"
+  "github.com/darrenvechain/thorgo/builtins"
+  "github.com/darrenvechain/thorgo/solo"
+  "github.com/darrenvechain/thorgo/thorest"
+  "github.com/darrenvechain/thorgo/transactions"
+  "github.com/darrenvechain/thorgo/txmanager"
 )
 
 func main() {
-	thor := thorgo.New(context.Background(), "http://localhost:8669")
+  thor := thorgo.New(context.Background(), "http://localhost:8669")
 
-	// Create a delegated transaction manager
-	origin := txmanager.FromPK(solo.Keys()[0], thor.Client())
-	gasPayer := txmanager.NewDelegator(solo.Keys()[1])
-	txSender := txmanager.NewDelegatedManager(thor.Client(), origin, gasPayer)
+  // Create a delegated transaction manager
+  origin := txmanager.FromPK(solo.Keys()[0], thor.Client())
+  gasPayer := txmanager.FromPK(solo.Keys()[1], thor.Client())
+  txSender := txmanager.NewDelegated(thor.Client(), origin, gasPayer)
 
-	// Use the `thorgen` CLI to build your own smart contract wrapper
-	vtho, _ := builtins.NewVTHOTransactor(thor.Client(), txSender)
+  // Use the `thorgen` CLI to build your own smart contract wrapper
+  vtho, _ := builtins.NewVTHOTransactor(thor.Client(), txSender)
 
-	// Create a new account to receive the tokens
-	recipient, _ := txmanager.GeneratePK(thor.Client())
+  // Create a new account to receive the tokens
+  recipient, _ := txmanager.GeneratePK(thor.Client())
 
-	// Call the balanceOf function
-	balance, err := vtho.BalanceOf(recipient.Address())
-	slog.Info("recipient balance before", "balance", balance, "error", err)
+  // Call the balanceOf function
+  balance, err := vtho.BalanceOf(recipient.Address(), thorest.RevisionBest())
+  slog.Info("recipient balance before", "balance", balance, "error", err)
 
-	tx, err := vtho.Transfer(recipient.Address(), big.NewInt(1000000000000000000), &transactions.Options{})
-	if err != nil {
-		slog.Error("transfer error", "error", err)
-		return
-	}
-	receipt, _ := tx.Wait(context.Background())
-	slog.Info("transfer receipt", "error", receipt.Reverted)
+  tx, err := vtho.Transfer(recipient.Address(), big.NewInt(1000000000000000000), &transactions.Options{})
+  if err != nil {
+    slog.Error("transfer error", "error", err)
+    return
+  }
+  receipt, _ := tx.Wait(context.Background())
+  slog.Info("transfer receipt", "error", receipt.Reverted)
 
-	balance, err = vtho.BalanceOf(recipient.Address())
-	slog.Info("recipient balance after", "balance", balance, "error", err)
+  balance, err = vtho.BalanceOf(recipient.Address(), thorest.RevisionBest())
+  slog.Info("recipient balance after", "balance", balance, "error", err)
 }
+
 ```
 
 </details>
@@ -183,6 +185,7 @@ import (
   "github.com/darrenvechain/thorgo/builtins"
   "github.com/darrenvechain/thorgo/crypto/tx"
   "github.com/darrenvechain/thorgo/solo"
+  "github.com/darrenvechain/thorgo/thorest"
   "github.com/darrenvechain/thorgo/transactions"
   "github.com/darrenvechain/thorgo/txmanager"
 )
@@ -205,8 +208,8 @@ func main() {
   trx, _ := tx.Wait(context.Background())
   slog.Info("transaction mined", "reverted", trx.Reverted)
 
-  balance1, _ := vtho.BalanceOf(recipient1.Address())
-  balance2, _ := vtho.BalanceOf(recipient2.Address())
+  balance1, _ := vtho.BalanceOf(recipient1.Address(), thorest.RevisionBest())
+  balance2, _ := vtho.BalanceOf(recipient2.Address(), thorest.RevisionBest())
 
   slog.Info("recipient1", "balance", balance1)
   slog.Info("recipient2", "balance", balance2)

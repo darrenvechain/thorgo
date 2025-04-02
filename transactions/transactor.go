@@ -121,7 +121,7 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 		if options.MaxFeePerGas != nil {
 			builder.MaxFeePerGas(options.MaxFeePerGas)
 		} else {
-			fees, err := t.client.FeesHistory(thorest.RevisionNext(), 1)
+			fees, err := t.client.FeesHistory(thorest.RevisionNext(), 1, []float64{})
 			if err != nil {
 				return nil, err
 			}
