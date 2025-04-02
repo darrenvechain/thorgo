@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/ethereum/go-ethereum/common"
@@ -25,7 +26,7 @@ func NewClient(url string, client *http.Client) *Client {
 }
 
 func NewClientFromURL(url string) *Client {
-	return NewClient(url, &http.Client{})
+	return NewClient(url, &http.Client{Timeout: 30 * time.Second})
 }
 
 func newClient(url string, client *http.Client) *Client {
