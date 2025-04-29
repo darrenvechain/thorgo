@@ -40,14 +40,14 @@ func newClient(url string, client *http.Client) *Client {
 
 // Account fetches the account information for the given address.
 func (c *Client) Account(addr common.Address) (*Account, error) {
-	url := "/accounts/" + addr.Hex()
-	return httpGet(c, url, &Account{})
+	path := "/accounts/" + addr.Hex()
+	return httpGet(c, path, &Account{})
 }
 
 // AccountAt fetches the account information for an address at the given revision.
 func (c *Client) AccountAt(addr common.Address, revision Revision) (*Account, error) {
-	url := "/accounts/" + addr.Hex() + "?revision=" + revision.value
-	return httpGet(c, url, &Account{})
+	path := "/accounts/" + addr.Hex() + "?revision=" + revision.value
+	return httpGet(c, path, &Account{})
 }
 
 // Inspect will send an array of clauses to the node to simulate the execution of the clauses.
@@ -55,9 +55,9 @@ func (c *Client) AccountAt(addr common.Address, revision Revision) (*Account, er
 // - Read contract(s) state
 // - Simulate the execution of a transaction
 func (c *Client) Inspect(body InspectRequest) ([]InspectResponse, error) {
-	url := "/accounts/*"
+	path := "/accounts/*"
 	response := make([]InspectResponse, 0)
-	_, err := httpPost(c, url, body, &response)
+	_, err := httpPost(c, path, body, &response)
 	if err != nil {
 		return nil, err
 	}
@@ -66,9 +66,9 @@ func (c *Client) Inspect(body InspectRequest) ([]InspectResponse, error) {
 
 // InspectAt will send an array of clauses to the node to simulate the execution of the clauses at the given revision.
 func (c *Client) InspectAt(body InspectRequest, revision Revision) ([]InspectResponse, error) {
-	url := "/accounts/*?revision=" + revision.value
+	path := "/accounts/*?revision=" + revision.value
 	response := make([]InspectResponse, 0)
-	_, err := httpPost(c, url, body, &response)
+	_, err := httpPost(c, path, body, &response)
 	if err != nil {
 		return nil, err
 	}
@@ -77,20 +77,20 @@ func (c *Client) InspectAt(body InspectRequest, revision Revision) ([]InspectRes
 
 // AccountCode fetches the code for the account at the given address.
 func (c *Client) AccountCode(addr common.Address) (*AccountCode, error) {
-	url := "/accounts/" + addr.Hex() + "/code"
-	return httpGet(c, url, &AccountCode{})
+	path := "/accounts/" + addr.Hex() + "/code"
+	return httpGet(c, path, &AccountCode{})
 }
 
 // AccountCodeAt fetches the code for the account at the given address and revision.
 func (c *Client) AccountCodeAt(addr common.Address, revision Revision) (*AccountCode, error) {
-	url := "/accounts/" + addr.Hex() + "/code?revision=" + revision.value
-	return httpGet(c, url, &AccountCode{})
+	path := "/accounts/" + addr.Hex() + "/code?revision=" + revision.value
+	return httpGet(c, path, &AccountCode{})
 }
 
 // AccountStorage fetches the storage value for the account at the given address and key.
 func (c *Client) AccountStorage(addr common.Address, key common.Hash) (*AccountStorage, error) {
-	url := "/accounts/" + addr.Hex() + "/storage/" + key.Hex()
-	return httpGet(c, url, &AccountStorage{})
+	path := "/accounts/" + addr.Hex() + "/storage/" + key.Hex()
+	return httpGet(c, path, &AccountStorage{})
 }
 
 // AccountStorageAt fetches the storage value for the account at the given address and key at the given revision.
@@ -99,14 +99,14 @@ func (c *Client) AccountStorageAt(
 	key common.Hash,
 	revision Revision,
 ) (*AccountStorage, error) {
-	url := "/accounts/" + addr.Hex() + "/storage/" + key.Hex() + "?revision=" + revision.value
-	return httpGet(c, url, &AccountStorage{})
+	path := "/accounts/" + addr.Hex() + "/storage/" + key.Hex() + "?revision=" + revision.value
+	return httpGet(c, path, &AccountStorage{})
 }
 
 // Block fetches the block for the given revision.
 func (c *Client) Block(revision Revision) (*Block, error) {
-	url := "/blocks/" + revision.value
-	return httpGet(c, url, &Block{})
+	path := "/blocks/" + revision.value
+	return httpGet(c, path, &Block{})
 }
 
 // BestBlock returns the best block.
@@ -128,8 +128,8 @@ func (c *Client) GenesisBlock() (*Block, error) {
 
 // ExpandedBlock fetches the block at the given revision with all the transactions expanded.
 func (c *Client) ExpandedBlock(revision Revision) (*ExpandedBlock, error) {
-	url := "/blocks/" + revision.value + "?expanded=true"
-	return httpGet(c, url, &ExpandedBlock{})
+	path := "/blocks/" + revision.value + "?expanded=true"
+	return httpGet(c, path, &ExpandedBlock{})
 }
 
 // ChainTag returns the chain tag of the genesis block.
@@ -161,44 +161,44 @@ func (c *Client) SendRawTransaction(bytes []byte) (*SendTransactionResponse, err
 
 // Transaction fetches a transaction by its ID.
 func (c *Client) Transaction(id common.Hash) (*Transaction, error) {
-	url := "/transactions/" + id.Hex()
-	return httpGet(c, url, &Transaction{})
+	path := "/transactions/" + id.Hex()
+	return httpGet(c, path, &Transaction{})
 }
 
 // TransactionAt fetches a transaction by its ID for the given head block ID.
 func (c *Client) TransactionAt(id common.Hash, head common.Hash) (*Transaction, error) {
-	url := "/transactions/" + id.Hex() + "?head=" + head.Hex()
-	return httpGet(c, url, &Transaction{})
+	path := "/transactions/" + id.Hex() + "?head=" + head.Hex()
+	return httpGet(c, path, &Transaction{})
 }
 
 // RawTransaction fetches a transaction by its ID and returns the raw transaction.
 func (c *Client) RawTransaction(id common.Hash) (*RawTransaction, error) {
-	url := "/transactions/" + id.Hex() + "?raw=true"
-	return httpGet(c, url, &RawTransaction{})
+	path := "/transactions/" + id.Hex() + "?raw=true"
+	return httpGet(c, path, &RawTransaction{})
 }
 
 // RawTransactionAt fetches a transaction by its ID for the given head block ID and returns the raw transaction.
 func (c *Client) RawTransactionAt(id common.Hash, head common.Hash) (*RawTransaction, error) {
-	url := "/transactions/" + id.Hex() + "?head=" + head.Hex() + "&raw=true"
-	return httpGet(c, url, &RawTransaction{})
+	path := "/transactions/" + id.Hex() + "?head=" + head.Hex() + "&raw=true"
+	return httpGet(c, path, &RawTransaction{})
 }
 
 // PendingTransaction includes the pending block when fetching a transaction.
 func (c *Client) PendingTransaction(id common.Hash) (*Transaction, error) {
-	url := "/transactions/" + id.Hex() + "?pending=true"
-	return httpGet(c, url, &Transaction{})
+	path := "/transactions/" + id.Hex() + "?pending=true"
+	return httpGet(c, path, &Transaction{})
 }
 
 // TransactionReceipt fetches a transaction receipt by its ID.
 func (c *Client) TransactionReceipt(id common.Hash) (*TransactionReceipt, error) {
-	url := "/transactions/" + id.Hex() + "/receipt"
-	return httpGet(c, url, &TransactionReceipt{})
+	path := "/transactions/" + id.Hex() + "/receipt"
+	return httpGet(c, path, &TransactionReceipt{})
 }
 
 // TransactionReceiptAt fetches a transaction receipt by its ID for the given head block ID.
 func (c *Client) TransactionReceiptAt(id common.Hash, head common.Hash) (*TransactionReceipt, error) {
-	url := "/transactions/" + id.Hex() + "/receipt?revision=" + head.Hex()
-	return httpGet(c, url, &TransactionReceipt{})
+	path := "/transactions/" + id.Hex() + "/receipt?revision=" + head.Hex()
+	return httpGet(c, path, &TransactionReceipt{})
 }
 
 // FilterEvents fetches the event logs that match the given filter.
@@ -252,7 +252,7 @@ func (c *Client) Peers() ([]Peer, error) {
 
 // DebugRevertReason fetches the revert reason for the transaction.
 func (c *Client) DebugRevertReason(receipt *TransactionReceipt) (*TxRevertResponse, error) {
-	url := "/debug/tracers"
+	path := "/debug/tracers"
 	config := make(map[string]any)
 	config["OnlyTopCall"] = true
 	body := debugTraceClause{
@@ -260,7 +260,7 @@ func (c *Client) DebugRevertReason(receipt *TransactionReceipt) (*TxRevertRespon
 		Name:   "call",
 		Target: fmt.Sprintf("%s/%s/%d", receipt.Meta.BlockID.Hex(), receipt.Meta.TxID.Hex(), len(receipt.Outputs)),
 	}
-	return httpPost(c, url, body, &TxRevertResponse{})
+	return httpPost(c, path, body, &TxRevertResponse{})
 }
 
 // FeesHistory fetches the fee history for the given block range.

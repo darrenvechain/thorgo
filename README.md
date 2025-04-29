@@ -152,18 +152,17 @@ func main() {
   balance, err := vtho.BalanceOf(recipient.Address(), thorest.RevisionBest())
   slog.Info("recipient balance before", "balance", balance, "error", err)
 
-  tx, err := vtho.Transfer(recipient.Address(), big.NewInt(1000000000000000000), &transactions.Options{})
+  receipt, err := vtho.Transfer(recipient.Address(), big.NewInt(1000000000000000000), &transactions.Options{}).
+    Receipt(context.Background())
   if err != nil {
     slog.Error("transfer error", "error", err)
     return
   }
-  receipt, _ := tx.Wait(context.Background())
   slog.Info("transfer receipt", "error", receipt.Reverted)
 
   balance, err = vtho.BalanceOf(recipient.Address(), thorest.RevisionBest())
   slog.Info("recipient balance after", "balance", balance, "error", err)
 }
-
 ```
 
 </details>
