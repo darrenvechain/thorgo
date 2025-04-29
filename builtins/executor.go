@@ -90,7 +90,7 @@ func (_Executor *Executor) Call(revision thorest.Revision, result *[]interface{}
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_ExecutorTransactor *ExecutorTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) (*transactions.Visitor, error) {
+func (_ExecutorTransactor *ExecutorTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) *accounts.Sender {
 	return _ExecutorTransactor.contract.Send(opts, method, params...)
 }
 
@@ -194,7 +194,7 @@ func (_Executor *Executor) VotingContracts(arg0 common.Address, revision thorest
 // AddApprover is a paid mutator transaction binding the contract method 0x3ef0c09e.
 //
 // Solidity: function addApprover(address _approver, bytes32 _identity) returns()
-func (_ExecutorTransactor *ExecutorTransactor) AddApprover(_approver common.Address, _identity [32]byte, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_ExecutorTransactor *ExecutorTransactor) AddApprover(_approver common.Address, _identity [32]byte, opts *transactions.Options) *accounts.Sender {
 	return _ExecutorTransactor.Transact(opts, "addApprover", _approver, _identity)
 }
 
@@ -208,7 +208,7 @@ func (_Executor *Executor) AddApproverAsClause(_approver common.Address, _identi
 // Approve is a paid mutator transaction binding the contract method 0xa53a1adf.
 //
 // Solidity: function approve(bytes32 _proposalID) returns()
-func (_ExecutorTransactor *ExecutorTransactor) Approve(_proposalID [32]byte, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_ExecutorTransactor *ExecutorTransactor) Approve(_proposalID [32]byte, opts *transactions.Options) *accounts.Sender {
 	return _ExecutorTransactor.Transact(opts, "approve", _proposalID)
 }
 
@@ -222,7 +222,7 @@ func (_Executor *Executor) ApproveAsClause(_proposalID [32]byte) (*tx.Clause, er
 // AttachVotingContract is a paid mutator transaction binding the contract method 0xa1fb668f.
 //
 // Solidity: function attachVotingContract(address _contract) returns()
-func (_ExecutorTransactor *ExecutorTransactor) AttachVotingContract(_contract common.Address, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_ExecutorTransactor *ExecutorTransactor) AttachVotingContract(_contract common.Address, opts *transactions.Options) *accounts.Sender {
 	return _ExecutorTransactor.Transact(opts, "attachVotingContract", _contract)
 }
 
@@ -236,7 +236,7 @@ func (_Executor *Executor) AttachVotingContractAsClause(_contract common.Address
 // DetachVotingContract is a paid mutator transaction binding the contract method 0xa83b3bd8.
 //
 // Solidity: function detachVotingContract(address _contract) returns()
-func (_ExecutorTransactor *ExecutorTransactor) DetachVotingContract(_contract common.Address, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_ExecutorTransactor *ExecutorTransactor) DetachVotingContract(_contract common.Address, opts *transactions.Options) *accounts.Sender {
 	return _ExecutorTransactor.Transact(opts, "detachVotingContract", _contract)
 }
 
@@ -250,7 +250,7 @@ func (_Executor *Executor) DetachVotingContractAsClause(_contract common.Address
 // Execute is a paid mutator transaction binding the contract method 0xe751f271.
 //
 // Solidity: function execute(bytes32 _proposalID) returns()
-func (_ExecutorTransactor *ExecutorTransactor) Execute(_proposalID [32]byte, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_ExecutorTransactor *ExecutorTransactor) Execute(_proposalID [32]byte, opts *transactions.Options) *accounts.Sender {
 	return _ExecutorTransactor.Transact(opts, "execute", _proposalID)
 }
 
@@ -264,7 +264,7 @@ func (_Executor *Executor) ExecuteAsClause(_proposalID [32]byte) (*tx.Clause, er
 // Propose is a paid mutator transaction binding the contract method 0x9d481848.
 //
 // Solidity: function propose(address _target, bytes _data) returns(bytes32)
-func (_ExecutorTransactor *ExecutorTransactor) Propose(_target common.Address, _data []byte, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_ExecutorTransactor *ExecutorTransactor) Propose(_target common.Address, _data []byte, opts *transactions.Options) *accounts.Sender {
 	return _ExecutorTransactor.Transact(opts, "propose", _target, _data)
 }
 
@@ -278,7 +278,7 @@ func (_Executor *Executor) ProposeAsClause(_target common.Address, _data []byte)
 // RevokeApprover is a paid mutator transaction binding the contract method 0x18d13ef7.
 //
 // Solidity: function revokeApprover(address _approver) returns()
-func (_ExecutorTransactor *ExecutorTransactor) RevokeApprover(_approver common.Address, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_ExecutorTransactor *ExecutorTransactor) RevokeApprover(_approver common.Address, opts *transactions.Options) *accounts.Sender {
 	return _ExecutorTransactor.Transact(opts, "revokeApprover", _approver)
 }
 

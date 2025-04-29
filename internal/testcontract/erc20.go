@@ -109,7 +109,7 @@ func (_Erc20 *Erc20) Call(revision thorest.Revision, result *[]interface{}, meth
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_Erc20Transactor *Erc20Transactor) Transact(opts *transactions.Options, method string, params ...interface{}) (*transactions.Visitor, error) {
+func (_Erc20Transactor *Erc20Transactor) Transact(opts *transactions.Options, method string, params ...interface{}) *accounts.Sender {
 	return _Erc20Transactor.contract.Send(opts, method, params...)
 }
 
@@ -212,7 +212,7 @@ func (_Erc20 *Erc20) TotalSupply(revision thorest.Revision) (*big.Int, error) {
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
 // Solidity: function approve(address spender, uint256 value) returns(bool)
-func (_Erc20Transactor *Erc20Transactor) Approve(spender common.Address, value *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_Erc20Transactor *Erc20Transactor) Approve(spender common.Address, value *big.Int, opts *transactions.Options) *accounts.Sender {
 	return _Erc20Transactor.Transact(opts, "approve", spender, value)
 }
 
@@ -226,7 +226,7 @@ func (_Erc20 *Erc20) ApproveAsClause(spender common.Address, value *big.Int) (*t
 // Burn is a paid mutator transaction binding the contract method 0x42966c68.
 //
 // Solidity: function burn(uint256 value) returns()
-func (_Erc20Transactor *Erc20Transactor) Burn(value *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_Erc20Transactor *Erc20Transactor) Burn(value *big.Int, opts *transactions.Options) *accounts.Sender {
 	return _Erc20Transactor.Transact(opts, "burn", value)
 }
 
@@ -240,7 +240,7 @@ func (_Erc20 *Erc20) BurnAsClause(value *big.Int) (*tx.Clause, error) {
 // BurnFrom is a paid mutator transaction binding the contract method 0x79cc6790.
 //
 // Solidity: function burnFrom(address account, uint256 value) returns()
-func (_Erc20Transactor *Erc20Transactor) BurnFrom(account common.Address, value *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_Erc20Transactor *Erc20Transactor) BurnFrom(account common.Address, value *big.Int, opts *transactions.Options) *accounts.Sender {
 	return _Erc20Transactor.Transact(opts, "burnFrom", account, value)
 }
 
@@ -254,7 +254,7 @@ func (_Erc20 *Erc20) BurnFromAsClause(account common.Address, value *big.Int) (*
 // Mint is a paid mutator transaction binding the contract method 0x40c10f19.
 //
 // Solidity: function mint(address to, uint256 amount) returns()
-func (_Erc20Transactor *Erc20Transactor) Mint(to common.Address, amount *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_Erc20Transactor *Erc20Transactor) Mint(to common.Address, amount *big.Int, opts *transactions.Options) *accounts.Sender {
 	return _Erc20Transactor.Transact(opts, "mint", to, amount)
 }
 
@@ -268,7 +268,7 @@ func (_Erc20 *Erc20) MintAsClause(to common.Address, amount *big.Int) (*tx.Claus
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
 //
 // Solidity: function transfer(address to, uint256 value) returns(bool)
-func (_Erc20Transactor *Erc20Transactor) Transfer(to common.Address, value *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_Erc20Transactor *Erc20Transactor) Transfer(to common.Address, value *big.Int, opts *transactions.Options) *accounts.Sender {
 	return _Erc20Transactor.Transact(opts, "transfer", to, value)
 }
 
@@ -282,7 +282,7 @@ func (_Erc20 *Erc20) TransferAsClause(to common.Address, value *big.Int) (*tx.Cl
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
 //
 // Solidity: function transferFrom(address from, address to, uint256 value) returns(bool)
-func (_Erc20Transactor *Erc20Transactor) TransferFrom(from common.Address, to common.Address, value *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_Erc20Transactor *Erc20Transactor) TransferFrom(from common.Address, to common.Address, value *big.Int, opts *transactions.Options) *accounts.Sender {
 	return _Erc20Transactor.Transact(opts, "transferFrom", from, to, value)
 }
 

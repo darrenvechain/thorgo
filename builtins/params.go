@@ -90,7 +90,7 @@ func (_Params *Params) Call(revision thorest.Revision, result *[]interface{}, me
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_ParamsTransactor *ParamsTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) (*transactions.Visitor, error) {
+func (_ParamsTransactor *ParamsTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) *accounts.Sender {
 	return _ParamsTransactor.contract.Send(opts, method, params...)
 }
 
@@ -129,7 +129,7 @@ func (_Params *Params) Get(_key [32]byte, revision thorest.Revision) (*big.Int, 
 // Set is a paid mutator transaction binding the contract method 0x273f4940.
 //
 // Solidity: function set(bytes32 _key, uint256 _value) returns()
-func (_ParamsTransactor *ParamsTransactor) Set(_key [32]byte, _value *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_ParamsTransactor *ParamsTransactor) Set(_key [32]byte, _value *big.Int, opts *transactions.Options) *accounts.Sender {
 	return _ParamsTransactor.Transact(opts, "set", _key, _value)
 }
 

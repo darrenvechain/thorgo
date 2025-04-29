@@ -39,9 +39,7 @@ func TestParams_Set(t *testing.T) {
 	solo2 := txmanager.FromPK(solo.Keys()[1], client)
 	// TODO: Not sure why the value is a big.Int here
 	value := new(big.Int).SetBytes(solo2.Address().Bytes())
-	tx, err := params.Set(KeyExecutorAddress, value, &transactions.Options{})
-	assert.NoError(t, err)
-	_, err = tx.Wait(context.Background())
+	_, err = params.Set(KeyExecutorAddress, value, &transactions.Options{}).Receipt(context.Background())
 	assert.NoError(t, err)
 
 	// check that solo 2 is the updated executor

@@ -109,7 +109,7 @@ func (_Staker *Staker) Call(revision thorest.Revision, result *[]interface{}, me
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_StakerTransactor *StakerTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) (*transactions.Visitor, error) {
+func (_StakerTransactor *StakerTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) *accounts.Sender {
 	return _StakerTransactor.contract.Send(opts, method, params...)
 }
 
@@ -143,7 +143,7 @@ func (_Staker *Staker) Deposits(arg0 common.Address, revision thorest.Revision) 
 // Solidity: function stake(uint256 blocks) payable returns()
 //
 // Setting the value in options is replaced by the vetValue argument.
-func (_StakerTransactor *StakerTransactor) Stake(blocks *big.Int, vetValue *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_StakerTransactor *StakerTransactor) Stake(blocks *big.Int, vetValue *big.Int, opts *transactions.Options) *accounts.Sender {
 	if opts == nil {
 		opts = &transactions.Options{}
 	}
@@ -161,7 +161,7 @@ func (_Staker *Staker) StakeAsClause(blocks *big.Int, vetValue *big.Int) (*tx.Cl
 // Withdraw is a paid mutator transaction binding the contract method 0x3ccfd60b.
 //
 // Solidity: function withdraw() returns()
-func (_StakerTransactor *StakerTransactor) Withdraw(opts *transactions.Options) (*transactions.Visitor, error) {
+func (_StakerTransactor *StakerTransactor) Withdraw(opts *transactions.Options) *accounts.Sender {
 	return _StakerTransactor.Transact(opts, "withdraw")
 }
 

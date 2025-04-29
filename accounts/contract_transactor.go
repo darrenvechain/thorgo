@@ -1,10 +1,14 @@
 package accounts
 
 import (
+	"context"
 	"fmt"
 	"math/big"
+	"sync"
+	"sync/atomic"
 
 	"github.com/darrenvechain/thorgo/crypto/tx"
+	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
 )
 
@@ -18,16 +22,65 @@ type ContractTransactor struct {
 }
 
 // Send sends a transaction to the contract with the given method and arguments.
-func (c *ContractTransactor) Send(opts *transactions.Options, method string, args ...any) (*transactions.Visitor, error) {
-	if opts == nil {
-		opts = &transactions.Options{}
+func (c *ContractTransactor) Send(opts *transactions.Options, method string, args ...any) *Sender {
+	return newSender(c, opts, method, args...)
+}
+
+type Sender struct {
+	contract *ContractTransactor
+	opts     *transactions.Options
+	method   string
+	args     []any
+	sent     atomic.Bool
+	visitor  atomic.Pointer[transactions.Visitor]
+	mu       sync.Mutex
+}
+
+func newSender(contract *ContractTransactor, opts *transactions.Options, method string, args ...any) *Sender {
+	return &Sender{
+		contract: contract,
+		opts:     opts,
+		method:   method,
+		args:     args,
 	}
-	if opts.VET == nil {
-		opts.VET = new(big.Int)
+}
+
+func (s *Sender) Contract() *ContractTransactor {
+	return s.contract
+}
+
+func (s *Sender) Send() (*transactions.Visitor, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.sent.Load() {
+		return s.visitor.Load(), nil
 	}
-	clause, err := c.AsClauseWithVET(opts.VET, method, args...)
+
+	if s.opts == nil {
+		s.opts = &transactions.Options{}
+	}
+	if s.opts.VET == nil {
+		s.opts.VET = new(big.Int)
+	}
+	clause, err := s.contract.AsClauseWithVET(s.opts.VET, s.method, s.args...)
 	if err != nil {
-		return &transactions.Visitor{}, fmt.Errorf("failed to pack method %s: %w", method, err)
+		return &transactions.Visitor{}, fmt.Errorf("failed to pack method %s: %w", s.method, err)
 	}
-	return c.manager.SendClauses([]*tx.Clause{clause}, opts)
+	res, err := s.contract.manager.SendClauses([]*tx.Clause{clause}, s.opts)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send transaction: %w", err)
+	}
+	s.visitor.Store(res)
+	s.sent.Store(true)
+	return res, nil
+}
+
+// Receipt waits for the transaction to be mined and returns the receipt.
+func (s *Sender) Receipt(ctx context.Context) (*thorest.TransactionReceipt, error) {
+	visitor, err := s.Send()
+	if err != nil {
+		return nil, err
+	}
+	return visitor.Wait(ctx)
 }

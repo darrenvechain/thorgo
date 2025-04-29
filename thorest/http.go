@@ -14,7 +14,21 @@ type HttpError struct {
 	Path    string
 }
 
-var ErrNotFound = &HttpError{Code: http.StatusNotFound, Status: "404 not found", Message: "resource not found"}
+func baseErr(code int) *HttpError {
+	return &HttpError{
+		Code:   code,
+		Status: http.StatusText(code),
+	}
+}
+
+var (
+	ErrBadRequest         = baseErr(http.StatusBadRequest)
+	ErrUnauthorized       = baseErr(http.StatusUnauthorized)
+	ErrForbidden          = baseErr(http.StatusForbidden)
+	ErrNotFound           = baseErr(http.StatusNotFound)
+	ErrInternal           = baseErr(http.StatusInternalServerError)
+	ErrServiceUnavailable = baseErr(http.StatusServiceUnavailable)
+)
 
 func (e *HttpError) Error() string {
 	return e.Message

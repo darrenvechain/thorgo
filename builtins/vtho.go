@@ -90,7 +90,7 @@ func (_VTHO *VTHO) Call(revision thorest.Revision, result *[]interface{}, method
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_VTHOTransactor *VTHOTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) (*transactions.Visitor, error) {
+func (_VTHOTransactor *VTHOTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) *accounts.Sender {
 	return _VTHOTransactor.contract.Send(opts, method, params...)
 }
 
@@ -209,7 +209,7 @@ func (_VTHO *VTHO) TotalSupply(revision thorest.Revision) (*big.Int, error) {
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
 // Solidity: function approve(address _spender, uint256 _value) returns(bool success)
-func (_VTHOTransactor *VTHOTransactor) Approve(_spender common.Address, _value *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_VTHOTransactor *VTHOTransactor) Approve(_spender common.Address, _value *big.Int, opts *transactions.Options) *accounts.Sender {
 	return _VTHOTransactor.Transact(opts, "approve", _spender, _value)
 }
 
@@ -223,7 +223,7 @@ func (_VTHO *VTHO) ApproveAsClause(_spender common.Address, _value *big.Int) (*t
 // Move is a paid mutator transaction binding the contract method 0xbb35783b.
 //
 // Solidity: function move(address _from, address _to, uint256 _amount) returns(bool success)
-func (_VTHOTransactor *VTHOTransactor) Move(_from common.Address, _to common.Address, _amount *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_VTHOTransactor *VTHOTransactor) Move(_from common.Address, _to common.Address, _amount *big.Int, opts *transactions.Options) *accounts.Sender {
 	return _VTHOTransactor.Transact(opts, "move", _from, _to, _amount)
 }
 
@@ -237,7 +237,7 @@ func (_VTHO *VTHO) MoveAsClause(_from common.Address, _to common.Address, _amoun
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
 //
 // Solidity: function transfer(address _to, uint256 _amount) returns(bool success)
-func (_VTHOTransactor *VTHOTransactor) Transfer(_to common.Address, _amount *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_VTHOTransactor *VTHOTransactor) Transfer(_to common.Address, _amount *big.Int, opts *transactions.Options) *accounts.Sender {
 	return _VTHOTransactor.Transact(opts, "transfer", _to, _amount)
 }
 
@@ -251,7 +251,7 @@ func (_VTHO *VTHO) TransferAsClause(_to common.Address, _amount *big.Int) (*tx.C
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
 //
 // Solidity: function transferFrom(address _from, address _to, uint256 _amount) returns(bool success)
-func (_VTHOTransactor *VTHOTransactor) TransferFrom(_from common.Address, _to common.Address, _amount *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_VTHOTransactor *VTHOTransactor) TransferFrom(_from common.Address, _to common.Address, _amount *big.Int, opts *transactions.Options) *accounts.Sender {
 	return _VTHOTransactor.Transact(opts, "transferFrom", _from, _to, _amount)
 }
 

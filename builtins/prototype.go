@@ -90,7 +90,7 @@ func (_Prototype *Prototype) Call(revision thorest.Revision, result *[]interface
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_PrototypeTransactor *PrototypeTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) (*transactions.Visitor, error) {
+func (_PrototypeTransactor *PrototypeTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) *accounts.Sender {
 	return _PrototypeTransactor.contract.Send(opts, method, params...)
 }
 
@@ -266,7 +266,7 @@ func (_Prototype *Prototype) UserCredit(_self common.Address, _user common.Addre
 // AddUser is a paid mutator transaction binding the contract method 0x8ca3b448.
 //
 // Solidity: function addUser(address _self, address _user) returns()
-func (_PrototypeTransactor *PrototypeTransactor) AddUser(_self common.Address, _user common.Address, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_PrototypeTransactor *PrototypeTransactor) AddUser(_self common.Address, _user common.Address, opts *transactions.Options) *accounts.Sender {
 	return _PrototypeTransactor.Transact(opts, "addUser", _self, _user)
 }
 
@@ -280,7 +280,7 @@ func (_Prototype *Prototype) AddUserAsClause(_self common.Address, _user common.
 // RemoveUser is a paid mutator transaction binding the contract method 0x22928d6b.
 //
 // Solidity: function removeUser(address _self, address _user) returns()
-func (_PrototypeTransactor *PrototypeTransactor) RemoveUser(_self common.Address, _user common.Address, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_PrototypeTransactor *PrototypeTransactor) RemoveUser(_self common.Address, _user common.Address, opts *transactions.Options) *accounts.Sender {
 	return _PrototypeTransactor.Transact(opts, "removeUser", _self, _user)
 }
 
@@ -294,7 +294,7 @@ func (_Prototype *Prototype) RemoveUserAsClause(_self common.Address, _user comm
 // SelectSponsor is a paid mutator transaction binding the contract method 0x3871a9fb.
 //
 // Solidity: function selectSponsor(address _self, address _sponsor) returns()
-func (_PrototypeTransactor *PrototypeTransactor) SelectSponsor(_self common.Address, _sponsor common.Address, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_PrototypeTransactor *PrototypeTransactor) SelectSponsor(_self common.Address, _sponsor common.Address, opts *transactions.Options) *accounts.Sender {
 	return _PrototypeTransactor.Transact(opts, "selectSponsor", _self, _sponsor)
 }
 
@@ -308,7 +308,7 @@ func (_Prototype *Prototype) SelectSponsorAsClause(_self common.Address, _sponso
 // SetCreditPlan is a paid mutator transaction binding the contract method 0x3659f8ed.
 //
 // Solidity: function setCreditPlan(address _self, uint256 _credit, uint256 _recoveryRate) returns()
-func (_PrototypeTransactor *PrototypeTransactor) SetCreditPlan(_self common.Address, _credit *big.Int, _recoveryRate *big.Int, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_PrototypeTransactor *PrototypeTransactor) SetCreditPlan(_self common.Address, _credit *big.Int, _recoveryRate *big.Int, opts *transactions.Options) *accounts.Sender {
 	return _PrototypeTransactor.Transact(opts, "setCreditPlan", _self, _credit, _recoveryRate)
 }
 
@@ -322,7 +322,7 @@ func (_Prototype *Prototype) SetCreditPlanAsClause(_self common.Address, _credit
 // SetMaster is a paid mutator transaction binding the contract method 0x01378b58.
 //
 // Solidity: function setMaster(address _self, address _newMaster) returns()
-func (_PrototypeTransactor *PrototypeTransactor) SetMaster(_self common.Address, _newMaster common.Address, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_PrototypeTransactor *PrototypeTransactor) SetMaster(_self common.Address, _newMaster common.Address, opts *transactions.Options) *accounts.Sender {
 	return _PrototypeTransactor.Transact(opts, "setMaster", _self, _newMaster)
 }
 
@@ -336,7 +336,7 @@ func (_Prototype *Prototype) SetMasterAsClause(_self common.Address, _newMaster 
 // Sponsor is a paid mutator transaction binding the contract method 0x766c4f37.
 //
 // Solidity: function sponsor(address _self) returns()
-func (_PrototypeTransactor *PrototypeTransactor) Sponsor(_self common.Address, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_PrototypeTransactor *PrototypeTransactor) Sponsor(_self common.Address, opts *transactions.Options) *accounts.Sender {
 	return _PrototypeTransactor.Transact(opts, "sponsor", _self)
 }
 
@@ -350,7 +350,7 @@ func (_Prototype *Prototype) SponsorAsClause(_self common.Address) (*tx.Clause, 
 // Unsponsor is a paid mutator transaction binding the contract method 0xcdd2a99f.
 //
 // Solidity: function unsponsor(address _self) returns()
-func (_PrototypeTransactor *PrototypeTransactor) Unsponsor(_self common.Address, opts *transactions.Options) (*transactions.Visitor, error) {
+func (_PrototypeTransactor *PrototypeTransactor) Unsponsor(_self common.Address, opts *transactions.Options) *accounts.Sender {
 	return _PrototypeTransactor.Transact(opts, "unsponsor", _self)
 }
 

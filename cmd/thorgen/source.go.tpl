@@ -134,7 +134,7 @@ var (
 	}
 
 	// Transact invokes the (paid) contract method with params as input values.
-	func (_{{$contract.Type}}Transactor *{{$contract.Type}}Transactor) Transact(opts *transactions.Options, method string, params ...interface{}) (*transactions.Visitor, error) {
+	func (_{{$contract.Type}}Transactor *{{$contract.Type}}Transactor) Transact(opts *transactions.Options, method string, params ...interface{}) *accounts.Sender {
 		return _{{$contract.Type}}Transactor.contract.Send(opts, method, params...)
 	}
 
@@ -173,7 +173,7 @@ var (
         //
         // Setting the value in options is replaced by the vetValue argument.
         {{- end }}
-		func (_{{$contract.Type}}Transactor *{{$contract.Type}}Transactor) {{.Normalized.Name}}({{range .Normalized.Inputs}} {{.Name}} {{bindtype .Type $structs}}, {{end}} {{- if eq .Normalized.StateMutability "payable" }}vetValue *big.Int, {{end}}  opts *transactions.Options) (*transactions.Visitor, error) {
+		func (_{{$contract.Type}}Transactor *{{$contract.Type}}Transactor) {{.Normalized.Name}}({{range .Normalized.Inputs}} {{.Name}} {{bindtype .Type $structs}}, {{end}} {{- if eq .Normalized.StateMutability "payable" }}vetValue *big.Int, {{end}}  opts *transactions.Options) *accounts.Sender {
             {{- if eq .Normalized.StateMutability "payable" }}
             if opts == nil {
                 opts = &transactions.Options{}

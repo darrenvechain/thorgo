@@ -124,10 +124,7 @@ func TestNewDelegatedManager(t *testing.T) {
 
 	contract, _ := builtins.NewVTHOTransactor(client, manager)
 
-	tx, err := contract.Transfer(common.Address{100}, big.NewInt(1000), &transactions.Options{})
-	assert.NoError(t, err)
-
-	receipt, err := tx.Wait(context.Background())
+	receipt, err := contract.Transfer(common.Address{100}, big.NewInt(1000), &transactions.Options{}).Receipt(context.Background())
 	assert.NoError(t, err)
 	assert.False(t, receipt.Reverted)
 

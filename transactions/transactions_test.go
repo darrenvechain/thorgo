@@ -75,22 +75,17 @@ func TestVisitor_RevertReason(t *testing.T) {
 	assert.NoError(t, err)
 	_, err = transactions.New(thorClient, deploymentTxID).Wait(context.Background())
 	assert.NoError(t, err)
-	erc20Funding, err := erc20.Mint(account1.Address(), balance, &transactions.Options{})
-	assert.NoError(t, err)
-	_, err = erc20Funding.Wait(context.Background())
+	_, err = erc20.Mint(account1.Address(), balance, &transactions.Options{}).Receipt(context.Background())
 	assert.NoError(t, err)
 
 	// send funds too much erc20 tokens
-	transfer, err := erc20.Transfer(account2.Address(), transferAmount, &transactions.Options{})
+	receipt, err := erc20.Transfer(account2.Address(), transferAmount, &transactions.Options{}).Receipt(context.Background())
 	assert.NoError(t, err)
-	receipt, err := transfer.Wait(context.Background())
-	assert.NoError(t, err)
-	assert.True(t, receipt.Reverted)
 
 	// get revert reason
 	erc20ABI, err := testcontract.Erc20MetaData.GetAbi()
 	assert.NoError(t, err)
-	reason, err := transfer.RevertReason()
+	reason, err := transactions.New(thorClient, receipt.Meta.TxID).RevertReason()
 	assert.NoError(t, err)
 
 	type ERC20InsufficientBalance struct {

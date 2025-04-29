@@ -1,6 +1,6 @@
 module github.com/darrenvechain/thorgo
 
-go 1.23.6
+go 1.24.2
 
 require (
 	github.com/btcsuite/btcd v0.24.2
