@@ -90,8 +90,8 @@ func (_Authority *Authority) Call(revision thorest.Revision, result *[]interface
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_AuthorityTransactor *AuthorityTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) *accounts.Sender {
-	return _AuthorityTransactor.contract.Send(opts, method, params...)
+func (_AuthorityTransactor *AuthorityTransactor) Transact(opts *transactions.Options, vet *big.Int, method string, params ...interface{}) *accounts.Sender {
+	return _AuthorityTransactor.contract.SendPayable(opts, vet, method, params...)
 }
 
 // Executor is a free data retrieval call binding the contract method 0xc34c08e5.
@@ -177,7 +177,7 @@ func (_Authority *Authority) Next(_nodeMaster common.Address, revision thorest.R
 //
 // Solidity: function add(address _nodeMaster, address _endorsor, bytes32 _identity) returns()
 func (_AuthorityTransactor *AuthorityTransactor) Add(_nodeMaster common.Address, _endorsor common.Address, _identity [32]byte, opts *transactions.Options) *accounts.Sender {
-	return _AuthorityTransactor.Transact(opts, "add", _nodeMaster, _endorsor, _identity)
+	return _AuthorityTransactor.Transact(opts, big.NewInt(0), "add", _nodeMaster, _endorsor, _identity)
 }
 
 // AddAsClause is a transaction clause generator 0xdc0094b8.
@@ -191,7 +191,7 @@ func (_Authority *Authority) AddAsClause(_nodeMaster common.Address, _endorsor c
 //
 // Solidity: function revoke(address _nodeMaster) returns()
 func (_AuthorityTransactor *AuthorityTransactor) Revoke(_nodeMaster common.Address, opts *transactions.Options) *accounts.Sender {
-	return _AuthorityTransactor.Transact(opts, "revoke", _nodeMaster)
+	return _AuthorityTransactor.Transact(opts, big.NewInt(0), "revoke", _nodeMaster)
 }
 
 // RevokeAsClause is a transaction clause generator 0x74a8f103.

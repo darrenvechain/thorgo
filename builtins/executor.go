@@ -90,8 +90,8 @@ func (_Executor *Executor) Call(revision thorest.Revision, result *[]interface{}
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_ExecutorTransactor *ExecutorTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) *accounts.Sender {
-	return _ExecutorTransactor.contract.Send(opts, method, params...)
+func (_ExecutorTransactor *ExecutorTransactor) Transact(opts *transactions.Options, vet *big.Int, method string, params ...interface{}) *accounts.Sender {
+	return _ExecutorTransactor.contract.SendPayable(opts, vet, method, params...)
 }
 
 // ApproverCount is a free data retrieval call binding the contract method 0x128e9be6.
@@ -195,7 +195,7 @@ func (_Executor *Executor) VotingContracts(arg0 common.Address, revision thorest
 //
 // Solidity: function addApprover(address _approver, bytes32 _identity) returns()
 func (_ExecutorTransactor *ExecutorTransactor) AddApprover(_approver common.Address, _identity [32]byte, opts *transactions.Options) *accounts.Sender {
-	return _ExecutorTransactor.Transact(opts, "addApprover", _approver, _identity)
+	return _ExecutorTransactor.Transact(opts, big.NewInt(0), "addApprover", _approver, _identity)
 }
 
 // AddApproverAsClause is a transaction clause generator 0x3ef0c09e.
@@ -209,7 +209,7 @@ func (_Executor *Executor) AddApproverAsClause(_approver common.Address, _identi
 //
 // Solidity: function approve(bytes32 _proposalID) returns()
 func (_ExecutorTransactor *ExecutorTransactor) Approve(_proposalID [32]byte, opts *transactions.Options) *accounts.Sender {
-	return _ExecutorTransactor.Transact(opts, "approve", _proposalID)
+	return _ExecutorTransactor.Transact(opts, big.NewInt(0), "approve", _proposalID)
 }
 
 // ApproveAsClause is a transaction clause generator 0xa53a1adf.
@@ -223,7 +223,7 @@ func (_Executor *Executor) ApproveAsClause(_proposalID [32]byte) (*tx.Clause, er
 //
 // Solidity: function attachVotingContract(address _contract) returns()
 func (_ExecutorTransactor *ExecutorTransactor) AttachVotingContract(_contract common.Address, opts *transactions.Options) *accounts.Sender {
-	return _ExecutorTransactor.Transact(opts, "attachVotingContract", _contract)
+	return _ExecutorTransactor.Transact(opts, big.NewInt(0), "attachVotingContract", _contract)
 }
 
 // AttachVotingContractAsClause is a transaction clause generator 0xa1fb668f.
@@ -237,7 +237,7 @@ func (_Executor *Executor) AttachVotingContractAsClause(_contract common.Address
 //
 // Solidity: function detachVotingContract(address _contract) returns()
 func (_ExecutorTransactor *ExecutorTransactor) DetachVotingContract(_contract common.Address, opts *transactions.Options) *accounts.Sender {
-	return _ExecutorTransactor.Transact(opts, "detachVotingContract", _contract)
+	return _ExecutorTransactor.Transact(opts, big.NewInt(0), "detachVotingContract", _contract)
 }
 
 // DetachVotingContractAsClause is a transaction clause generator 0xa83b3bd8.
@@ -251,7 +251,7 @@ func (_Executor *Executor) DetachVotingContractAsClause(_contract common.Address
 //
 // Solidity: function execute(bytes32 _proposalID) returns()
 func (_ExecutorTransactor *ExecutorTransactor) Execute(_proposalID [32]byte, opts *transactions.Options) *accounts.Sender {
-	return _ExecutorTransactor.Transact(opts, "execute", _proposalID)
+	return _ExecutorTransactor.Transact(opts, big.NewInt(0), "execute", _proposalID)
 }
 
 // ExecuteAsClause is a transaction clause generator 0xe751f271.
@@ -265,7 +265,7 @@ func (_Executor *Executor) ExecuteAsClause(_proposalID [32]byte) (*tx.Clause, er
 //
 // Solidity: function propose(address _target, bytes _data) returns(bytes32)
 func (_ExecutorTransactor *ExecutorTransactor) Propose(_target common.Address, _data []byte, opts *transactions.Options) *accounts.Sender {
-	return _ExecutorTransactor.Transact(opts, "propose", _target, _data)
+	return _ExecutorTransactor.Transact(opts, big.NewInt(0), "propose", _target, _data)
 }
 
 // ProposeAsClause is a transaction clause generator 0x9d481848.
@@ -279,7 +279,7 @@ func (_Executor *Executor) ProposeAsClause(_target common.Address, _data []byte)
 //
 // Solidity: function revokeApprover(address _approver) returns()
 func (_ExecutorTransactor *ExecutorTransactor) RevokeApprover(_approver common.Address, opts *transactions.Options) *accounts.Sender {
-	return _ExecutorTransactor.Transact(opts, "revokeApprover", _approver)
+	return _ExecutorTransactor.Transact(opts, big.NewInt(0), "revokeApprover", _approver)
 }
 
 // RevokeApproverAsClause is a transaction clause generator 0x18d13ef7.

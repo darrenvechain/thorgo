@@ -109,8 +109,8 @@ func (_Erc20 *Erc20) Call(revision thorest.Revision, result *[]interface{}, meth
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_Erc20Transactor *Erc20Transactor) Transact(opts *transactions.Options, method string, params ...interface{}) *accounts.Sender {
-	return _Erc20Transactor.contract.Send(opts, method, params...)
+func (_Erc20Transactor *Erc20Transactor) Transact(opts *transactions.Options, vet *big.Int, method string, params ...interface{}) *accounts.Sender {
+	return _Erc20Transactor.contract.SendPayable(opts, vet, method, params...)
 }
 
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
@@ -213,7 +213,7 @@ func (_Erc20 *Erc20) TotalSupply(revision thorest.Revision) (*big.Int, error) {
 //
 // Solidity: function approve(address spender, uint256 value) returns(bool)
 func (_Erc20Transactor *Erc20Transactor) Approve(spender common.Address, value *big.Int, opts *transactions.Options) *accounts.Sender {
-	return _Erc20Transactor.Transact(opts, "approve", spender, value)
+	return _Erc20Transactor.Transact(opts, big.NewInt(0), "approve", spender, value)
 }
 
 // ApproveAsClause is a transaction clause generator 0x095ea7b3.
@@ -227,7 +227,7 @@ func (_Erc20 *Erc20) ApproveAsClause(spender common.Address, value *big.Int) (*t
 //
 // Solidity: function burn(uint256 value) returns()
 func (_Erc20Transactor *Erc20Transactor) Burn(value *big.Int, opts *transactions.Options) *accounts.Sender {
-	return _Erc20Transactor.Transact(opts, "burn", value)
+	return _Erc20Transactor.Transact(opts, big.NewInt(0), "burn", value)
 }
 
 // BurnAsClause is a transaction clause generator 0x42966c68.
@@ -241,7 +241,7 @@ func (_Erc20 *Erc20) BurnAsClause(value *big.Int) (*tx.Clause, error) {
 //
 // Solidity: function burnFrom(address account, uint256 value) returns()
 func (_Erc20Transactor *Erc20Transactor) BurnFrom(account common.Address, value *big.Int, opts *transactions.Options) *accounts.Sender {
-	return _Erc20Transactor.Transact(opts, "burnFrom", account, value)
+	return _Erc20Transactor.Transact(opts, big.NewInt(0), "burnFrom", account, value)
 }
 
 // BurnFromAsClause is a transaction clause generator 0x79cc6790.
@@ -255,7 +255,7 @@ func (_Erc20 *Erc20) BurnFromAsClause(account common.Address, value *big.Int) (*
 //
 // Solidity: function mint(address to, uint256 amount) returns()
 func (_Erc20Transactor *Erc20Transactor) Mint(to common.Address, amount *big.Int, opts *transactions.Options) *accounts.Sender {
-	return _Erc20Transactor.Transact(opts, "mint", to, amount)
+	return _Erc20Transactor.Transact(opts, big.NewInt(0), "mint", to, amount)
 }
 
 // MintAsClause is a transaction clause generator 0x40c10f19.
@@ -269,7 +269,7 @@ func (_Erc20 *Erc20) MintAsClause(to common.Address, amount *big.Int) (*tx.Claus
 //
 // Solidity: function transfer(address to, uint256 value) returns(bool)
 func (_Erc20Transactor *Erc20Transactor) Transfer(to common.Address, value *big.Int, opts *transactions.Options) *accounts.Sender {
-	return _Erc20Transactor.Transact(opts, "transfer", to, value)
+	return _Erc20Transactor.Transact(opts, big.NewInt(0), "transfer", to, value)
 }
 
 // TransferAsClause is a transaction clause generator 0xa9059cbb.
@@ -283,7 +283,7 @@ func (_Erc20 *Erc20) TransferAsClause(to common.Address, value *big.Int) (*tx.Cl
 //
 // Solidity: function transferFrom(address from, address to, uint256 value) returns(bool)
 func (_Erc20Transactor *Erc20Transactor) TransferFrom(from common.Address, to common.Address, value *big.Int, opts *transactions.Options) *accounts.Sender {
-	return _Erc20Transactor.Transact(opts, "transferFrom", from, to, value)
+	return _Erc20Transactor.Transact(opts, big.NewInt(0), "transferFrom", from, to, value)
 }
 
 // TransferFromAsClause is a transaction clause generator 0x23b872dd.

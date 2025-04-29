@@ -109,8 +109,8 @@ func (_Staker *Staker) Call(revision thorest.Revision, result *[]interface{}, me
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_StakerTransactor *StakerTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) *accounts.Sender {
-	return _StakerTransactor.contract.Send(opts, method, params...)
+func (_StakerTransactor *StakerTransactor) Transact(opts *transactions.Options, vet *big.Int, method string, params ...interface{}) *accounts.Sender {
+	return _StakerTransactor.contract.SendPayable(opts, vet, method, params...)
 }
 
 // Deposits is a free data retrieval call binding the contract method 0xfc7e286d.
@@ -144,11 +144,7 @@ func (_Staker *Staker) Deposits(arg0 common.Address, revision thorest.Revision) 
 //
 // Setting the value in options is replaced by the vetValue argument.
 func (_StakerTransactor *StakerTransactor) Stake(blocks *big.Int, vetValue *big.Int, opts *transactions.Options) *accounts.Sender {
-	if opts == nil {
-		opts = &transactions.Options{}
-	}
-	opts.VET = vetValue
-	return _StakerTransactor.Transact(opts, "stake", blocks)
+	return _StakerTransactor.Transact(opts, vetValue, "stake", blocks)
 }
 
 // StakeAsClause is a transaction clause generator 0xa694fc3a.
@@ -162,7 +158,7 @@ func (_Staker *Staker) StakeAsClause(blocks *big.Int, vetValue *big.Int) (*tx.Cl
 //
 // Solidity: function withdraw() returns()
 func (_StakerTransactor *StakerTransactor) Withdraw(opts *transactions.Options) *accounts.Sender {
-	return _StakerTransactor.Transact(opts, "withdraw")
+	return _StakerTransactor.Transact(opts, big.NewInt(0), "withdraw")
 }
 
 // WithdrawAsClause is a transaction clause generator 0x3ccfd60b.

@@ -21,9 +21,14 @@ type ContractTransactor struct {
 	manager TxManager
 }
 
-// Send sends a transaction to the contract with the given method and arguments.
+// Send a transaction to the contract with the given method and arguments.
 func (c *ContractTransactor) Send(opts *transactions.Options, method string, args ...any) *Sender {
-	return newSender(c, opts, method, args...)
+	return c.SendPayable(opts, big.NewInt(0), method, args...)
+}
+
+// SendPayable sends a transaction to the contract with the given method and arguments, using the specified VET amount.
+func (c *ContractTransactor) SendPayable(opts *transactions.Options, vet *big.Int, method string, args ...any) *Sender {
+	return newSender(c, opts, vet, method, args...)
 }
 
 type Sender struct {
@@ -31,17 +36,19 @@ type Sender struct {
 	opts     *transactions.Options
 	method   string
 	args     []any
+	vet      *big.Int
 	sent     atomic.Bool
 	visitor  atomic.Pointer[transactions.Visitor]
 	mu       sync.Mutex
 }
 
-func newSender(contract *ContractTransactor, opts *transactions.Options, method string, args ...any) *Sender {
+func newSender(contract *ContractTransactor, opts *transactions.Options, vet *big.Int, method string, args ...any) *Sender {
 	return &Sender{
 		contract: contract,
 		opts:     opts,
 		method:   method,
 		args:     args,
+		vet:      vet,
 	}
 }
 
@@ -56,14 +63,10 @@ func (s *Sender) Send() (*transactions.Visitor, error) {
 	if s.sent.Load() {
 		return s.visitor.Load(), nil
 	}
-
 	if s.opts == nil {
 		s.opts = &transactions.Options{}
 	}
-	if s.opts.VET == nil {
-		s.opts.VET = new(big.Int)
-	}
-	clause, err := s.contract.AsClauseWithVET(s.opts.VET, s.method, s.args...)
+	clause, err := s.contract.AsClauseWithVET(s.vet, s.method, s.args...)
 	if err != nil {
 		return &transactions.Visitor{}, fmt.Errorf("failed to pack method %s: %w", s.method, err)
 	}

@@ -134,8 +134,8 @@ var (
 	}
 
 	// Transact invokes the (paid) contract method with params as input values.
-	func (_{{$contract.Type}}Transactor *{{$contract.Type}}Transactor) Transact(opts *transactions.Options, method string, params ...interface{}) *accounts.Sender {
-		return _{{$contract.Type}}Transactor.contract.Send(opts, method, params...)
+	func (_{{$contract.Type}}Transactor *{{$contract.Type}}Transactor) Transact(opts *transactions.Options, vet *big.Int, method string, params ...interface{}) *accounts.Sender {
+		return _{{$contract.Type}}Transactor.contract.SendPayable(opts, vet, method, params...)
 	}
 
 	{{range .Calls}}
@@ -175,12 +175,10 @@ var (
         {{- end }}
 		func (_{{$contract.Type}}Transactor *{{$contract.Type}}Transactor) {{.Normalized.Name}}({{range .Normalized.Inputs}} {{.Name}} {{bindtype .Type $structs}}, {{end}} {{- if eq .Normalized.StateMutability "payable" }}vetValue *big.Int, {{end}}  opts *transactions.Options) *accounts.Sender {
             {{- if eq .Normalized.StateMutability "payable" }}
-            if opts == nil {
-                opts = &transactions.Options{}
-            }
-            opts.VET = vetValue
+            return _{{$contract.Type}}Transactor.Transact(opts, vetValue, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
+            {{- else }}
+            return _{{$contract.Type}}Transactor.Transact(opts, big.NewInt(0), "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
             {{- end }}
-			return _{{$contract.Type}}Transactor.Transact(opts, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
 		}
 
         // {{.Normalized.Name}}AsClause is a transaction clause generator 0x{{printf "%x" .Original.ID}}.

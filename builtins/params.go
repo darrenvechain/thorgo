@@ -90,8 +90,8 @@ func (_Params *Params) Call(revision thorest.Revision, result *[]interface{}, me
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_ParamsTransactor *ParamsTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) *accounts.Sender {
-	return _ParamsTransactor.contract.Send(opts, method, params...)
+func (_ParamsTransactor *ParamsTransactor) Transact(opts *transactions.Options, vet *big.Int, method string, params ...interface{}) *accounts.Sender {
+	return _ParamsTransactor.contract.SendPayable(opts, vet, method, params...)
 }
 
 // Executor is a free data retrieval call binding the contract method 0xc34c08e5.
@@ -130,7 +130,7 @@ func (_Params *Params) Get(_key [32]byte, revision thorest.Revision) (*big.Int, 
 //
 // Solidity: function set(bytes32 _key, uint256 _value) returns()
 func (_ParamsTransactor *ParamsTransactor) Set(_key [32]byte, _value *big.Int, opts *transactions.Options) *accounts.Sender {
-	return _ParamsTransactor.Transact(opts, "set", _key, _value)
+	return _ParamsTransactor.Transact(opts, big.NewInt(0), "set", _key, _value)
 }
 
 // SetAsClause is a transaction clause generator 0x273f4940.

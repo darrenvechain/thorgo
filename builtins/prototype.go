@@ -90,8 +90,8 @@ func (_Prototype *Prototype) Call(revision thorest.Revision, result *[]interface
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_PrototypeTransactor *PrototypeTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) *accounts.Sender {
-	return _PrototypeTransactor.contract.Send(opts, method, params...)
+func (_PrototypeTransactor *PrototypeTransactor) Transact(opts *transactions.Options, vet *big.Int, method string, params ...interface{}) *accounts.Sender {
+	return _PrototypeTransactor.contract.SendPayable(opts, vet, method, params...)
 }
 
 // Balance is a free data retrieval call binding the contract method 0x6d8c859a.
@@ -267,7 +267,7 @@ func (_Prototype *Prototype) UserCredit(_self common.Address, _user common.Addre
 //
 // Solidity: function addUser(address _self, address _user) returns()
 func (_PrototypeTransactor *PrototypeTransactor) AddUser(_self common.Address, _user common.Address, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, "addUser", _self, _user)
+	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "addUser", _self, _user)
 }
 
 // AddUserAsClause is a transaction clause generator 0x8ca3b448.
@@ -281,7 +281,7 @@ func (_Prototype *Prototype) AddUserAsClause(_self common.Address, _user common.
 //
 // Solidity: function removeUser(address _self, address _user) returns()
 func (_PrototypeTransactor *PrototypeTransactor) RemoveUser(_self common.Address, _user common.Address, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, "removeUser", _self, _user)
+	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "removeUser", _self, _user)
 }
 
 // RemoveUserAsClause is a transaction clause generator 0x22928d6b.
@@ -295,7 +295,7 @@ func (_Prototype *Prototype) RemoveUserAsClause(_self common.Address, _user comm
 //
 // Solidity: function selectSponsor(address _self, address _sponsor) returns()
 func (_PrototypeTransactor *PrototypeTransactor) SelectSponsor(_self common.Address, _sponsor common.Address, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, "selectSponsor", _self, _sponsor)
+	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "selectSponsor", _self, _sponsor)
 }
 
 // SelectSponsorAsClause is a transaction clause generator 0x3871a9fb.
@@ -309,7 +309,7 @@ func (_Prototype *Prototype) SelectSponsorAsClause(_self common.Address, _sponso
 //
 // Solidity: function setCreditPlan(address _self, uint256 _credit, uint256 _recoveryRate) returns()
 func (_PrototypeTransactor *PrototypeTransactor) SetCreditPlan(_self common.Address, _credit *big.Int, _recoveryRate *big.Int, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, "setCreditPlan", _self, _credit, _recoveryRate)
+	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "setCreditPlan", _self, _credit, _recoveryRate)
 }
 
 // SetCreditPlanAsClause is a transaction clause generator 0x3659f8ed.
@@ -323,7 +323,7 @@ func (_Prototype *Prototype) SetCreditPlanAsClause(_self common.Address, _credit
 //
 // Solidity: function setMaster(address _self, address _newMaster) returns()
 func (_PrototypeTransactor *PrototypeTransactor) SetMaster(_self common.Address, _newMaster common.Address, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, "setMaster", _self, _newMaster)
+	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "setMaster", _self, _newMaster)
 }
 
 // SetMasterAsClause is a transaction clause generator 0x01378b58.
@@ -337,7 +337,7 @@ func (_Prototype *Prototype) SetMasterAsClause(_self common.Address, _newMaster 
 //
 // Solidity: function sponsor(address _self) returns()
 func (_PrototypeTransactor *PrototypeTransactor) Sponsor(_self common.Address, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, "sponsor", _self)
+	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "sponsor", _self)
 }
 
 // SponsorAsClause is a transaction clause generator 0x766c4f37.
@@ -351,7 +351,7 @@ func (_Prototype *Prototype) SponsorAsClause(_self common.Address) (*tx.Clause, 
 //
 // Solidity: function unsponsor(address _self) returns()
 func (_PrototypeTransactor *PrototypeTransactor) Unsponsor(_self common.Address, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, "unsponsor", _self)
+	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "unsponsor", _self)
 }
 
 // UnsponsorAsClause is a transaction clause generator 0xcdd2a99f.

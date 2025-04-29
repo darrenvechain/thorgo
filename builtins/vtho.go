@@ -90,8 +90,8 @@ func (_VTHO *VTHO) Call(revision thorest.Revision, result *[]interface{}, method
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_VTHOTransactor *VTHOTransactor) Transact(opts *transactions.Options, method string, params ...interface{}) *accounts.Sender {
-	return _VTHOTransactor.contract.Send(opts, method, params...)
+func (_VTHOTransactor *VTHOTransactor) Transact(opts *transactions.Options, vet *big.Int, method string, params ...interface{}) *accounts.Sender {
+	return _VTHOTransactor.contract.SendPayable(opts, vet, method, params...)
 }
 
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
@@ -210,7 +210,7 @@ func (_VTHO *VTHO) TotalSupply(revision thorest.Revision) (*big.Int, error) {
 //
 // Solidity: function approve(address _spender, uint256 _value) returns(bool success)
 func (_VTHOTransactor *VTHOTransactor) Approve(_spender common.Address, _value *big.Int, opts *transactions.Options) *accounts.Sender {
-	return _VTHOTransactor.Transact(opts, "approve", _spender, _value)
+	return _VTHOTransactor.Transact(opts, big.NewInt(0), "approve", _spender, _value)
 }
 
 // ApproveAsClause is a transaction clause generator 0x095ea7b3.
@@ -224,7 +224,7 @@ func (_VTHO *VTHO) ApproveAsClause(_spender common.Address, _value *big.Int) (*t
 //
 // Solidity: function move(address _from, address _to, uint256 _amount) returns(bool success)
 func (_VTHOTransactor *VTHOTransactor) Move(_from common.Address, _to common.Address, _amount *big.Int, opts *transactions.Options) *accounts.Sender {
-	return _VTHOTransactor.Transact(opts, "move", _from, _to, _amount)
+	return _VTHOTransactor.Transact(opts, big.NewInt(0), "move", _from, _to, _amount)
 }
 
 // MoveAsClause is a transaction clause generator 0xbb35783b.
@@ -238,7 +238,7 @@ func (_VTHO *VTHO) MoveAsClause(_from common.Address, _to common.Address, _amoun
 //
 // Solidity: function transfer(address _to, uint256 _amount) returns(bool success)
 func (_VTHOTransactor *VTHOTransactor) Transfer(_to common.Address, _amount *big.Int, opts *transactions.Options) *accounts.Sender {
-	return _VTHOTransactor.Transact(opts, "transfer", _to, _amount)
+	return _VTHOTransactor.Transact(opts, big.NewInt(0), "transfer", _to, _amount)
 }
 
 // TransferAsClause is a transaction clause generator 0xa9059cbb.
@@ -252,7 +252,7 @@ func (_VTHO *VTHO) TransferAsClause(_to common.Address, _amount *big.Int) (*tx.C
 //
 // Solidity: function transferFrom(address _from, address _to, uint256 _amount) returns(bool success)
 func (_VTHOTransactor *VTHOTransactor) TransferFrom(_from common.Address, _to common.Address, _amount *big.Int, opts *transactions.Options) *accounts.Sender {
-	return _VTHOTransactor.Transact(opts, "transferFrom", _from, _to, _amount)
+	return _VTHOTransactor.Transact(opts, big.NewInt(0), "transferFrom", _from, _to, _amount)
 }
 
 // TransferFromAsClause is a transaction clause generator 0x23b872dd.

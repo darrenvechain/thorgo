@@ -19,7 +19,6 @@ type Options struct {
 	BlockRef             *tx.BlockRef    // BlockRef specifies the block reference.
 	DependsOn            *common.Hash    // DependsOn specifies the transaction that this transaction depends on.
 	ChainTag             *byte           // ChainTag specifies the chain tag.
-	VET                  *big.Int        // VET is an additional option when sending a single clause transaction, allowing the amount of VET to send.
 }
 
 type OptionsBuilder struct {
@@ -84,12 +83,6 @@ func (b *OptionsBuilder) DependsOn(txID common.Hash) *OptionsBuilder {
 // ChainTag sets the chain tag for the transaction. Defaults to the chain tag of the genesis block if not set.
 func (b *OptionsBuilder) ChainTag(tag byte) *OptionsBuilder {
 	b.options.ChainTag = &tag
-	return b
-}
-
-// VET is an additional option when sending a single clause transaction.
-func (b *OptionsBuilder) VET(vet *big.Int) *OptionsBuilder {
-	b.options.VET = vet
 	return b
 }
 
