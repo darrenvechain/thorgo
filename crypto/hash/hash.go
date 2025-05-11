@@ -80,6 +80,7 @@ var keccak256Pool = sync.Pool{
 	},
 }
 
+// Keccak256 computes keccak256 checksum for given data.
 func Keccak256(data ...[]byte) (h common.Hash) {
 	hasher := keccak256Pool.Get().(*keccak256)
 

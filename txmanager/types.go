@@ -20,11 +20,15 @@ type Delegator interface {
 	Delegate(tx *tx.Transaction, origin common.Address) ([]byte, error)
 }
 
+// DelegateRequest is the request structure for HTTP requests according to VIP-201
+// See: https://github.com/vechain/VIPs/blob/master/vips/VIP-201.md
 type DelegateRequest struct {
 	Origin common.Address `json:"origin"`
 	Raw    hexutil.Bytes  `json:"raw"`
 }
 
+// DelegateResponse is the response structure for HTTP requests according to VIP-201
+// See: https://github.com/vechain/VIPs/blob/master/vips/VIP-201.md#explicit-grant-flow
 type DelegateResponse struct {
 	Signature hexutil.Bytes `json:"signature"`
 }

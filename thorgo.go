@@ -17,11 +17,13 @@ type Thor struct {
 	client *thorest.Client
 }
 
+// New creates a new instance of the Thor client with the given context and URL.
 func New(ctx context.Context, url string) *Thor {
 	c := thorest.NewClientFromURL(url)
 	return &Thor{client: c, blocks: blocks.New(ctx, c)}
 }
 
+// NewFromClient creates a new instance of the Thor client with the given context and thorest client.
 func NewFromClient(ctx context.Context, c *thorest.Client) *Thor {
 	return &Thor{client: c, blocks: blocks.New(ctx, c)}
 }

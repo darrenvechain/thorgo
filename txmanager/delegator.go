@@ -21,6 +21,7 @@ type DelegatedManager struct {
 	origin   Signer
 }
 
+// NewDelegated creates a new DelegatedManager instance
 func NewDelegated(thor *thorest.Client, origin Signer, gasPayer Delegator) *DelegatedManager {
 	return &DelegatedManager{
 		thor:     thor,
@@ -29,6 +30,8 @@ func NewDelegated(thor *thorest.Client, origin Signer, gasPayer Delegator) *Dele
 	}
 }
 
+// SignTransaction signs the transaction with both the origin and the delegator
+// Returns the combined signature of the origin and the delegator
 func (d *DelegatedManager) SignTransaction(tx *tx.Transaction) ([]byte, error) {
 	signature, err := d.origin.SignTransaction(tx)
 	if err != nil {
@@ -42,13 +45,14 @@ func (d *DelegatedManager) SignTransaction(tx *tx.Transaction) ([]byte, error) {
 	return signature, nil
 }
 
+// SendClauses sends the transaction with the given clauses and options
 func (d *DelegatedManager) SendClauses(clauses []*tx.Clause, opts *transactions.Options) (*transactions.Visitor, error) {
 	if opts == nil {
 		opts = &transactions.Options{}
 	}
 	if opts.Delegation == nil || !*opts.Delegation {
-		opts.Delegation = new(bool)
-		*opts.Delegation = true
+		delegated := true
+		opts.Delegation = &delegated
 	}
 
 	tx, err := transactions.NewTransactor(d.thor, clauses).Build(d.origin.Address(), opts)
@@ -77,10 +81,12 @@ type URLDelegator struct {
 	url string
 }
 
+// NewUrlDelegator creates a new URLDelegator instance
 func NewUrlDelegator(url string) *URLDelegator {
 	return &URLDelegator{url: url}
 }
 
+// Delegate requests the delegator's signature for the given transaction
 func (p *URLDelegator) Delegate(tx *tx.Transaction, origin common.Address) ([]byte, error) {
 	encoded, err := tx.MarshalBinary()
 	if err != nil {

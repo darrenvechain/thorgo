@@ -2,6 +2,7 @@ package thorest
 
 import "github.com/ethereum/go-ethereum/common"
 
+// Peer represents a connected peer to the current node.
 type Peer struct {
 	Name        string      `json:"name"`
 	BestBlockID common.Hash `json:"bestBlockID"`

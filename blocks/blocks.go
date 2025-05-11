@@ -10,12 +10,14 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+// Blocks provides utility functions to fetch or wait for blocks.
 type Blocks struct {
 	client *thorest.Client
 	best   atomic.Value
 	signal Signal
 }
 
+// New creates a new Blocks instance and starts polling for the best block.
 func New(ctx context.Context, c *thorest.Client) *Blocks {
 	b := &Blocks{client: c}
 	go b.poll(ctx)
@@ -57,7 +59,7 @@ func (b *Blocks) poll(ctx context.Context) {
 	}
 }
 
-// Ticker creates a signal Waiter to receive event that the best block changed.
+// Ticker creates a signal Waiter to receive an event that the best block changed.
 func (b *Blocks) Ticker() Waiter {
 	return b.signal.NewWaiter()
 }

@@ -15,16 +15,19 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
+// Client is a struct that provides methods to interact with the VeChainThor API.
 type Client struct {
 	client       *http.Client
 	url          string
 	genesisBlock *Block
 }
 
+// NewClient creates a new Client instance with the given URL and HTTP client.
 func NewClient(url string, client *http.Client) *Client {
 	return newClient(url, client)
 }
 
+// NewClientFromURL creates a new Client instance with the given URL and a default HTTP client with a 30-second timeout.
 func NewClientFromURL(url string) *Client {
 	return NewClient(url, &http.Client{Timeout: 30 * time.Second})
 }

@@ -35,6 +35,7 @@ func init() {
 	}
 }
 
+// Keys returns the private keys for the solo node.
 func Keys() [10]*ecdsa.PrivateKey {
 	return keys
 }
@@ -44,10 +45,12 @@ func GenesisID() common.Hash {
 	return genesisId
 }
 
+// ChainTag returns the chain tag for the solo node.
 func ChainTag() byte {
 	return genesisId[len(genesisId)-1]
 }
 
+// Mnemonic returns the default mnemonic for the solo node.
 func Mnemonic() *hdwallet.Wallet {
 	return mustParseMnemonic("denial kitchen pet squirrel other broom bar gas better priority spoil cross")
 }

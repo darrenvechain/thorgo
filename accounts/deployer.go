@@ -13,6 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+// Deployer is a struct that provides methods to deploy smart contracts on VeChainThor.
 type Deployer struct {
 	client   *thorest.Client
 	bytecode []byte
@@ -20,10 +21,12 @@ type Deployer struct {
 	value    *big.Int
 }
 
+// NewDeployer creates a new instance of the Deployer struct.
 func NewDeployer(client *thorest.Client, bytecode []byte, abi *abi.ABI) *Deployer {
 	return &Deployer{client: client, bytecode: bytecode, abi: abi, value: big.NewInt(0)}
 }
 
+// Deploy a smart contract to the VeChainThor blockchain.
 func (d *Deployer) Deploy(ctx context.Context, sender TxManager, opts *transactions.Options, args ...any) (*Contract, common.Hash, error) {
 	if opts == nil {
 		opts = &transactions.Options{}

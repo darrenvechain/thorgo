@@ -10,12 +10,13 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-// Transactor is a transaction builder that can be used to simulate, build and send transactions.
+// Transactor is a transaction builder that can be used to simulate and build and send transactions.
 type Transactor struct {
 	client  *thorest.Client
 	clauses []*tx.Clause
 }
 
+// NewTransactor creates a new Transactor instance with the given client and clauses.
 func NewTransactor(client *thorest.Client, clauses []*tx.Clause) *Transactor {
 	return &Transactor{
 		client:  client,
@@ -65,6 +66,19 @@ func (t *Transactor) Simulate(caller common.Address, options *Options) (*Simulat
 }
 
 // Build constructs the transaction, applying defaults where necessary.
+// It sets the transaction type based on the presence of base fees and other options.
+// If option values are not provided, it uses defaults or estimates them.
+// - Nonce: If not provided, a random nonce is generated.
+// - Gas: If not provided, it estimates the gas using simulation.
+// - Expiration: If not provided, defaults to 30.
+// - BlockRef: If not provided, uses the best block reference.
+// - ChainTag: If not provided, retrieves the chain tag from the client.
+// - DependsOn: If not provided, no dependency is set.
+// - GasPayer: If provided, enables the delegation feature.
+// - Delegation: If true, enables the delegation feature.
+// - MaxFeePerGas: If not provided, retrieves the max fee from the client.
+// - MaxPriorityFeePerGas: If not provided, retrieves the max priority fee from the client.
+// - GasPriceCoef: If not provided, defaults to 0 for legacy transactions.
 func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transaction, error) {
 	if options == nil {
 		options = &Options{}
@@ -121,7 +135,7 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 		if options.MaxFeePerGas != nil {
 			builder.MaxFeePerGas(options.MaxFeePerGas)
 		} else {
-			fees, err := t.client.FeesHistory(thorest.RevisionNext(), 1, []float64{})
+			fees, err := t.client.FeesHistory(thorest.RevisionBest(), 10, []float64{})
 			if err != nil {
 				return nil, err
 			}

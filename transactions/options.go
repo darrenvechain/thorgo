@@ -7,6 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+// Options to set when sending a transaction.
 type Options struct {
 	Nonce                *uint64         // Nonce is the transaction nonce.
 	GasPayer             *common.Address // GasPayer is the address that pays for the gas, used for simulating the transaction.
@@ -21,6 +22,7 @@ type Options struct {
 	ChainTag             *byte           // ChainTag specifies the chain tag.
 }
 
+// OptionsBuilder is a builder for creating transaction options.
 type OptionsBuilder struct {
 	options Options
 }
@@ -86,6 +88,7 @@ func (b *OptionsBuilder) ChainTag(tag byte) *OptionsBuilder {
 	return b
 }
 
+// Build the transaction options.
 func (b *OptionsBuilder) Build() *Options {
 	return &b.options
 }

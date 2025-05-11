@@ -12,14 +12,14 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-// Contract is a generic representation of a smart contract.
+// Contract is a generic smart contract wrapper for VeChainThor.
 type Contract struct {
 	client  *thorest.Client
 	ABI     *abi.ABI
 	Address common.Address
 }
 
-// NewContract creates a new contract instance.
+// NewContract creates a new instance of the Contract struct.
 func NewContract(
 	client *thorest.Client,
 	address common.Address,
@@ -108,19 +108,20 @@ func (c *Contract) AsClauseWithVET(vet *big.Int, method string, args ...any) (*t
 	return tx.NewClause(&c.Address).WithData(packed).WithValue(vet), nil
 }
 
+// Transactor returns a new ContractTransactor instance for sending transactions to the contract.
 func (c *Contract) Transactor(manager TxManager) *ContractTransactor {
 	return &ContractTransactor{Contract: c, manager: manager}
 }
 
 // EventCriteria generates criteria to query contract events by name.
-// Matchers correspond to event input parameters and must be in the same order as the event's inputs.
+// Matchers correspond to indexed event input parameters and must be in the same order as the event's inputs.
 // Use nil for any event input you want to ignore.
 //
 // For example, consider the following event:
 //
 //	event Transfer(address indexed from, address indexed to, uint256 value);
 //
-// To filter events based on the 'to' address while ignoring the 'from' address and 'value', you can pass nil for those values:
+// To filter events based on the 'to' address while ignoring the 'from', you can pass nil for those values:
 //
 //	to := common.HexToAddress("0x87AA2B76f29583E4A9095DBb6029A9C41994E25B")
 //	criteria, err := contract.EventCriteria("Transfer", nil, &to)
@@ -168,6 +169,7 @@ func (c *Contract) EventCriteria(name string, matchers ...any) (thorest.EventCri
 	return criteria, nil
 }
 
+// Event represents a decoded event from a contract log.
 type Event struct {
 	Name string
 	Args map[string]any
@@ -234,6 +236,15 @@ func (c *Contract) DecodeEvents(logs []*thorest.EventLog) ([]Event, error) {
 }
 
 // UnpackLog unpacks a retrieved log into the provided output structure.
+// For example:
+//
+//		type TransferEvent struct {
+//			From   common.Address
+//			To     common.Address
+//			Value  *big.Int
+//		}
+//
+//	    contract.UnpackLog(&transferEvent, "Transfer", log)
 func (c *Contract) UnpackLog(out any, event string, log *thorest.EventLog) error {
 	if len(log.Topics) == 0 {
 		return errors.New("anonymous events are not supported")

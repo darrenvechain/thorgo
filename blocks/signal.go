@@ -10,7 +10,6 @@ import (
 )
 
 // Waiter provides channel to wait for.
-// Value read from channel indicates signal or broadcast. true for signal, otherwise broadcast.
 type Waiter interface {
 	C() <-chan bool
 }

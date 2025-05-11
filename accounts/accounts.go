@@ -9,12 +9,15 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+// Visitor is a struct that provides methods to interact with the VeChain accounts API.
+// It allows you to fetch account information, code, storage, and perform read-only contract calls.
 type Visitor struct {
 	client   *thorest.Client
 	account  common.Address
 	revision *thorest.Revision
 }
 
+// New creates a new Visitor instance.
 func New(c *thorest.Client, account common.Address) *Visitor {
 	return &Visitor{client: c, account: account}
 }

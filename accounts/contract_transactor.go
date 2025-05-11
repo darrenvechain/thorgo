@@ -12,10 +12,12 @@ import (
 	"github.com/darrenvechain/thorgo/transactions"
 )
 
+// TxManager is an interface for sending transactions.
 type TxManager interface {
 	SendClauses(clauses []*tx.Clause, opts *transactions.Options) (*transactions.Visitor, error)
 }
 
+// ContractTransactor is a wrapper around a contract that allows sending transactions.
 type ContractTransactor struct {
 	*Contract
 	manager TxManager
@@ -31,6 +33,7 @@ func (c *ContractTransactor) SendPayable(opts *transactions.Options, vet *big.In
 	return newSender(c, opts, vet, method, args...)
 }
 
+// Sender is a struct that provides methods to send transactions, receive receipts, and handle errors.
 type Sender struct {
 	contract *ContractTransactor
 	opts     *transactions.Options
@@ -52,10 +55,12 @@ func newSender(contract *ContractTransactor, opts *transactions.Options, vet *bi
 	}
 }
 
+// Contract returns the underlying contract.
 func (s *Sender) Contract() *ContractTransactor {
 	return s.contract
 }
 
+// Send the single clause transaction to the contract with the given method and arguments.
 func (s *Sender) Send() (*transactions.Visitor, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -80,6 +85,7 @@ func (s *Sender) Send() (*transactions.Visitor, error) {
 }
 
 // Receipt waits for the transaction to be mined and returns the receipt.
+// It will send the transaction if it hasn't been sent yet.
 func (s *Sender) Receipt(ctx context.Context) (*thorest.TransactionReceipt, error) {
 	visitor, err := s.Send()
 	if err != nil {

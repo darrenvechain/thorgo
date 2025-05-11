@@ -33,7 +33,6 @@ import (
 )
 
 var (
-	// Flags needed by thorgen
 	abiFlag = &cli.StringFlag{
 		Name:  "abi",
 		Usage: "Path to the Ethereum contract ABI json to bind, - for STDIN",

@@ -15,7 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 )
 
-// deriveBufferPool holds temporary encoder buffers for DeriveSha and TX encoding.
+// encodeBufferPool holds temporary encoder buffers for DeriveSha and TX encoding.
 var encodeBufferPool = sync.Pool{
 	New: func() any { return new(bytes.Buffer) },
 }

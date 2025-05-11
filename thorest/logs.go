@@ -4,6 +4,7 @@ import "github.com/ethereum/go-ethereum/common"
 
 var unitBlock = "block"
 
+// LogMeta represents the metadata of a log entry.
 type LogMeta struct {
 	BlockID     common.Hash    `json:"blockID"`
 	BlockNumber int64          `json:"blockNumber"`
@@ -34,6 +35,7 @@ type LogFilters struct {
 	order       *string
 }
 
+// NewFilter creates a new LogFilters instance.
 func NewFilter() *LogFilters {
 	return &LogFilters{}
 }

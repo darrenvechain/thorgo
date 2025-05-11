@@ -7,6 +7,7 @@ import (
 	"net/http"
 )
 
+// HttpError represents an error returned by the HTTP client.
 type HttpError struct {
 	Code    int
 	Message string
@@ -61,6 +62,7 @@ func newHttpError(resp *http.Response) *HttpError {
 	}
 }
 
+// Is implements the error interface for HttpError.
 func (e *HttpError) Is(target error) bool {
 	var t *HttpError
 	ok := errors.As(target, &t)

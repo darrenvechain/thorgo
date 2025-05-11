@@ -606,7 +606,7 @@ func IntrinsicGas(clauses ...*Clause) (uint64, error) {
 	return total, nil
 }
 
-// see core.IntrinsicGas
+// dataGas: see core.IntrinsicGas
 func dataGas(data []byte) (uint64, error) {
 	if len(data) == 0 {
 		return 0, nil

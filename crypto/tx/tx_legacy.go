@@ -101,7 +101,6 @@ func (t *legacyTransaction) evaluateWork(origin common.Address) func(nonce uint6
 	}
 }
 
-// Below are the methods that are not compatible with legacy transaction
 func (t *legacyTransaction) maxFeePerGas() *big.Int         { return common.Big0 } // Return default value as they are not meant to be used anywhere else
 func (t *legacyTransaction) maxPriorityFeePerGas() *big.Int { return common.Big0 } // Return default value as they are not meant to be used anywhere else
 

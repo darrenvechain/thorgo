@@ -33,6 +33,41 @@ func newCert(signature *hexutil.Bytes) Certificate {
 	}
 }
 
+func TestCertificate_FromBytes(t *testing.T) {
+	sig := hexutil.Encode(signature)
+	testCases := []struct {
+		name    string
+		rawJson string
+	}{
+		{
+			name:    "signed certificate",
+			rawJson: fmt.Sprintf(`{"domain":"localhost","payload":{"content":"fyi","type":"text"},"purpose":"identification","signer":"%s","timestamp":1545035330,"signature":"%s"}`, strings.ToLower(signer.String()), sig),
+		},
+		{
+			name:    "unsigned certificate",
+			rawJson: fmt.Sprintf(`{"domain":"localhost","payload":{"content":"fyi","type":"text"},"purpose":"identification","signer":"%s","timestamp":1545035330}`, strings.ToLower(signer.String())),
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			cert, err := FromBytes([]byte(tc.rawJson))
+			assert.NoError(t, err)
+			assert.Equal(t, signer, common.HexToAddress(cert.Signer))
+			assert.Equal(t, "localhost", cert.Domain)
+			assert.Equal(t, "fyi", cert.Payload.Content)
+			assert.Equal(t, "text", cert.Payload.Type)
+			assert.Equal(t, "identification", cert.Purpose)
+			assert.Equal(t, int64(1545035330), cert.Timestamp)
+			if tc.name == "signed certificate" {
+				assert.Equal(t, signature, *cert.Signature)
+			} else {
+				assert.Nil(t, cert.Signature)
+			}
+		})
+	}
+}
+
 func TestCertificate_Encode(t *testing.T) {
 	cert := newCert(nil)
 	encoded, err := cert.Encode()

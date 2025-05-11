@@ -10,6 +10,8 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
+// Certificate implements the Simple Self-signed Certificate specification.
+// See: https://github.com/vechain/VIPs/blob/master/vips/VIP-192.md
 type Certificate struct {
 	Domain    string         `json:"domain"`
 	Payload   Payload        `json:"payload"`
@@ -24,12 +26,27 @@ type Payload struct {
 	Type    string `json:"type"`
 }
 
+// FromBytes decodes a byte array into a Certificate.
+func FromBytes(data []byte) (*Certificate, error) {
+	cert := &Certificate{}
+	if err := json.Unmarshal(data, cert); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal certificate: %w", err)
+	}
+	if cert.Signature != nil {
+		sig := *cert.Signature
+		cert.Signature = &sig
+	}
+	return cert, nil
+}
+
+// Encode encodes the Certificate into a JSON byte array.
 func (c *Certificate) Encode() ([]byte, error) {
 	cert := *c
 	cert.Signature = nil
 	return json.Marshal(cert)
 }
 
+// SigningHash computes the signing hash of the certificate.
 func (c *Certificate) SigningHash() (common.Hash, error) {
 	encoded, err := c.Encode()
 	if err != nil {
@@ -39,6 +56,7 @@ func (c *Certificate) SigningHash() (common.Hash, error) {
 	return hash.Blake2b(encoded), nil
 }
 
+// Verify checks the signature of the certificate against the signer.
 func (c *Certificate) Verify() bool {
 	if c.Signature == nil {
 		return false

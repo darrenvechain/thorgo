@@ -8,6 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
+// RevertReason is a struct that represents the revert reason of a transaction.
 type RevertReason struct {
 	res *thorest.TxRevertResponse
 }
@@ -33,7 +34,7 @@ func (r *RevertReason) MatchesABI(abiErr abi.Error) bool {
 	return len(r.res.Output) >= 4 && bytes.Equal(r.res.Output[:4], abiErr.ID.Bytes()[0:4])
 }
 
-// DecodeInto will decode
+// DecodeInto will decode the revert reason into the provided value if it matches the ABI error.
 func (r *RevertReason) DecodeInto(abiErr abi.Error, value any) error {
 	if !r.MatchesABI(abiErr) {
 		return errors.New("revert reason does not match ABI error")

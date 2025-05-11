@@ -10,15 +10,18 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+// Visitor is a struct that provides methods to interact with transactions on the VeChainThor blockchain.
 type Visitor struct {
 	client *thorest.Client
 	hash   common.Hash
 }
 
+// New creates a new instance of the Visitor struct.
 func New(client *thorest.Client, hash common.Hash) *Visitor {
 	return &Visitor{client: client, hash: hash}
 }
 
+// ID returns the transaction ID.
 func (v *Visitor) ID() common.Hash {
 	return v.hash
 }
@@ -59,7 +62,7 @@ func (v *Visitor) Pending() (*thorest.Transaction, error) {
 	return v.client.PendingTransaction(v.hash)
 }
 
-// Wait for the transaction to be mined. This function will block until the transaction has been mined or the context is cancelled.
+// Wait for the transaction to be mined. This function will block until the transaction has been mined or the context is done.
 func (v *Visitor) Wait(ctx context.Context) (*thorest.TransactionReceipt, error) {
 	receipt, err := v.client.TransactionReceipt(v.hash)
 	if err == nil {
