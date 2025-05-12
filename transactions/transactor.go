@@ -3,6 +3,7 @@ package transactions
 import (
 	"fmt"
 	"math"
+	"math/big"
 
 	"github.com/btcsuite/btcd/wire"
 	"github.com/darrenvechain/thorgo/crypto/tx"
@@ -77,7 +78,7 @@ func (t *Transactor) Simulate(caller common.Address, options *Options) (*Simulat
 // - GasPayer: If provided, enables the delegation feature.
 // - Delegation: If true, enables the delegation feature.
 // - MaxFeePerGas: If not provided, retrieves the max fee from the client.
-// - MaxPriorityFeePerGas: If not provided, retrieves the max priority fee from the client.
+// - MaxPriorityFeePerGas: If not provided, an additional 5% of the bast fee is added.
 // - GasPriceCoef: If not provided, defaults to 0 for legacy transactions.
 func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transaction, error) {
 	if options == nil {
@@ -135,19 +136,8 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 		if options.MaxFeePerGas != nil {
 			builder.MaxFeePerGas(options.MaxFeePerGas)
 		} else {
-			fees, err := t.client.FeesHistory(thorest.RevisionBest(), 10, []float64{})
-			if err != nil {
-				return nil, err
-			}
-			if len(fees.BaseFeePerGas) < 1 {
-				return nil, fmt.Errorf("missing base fees from fees history")
-			}
-			suggestion, err := t.client.FeesPriority()
-			if err != nil {
-				return nil, err
-			}
-			maxFee := fees.BaseFeePerGas[0].ToInt()
-			maxFee = maxFee.Add(maxFee, suggestion.MaxPriorityFeePerGas.ToInt())
+			maxFee := new(big.Int).Mul(best.BaseFee.ToInt(), big.NewInt(105))
+			maxFee = maxFee.Div(maxFee, big.NewInt(100))
 			builder.MaxFeePerGas(maxFee)
 		}
 	}
