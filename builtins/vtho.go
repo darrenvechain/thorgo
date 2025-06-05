@@ -10,11 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/blocks"
+	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
-	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -41,15 +40,8 @@ var VTHOMetaData = &bind.MetaData{
 
 // VTHO is an auto generated Go binding around an Ethereum contract, allowing you to query and create clauses.
 type VTHO struct {
-	thor     *thorest.Client    // Thor client connection to use
-	contract *accounts.Contract // Generic contract wrapper for the low level calls
-}
-
-// VTHOTransactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
-type VTHOTransactor struct {
-	*VTHO
-	contract *accounts.ContractTransactor // Generic contract wrapper for the low level calls
-	manager  accounts.TxManager           // TxManager to use
+	thor     *thorest.Client     // Thor client connection to use
+	contract *contracts.Contract // Generic contract wrapper for the low level calls
 }
 
 // NewVTHO creates a new instance of VTHO, bound to a specific deployed contract.
@@ -58,17 +50,8 @@ func NewVTHO(thor *thorest.Client) (*VTHO, error) {
 	if err != nil {
 		return nil, err
 	}
-	contract := accounts.New(thor, common.HexToAddress("0x0000000000000000000000000000456e65726779")).Contract(parsed)
+	contract := contracts.New(thor, common.HexToAddress("0x0000000000000000000000000000456e65726779"), parsed)
 	return &VTHO{thor: thor, contract: contract}, nil
-}
-
-// NewVTHOTransactor creates a new instance of VTHOTransactor, bound to a specific deployed contract.
-func NewVTHOTransactor(thor *thorest.Client, manager accounts.TxManager) (*VTHOTransactor, error) {
-	base, err := NewVTHO(thor)
-	if err != nil {
-		return nil, err
-	}
-	return &VTHOTransactor{VTHO: base, contract: base.contract.Transactor(manager), manager: manager}, nil
 }
 
 // Address returns the address of the contract.
@@ -76,190 +59,81 @@ func (_VTHO *VTHO) Address() common.Address {
 	return _VTHO.contract.Address
 }
 
-// Transactor constructs a new transactor for the contract, which allows to send transactions.
-func (_VTHO *VTHO) Transactor(manager accounts.TxManager) *VTHOTransactor {
-	return &VTHOTransactor{VTHO: _VTHO, contract: _VTHO.contract.Transactor(manager), manager: manager}
-}
-
-// Call invokes the (constant) contract method with params as input values and
-// sets the output to result. The result type might be a single field for simple
-// returns, a slice of interfaces for anonymous returns and a struct for named
-// returns.
-func (_VTHO *VTHO) Call(revision thorest.Revision, result *[]interface{}, method string, params ...interface{}) error {
-	return _VTHO.contract.CallAt(revision, method, result, params...)
-}
-
-// Transact invokes the (paid) contract method with params as input values.
-func (_VTHOTransactor *VTHOTransactor) Transact(opts *transactions.Options, vet *big.Int, method string, params ...interface{}) *accounts.Sender {
-	return _VTHOTransactor.contract.SendPayable(opts, vet, method, params...)
-}
-
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
 //
 // Solidity: function allowance(address _owner, address _spender) view returns(uint256 remaining)
-func (_VTHO *VTHO) Allowance(_owner common.Address, _spender common.Address, revision thorest.Revision) (*big.Int, error) {
-	var out []interface{}
-	err := _VTHO.Call(revision, &out, "allowance", _owner, _spender)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
+func (_VTHO *VTHO) Allowance(_owner common.Address, _spender common.Address) *contracts.Caller[*big.Int] {
+	return contracts.NewCaller[*big.Int](_VTHO.contract, "allowance", _owner, _spender)
 }
 
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
 // Solidity: function balanceOf(address _owner) view returns(uint256 balance)
-func (_VTHO *VTHO) BalanceOf(_owner common.Address, revision thorest.Revision) (*big.Int, error) {
-	var out []interface{}
-	err := _VTHO.Call(revision, &out, "balanceOf", _owner)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
+func (_VTHO *VTHO) BalanceOf(_owner common.Address) *contracts.Caller[*big.Int] {
+	return contracts.NewCaller[*big.Int](_VTHO.contract, "balanceOf", _owner)
 }
 
 // Decimals is a free data retrieval call binding the contract method 0x313ce567.
 //
 // Solidity: function decimals() pure returns(uint8)
-func (_VTHO *VTHO) Decimals(revision thorest.Revision) (uint8, error) {
-	var out []interface{}
-	err := _VTHO.Call(revision, &out, "decimals")
-
-	if err != nil {
-		return *new(uint8), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(uint8)).(*uint8)
-
-	return out0, err
+func (_VTHO *VTHO) Decimals() *contracts.Caller[uint8] {
+	return contracts.NewCaller[uint8](_VTHO.contract, "decimals")
 }
 
 // Name is a free data retrieval call binding the contract method 0x06fdde03.
 //
 // Solidity: function name() pure returns(string)
-func (_VTHO *VTHO) Name(revision thorest.Revision) (string, error) {
-	var out []interface{}
-	err := _VTHO.Call(revision, &out, "name")
-
-	if err != nil {
-		return *new(string), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(string)).(*string)
-
-	return out0, err
+func (_VTHO *VTHO) Name() *contracts.Caller[string] {
+	return contracts.NewCaller[string](_VTHO.contract, "name")
 }
 
 // Symbol is a free data retrieval call binding the contract method 0x95d89b41.
 //
 // Solidity: function symbol() pure returns(string)
-func (_VTHO *VTHO) Symbol(revision thorest.Revision) (string, error) {
-	var out []interface{}
-	err := _VTHO.Call(revision, &out, "symbol")
-
-	if err != nil {
-		return *new(string), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(string)).(*string)
-
-	return out0, err
+func (_VTHO *VTHO) Symbol() *contracts.Caller[string] {
+	return contracts.NewCaller[string](_VTHO.contract, "symbol")
 }
 
 // TotalBurned is a free data retrieval call binding the contract method 0xd89135cd.
 //
 // Solidity: function totalBurned() view returns(uint256)
-func (_VTHO *VTHO) TotalBurned(revision thorest.Revision) (*big.Int, error) {
-	var out []interface{}
-	err := _VTHO.Call(revision, &out, "totalBurned")
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
+func (_VTHO *VTHO) TotalBurned() *contracts.Caller[*big.Int] {
+	return contracts.NewCaller[*big.Int](_VTHO.contract, "totalBurned")
 }
 
 // TotalSupply is a free data retrieval call binding the contract method 0x18160ddd.
 //
 // Solidity: function totalSupply() view returns(uint256)
-func (_VTHO *VTHO) TotalSupply(revision thorest.Revision) (*big.Int, error) {
-	var out []interface{}
-	err := _VTHO.Call(revision, &out, "totalSupply")
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
+func (_VTHO *VTHO) TotalSupply() *contracts.Caller[*big.Int] {
+	return contracts.NewCaller[*big.Int](_VTHO.contract, "totalSupply")
 }
 
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
 // Solidity: function approve(address _spender, uint256 _value) returns(bool success)
-func (_VTHOTransactor *VTHOTransactor) Approve(_spender common.Address, _value *big.Int, opts *transactions.Options) *accounts.Sender {
-	return _VTHOTransactor.Transact(opts, big.NewInt(0), "approve", _spender, _value)
-}
-
-// ApproveAsClause is a transaction clause generator 0x095ea7b3.
-//
-// Solidity: function approve(address _spender, uint256 _value) returns(bool success)
-func (_VTHO *VTHO) ApproveAsClause(_spender common.Address, _value *big.Int) (*tx.Clause, error) {
-	return _VTHO.contract.AsClause("approve", _spender, _value)
+func (_VTHO *VTHO) Approve(_spender common.Address, _value *big.Int) *contracts.Sender {
+	return contracts.NewSender(_VTHO.contract, "approve", _spender, _value)
 }
 
 // Move is a paid mutator transaction binding the contract method 0xbb35783b.
 //
 // Solidity: function move(address _from, address _to, uint256 _amount) returns(bool success)
-func (_VTHOTransactor *VTHOTransactor) Move(_from common.Address, _to common.Address, _amount *big.Int, opts *transactions.Options) *accounts.Sender {
-	return _VTHOTransactor.Transact(opts, big.NewInt(0), "move", _from, _to, _amount)
-}
-
-// MoveAsClause is a transaction clause generator 0xbb35783b.
-//
-// Solidity: function move(address _from, address _to, uint256 _amount) returns(bool success)
-func (_VTHO *VTHO) MoveAsClause(_from common.Address, _to common.Address, _amount *big.Int) (*tx.Clause, error) {
-	return _VTHO.contract.AsClause("move", _from, _to, _amount)
+func (_VTHO *VTHO) Move(_from common.Address, _to common.Address, _amount *big.Int) *contracts.Sender {
+	return contracts.NewSender(_VTHO.contract, "move", _from, _to, _amount)
 }
 
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
 //
 // Solidity: function transfer(address _to, uint256 _amount) returns(bool success)
-func (_VTHOTransactor *VTHOTransactor) Transfer(_to common.Address, _amount *big.Int, opts *transactions.Options) *accounts.Sender {
-	return _VTHOTransactor.Transact(opts, big.NewInt(0), "transfer", _to, _amount)
-}
-
-// TransferAsClause is a transaction clause generator 0xa9059cbb.
-//
-// Solidity: function transfer(address _to, uint256 _amount) returns(bool success)
-func (_VTHO *VTHO) TransferAsClause(_to common.Address, _amount *big.Int) (*tx.Clause, error) {
-	return _VTHO.contract.AsClause("transfer", _to, _amount)
+func (_VTHO *VTHO) Transfer(_to common.Address, _amount *big.Int) *contracts.Sender {
+	return contracts.NewSender(_VTHO.contract, "transfer", _to, _amount)
 }
 
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
 //
 // Solidity: function transferFrom(address _from, address _to, uint256 _amount) returns(bool success)
-func (_VTHOTransactor *VTHOTransactor) TransferFrom(_from common.Address, _to common.Address, _amount *big.Int, opts *transactions.Options) *accounts.Sender {
-	return _VTHOTransactor.Transact(opts, big.NewInt(0), "transferFrom", _from, _to, _amount)
-}
-
-// TransferFromAsClause is a transaction clause generator 0x23b872dd.
-//
-// Solidity: function transferFrom(address _from, address _to, uint256 _amount) returns(bool success)
-func (_VTHO *VTHO) TransferFromAsClause(_from common.Address, _to common.Address, _amount *big.Int) (*tx.Clause, error) {
-	return _VTHO.contract.AsClause("transferFrom", _from, _to, _amount)
+func (_VTHO *VTHO) TransferFrom(_from common.Address, _to common.Address, _amount *big.Int) *contracts.Sender {
+	return contracts.NewSender(_VTHO.contract, "transferFrom", _from, _to, _amount)
 }
 
 // VTHOApproval represents a Approval event raised by the VTHO contract.

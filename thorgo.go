@@ -2,6 +2,7 @@ package thorgo
 
 import (
 	"context"
+	"github.com/darrenvechain/thorgo/contracts"
 
 	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/blocks"
@@ -65,6 +66,6 @@ func (t *Thor) Transfers(criteria []thorest.TransferCriteria, filters *thorest.L
 }
 
 // Deployer makes it easier to deploy contracts.
-func (t *Thor) Deployer(bytecode []byte, abi *abi.ABI) *accounts.Deployer {
-	return accounts.NewDeployer(t.client, bytecode, abi)
+func (t *Thor) Deployer(bytecode []byte, abi *abi.ABI) *contracts.Deployer {
+	return contracts.NewDeployer(t.client, bytecode, abi)
 }

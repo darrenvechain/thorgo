@@ -20,7 +20,7 @@ var (
 	client, cancel = testcontainer.NewSolo()
 )
 
-func deployErc20(client *thorest.Client, txsender *txmanager.PKManager) (common.Hash, *testcontract.Erc20Transactor, error) {
+func deployErc20(client *thorest.Client, txsender *txmanager.PKManager) (common.Hash, *testcontract.Erc20, error) {
 	return testcontract.DeployErc20(context.Background(), client, txsender, &transactions.Options{}, "TestToken", "TT")
 }
 
@@ -42,7 +42,7 @@ func TestCall(t *testing.T) {
 	_, erc20, err := deployErc20(client, txsender)
 	assert.NoError(t, err)
 
-	supply, err := erc20.TotalSupply(thorest.RevisionBest())
+	supply, err := erc20.TotalSupply().Execute()
 	assert.NoError(t, err)
 
 	assert.True(t, supply.Cmp(big.NewInt(0)) == 0)
@@ -55,11 +55,11 @@ func TestTransactor(t *testing.T) {
 	_, erc20, err := deployErc20(client, txsender)
 	assert.NoError(t, err)
 
-	receipt, err := erc20.Mint(receiver.Address(), big.NewInt(1000), &transactions.Options{}).Receipt(context.Background())
+	receipt, err := erc20.Mint(receiver.Address(), big.NewInt(1000)).Receipt(context.Background(), txsender)
 	assert.NoError(t, err)
 	assert.NotNil(t, receipt)
 
-	supply, err := erc20.TotalSupply(thorest.RevisionBest())
+	supply, err := erc20.TotalSupply().Execute()
 	assert.NoError(t, err)
 
 	assert.True(t, supply.Cmp(big.NewInt(1000)) == 0)
@@ -72,7 +72,7 @@ func TestFilter(t *testing.T) {
 	_, erc20, err := deployErc20(client, txsender)
 	assert.NoError(t, err)
 
-	receipt, err := erc20.Mint(receiver.Address(), big.NewInt(1000), &transactions.Options{}).Receipt(context.Background())
+	receipt, err := erc20.Mint(receiver.Address(), big.NewInt(1000)).Receipt(context.Background(), txsender)
 	assert.NoError(t, err)
 	assert.NotNil(t, receipt)
 
@@ -97,7 +97,7 @@ func TestWatch(t *testing.T) {
 	eventChan, err := erc20.WatchTransfer(make([]testcontract.Erc20TransferCriteria, 0), timeout, 10)
 	assert.NoError(t, err)
 
-	receipt, err := erc20.Mint(receiver.Address(), big.NewInt(1000), &transactions.Options{}).Receipt(context.Background())
+	receipt, err := erc20.Mint(receiver.Address(), big.NewInt(1000)).Receipt(context.Background(), txsender)
 	assert.NoError(t, err)
 	assert.NotNil(t, receipt)
 
@@ -120,7 +120,7 @@ func TestPayable_AsClause(t *testing.T) {
 	blocks := big.NewInt(1)
 	vet := big.NewInt(1000)
 
-	clause, err := staker.StakeAsClause(blocks, vet)
+	clause, err := staker.Stake(blocks, vet).Clause()
 	assert.NoError(t, err)
 
 	assert.Equal(t, vet, clause.Value())
@@ -135,7 +135,7 @@ func TestPayable_Send(t *testing.T) {
 	blocks := big.NewInt(1)
 	vet := big.NewInt(1000)
 
-	receipt, err := staker.Stake(blocks, vet, &transactions.Options{}).Receipt(context.Background())
+	receipt, err := staker.Stake(blocks, vet).Receipt(context.Background(), txsender)
 	assert.NoError(t, err)
 	assert.Len(t, receipt.Outputs[0].Transfers, 1)
 }

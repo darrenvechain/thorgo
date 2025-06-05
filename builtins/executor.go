@@ -10,11 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/blocks"
+	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
-	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -41,15 +40,8 @@ var ExecutorMetaData = &bind.MetaData{
 
 // Executor is an auto generated Go binding around an Ethereum contract, allowing you to query and create clauses.
 type Executor struct {
-	thor     *thorest.Client    // Thor client connection to use
-	contract *accounts.Contract // Generic contract wrapper for the low level calls
-}
-
-// ExecutorTransactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
-type ExecutorTransactor struct {
-	*Executor
-	contract *accounts.ContractTransactor // Generic contract wrapper for the low level calls
-	manager  accounts.TxManager           // TxManager to use
+	thor     *thorest.Client     // Thor client connection to use
+	contract *contracts.Contract // Generic contract wrapper for the low level calls
 }
 
 // NewExecutor creates a new instance of Executor, bound to a specific deployed contract.
@@ -58,17 +50,8 @@ func NewExecutor(thor *thorest.Client) (*Executor, error) {
 	if err != nil {
 		return nil, err
 	}
-	contract := accounts.New(thor, common.HexToAddress("0x0000000000000000000000004578656375746f72")).Contract(parsed)
+	contract := contracts.New(thor, common.HexToAddress("0x0000000000000000000000004578656375746f72"), parsed)
 	return &Executor{thor: thor, contract: contract}, nil
-}
-
-// NewExecutorTransactor creates a new instance of ExecutorTransactor, bound to a specific deployed contract.
-func NewExecutorTransactor(thor *thorest.Client, manager accounts.TxManager) (*ExecutorTransactor, error) {
-	base, err := NewExecutor(thor)
-	if err != nil {
-		return nil, err
-	}
-	return &ExecutorTransactor{Executor: base, contract: base.contract.Transactor(manager), manager: manager}, nil
 }
 
 // Address returns the address of the contract.
@@ -76,69 +59,41 @@ func (_Executor *Executor) Address() common.Address {
 	return _Executor.contract.Address
 }
 
-// Transactor constructs a new transactor for the contract, which allows to send transactions.
-func (_Executor *Executor) Transactor(manager accounts.TxManager) *ExecutorTransactor {
-	return &ExecutorTransactor{Executor: _Executor, contract: _Executor.contract.Transactor(manager), manager: manager}
-}
-
-// Call invokes the (constant) contract method with params as input values and
-// sets the output to result. The result type might be a single field for simple
-// returns, a slice of interfaces for anonymous returns and a struct for named
-// returns.
-func (_Executor *Executor) Call(revision thorest.Revision, result *[]interface{}, method string, params ...interface{}) error {
-	return _Executor.contract.CallAt(revision, method, result, params...)
-}
-
-// Transact invokes the (paid) contract method with params as input values.
-func (_ExecutorTransactor *ExecutorTransactor) Transact(opts *transactions.Options, vet *big.Int, method string, params ...interface{}) *accounts.Sender {
-	return _ExecutorTransactor.contract.SendPayable(opts, vet, method, params...)
-}
-
 // ApproverCount is a free data retrieval call binding the contract method 0x128e9be6.
 //
 // Solidity: function approverCount() view returns(uint8)
-func (_Executor *Executor) ApproverCount(revision thorest.Revision) (uint8, error) {
-	var out []interface{}
-	err := _Executor.Call(revision, &out, "approverCount")
-
-	if err != nil {
-		return *new(uint8), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(uint8)).(*uint8)
-
-	return out0, err
+func (_Executor *Executor) ApproverCount() *contracts.Caller[uint8] {
+	return contracts.NewCaller[uint8](_Executor.contract, "approverCount")
 }
 
-// Approvers is a free data retrieval call binding the contract method 0x0a144391.
+// ExecutorApproversResult is a free data retrieval call binding the contract method 0x0a144391.
 //
 // Solidity: function approvers(address ) view returns(bytes32 identity, bool inPower)
-func (_Executor *Executor) Approvers(arg0 common.Address, revision thorest.Revision) (struct {
+type ExecutorApproversResult struct {
 	Identity [32]byte
 	InPower  bool
-}, error) {
-	var out []interface{}
-	err := _Executor.Call(revision, &out, "approvers", arg0)
-
-	outstruct := new(struct {
-		Identity [32]byte
-		InPower  bool
-	})
-	if err != nil {
-		return *outstruct, err
-	}
-
-	outstruct.Identity = *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
-	outstruct.InPower = *abi.ConvertType(out[1], new(bool)).(*bool)
-
-	return *outstruct, err
-
 }
 
-// Proposals is a free data retrieval call binding the contract method 0x32ed5b12.
+func (_Executor *Executor) Approvers(arg0 common.Address) *contracts.Caller[*ExecutorApproversResult] {
+	parser := func(data []interface{}) (*ExecutorApproversResult, error) {
+		if len(data) != 2 {
+			return nil, errors.New("invalid number of return values")
+		}
+		out := new(ExecutorApproversResult)
+
+		out.Identity = *abi.ConvertType(data[0], new([32]byte)).(*[32]byte)
+		out.InPower = *abi.ConvertType(data[1], new(bool)).(*bool)
+
+		return out, nil
+	}
+
+	return contracts.NewCaller[*ExecutorApproversResult](_Executor.contract, "approvers", arg0).WithParser(parser)
+}
+
+// ExecutorProposalsResult is a free data retrieval call binding the contract method 0x32ed5b12.
 //
 // Solidity: function proposals(bytes32 ) view returns(uint64 timeProposed, address proposer, uint8 quorum, uint8 approvalCount, bool executed, address target, bytes data)
-func (_Executor *Executor) Proposals(arg0 [32]byte, revision thorest.Revision) (struct {
+type ExecutorProposalsResult struct {
 	TimeProposed  uint64
 	Proposer      common.Address
 	Quorum        uint8
@@ -146,147 +101,83 @@ func (_Executor *Executor) Proposals(arg0 [32]byte, revision thorest.Revision) (
 	Executed      bool
 	Target        common.Address
 	Data          []byte
-}, error) {
-	var out []interface{}
-	err := _Executor.Call(revision, &out, "proposals", arg0)
+}
 
-	outstruct := new(struct {
-		TimeProposed  uint64
-		Proposer      common.Address
-		Quorum        uint8
-		ApprovalCount uint8
-		Executed      bool
-		Target        common.Address
-		Data          []byte
-	})
-	if err != nil {
-		return *outstruct, err
+func (_Executor *Executor) Proposals(arg0 [32]byte) *contracts.Caller[*ExecutorProposalsResult] {
+	parser := func(data []interface{}) (*ExecutorProposalsResult, error) {
+		if len(data) != 7 {
+			return nil, errors.New("invalid number of return values")
+		}
+		out := new(ExecutorProposalsResult)
+
+		out.TimeProposed = *abi.ConvertType(data[0], new(uint64)).(*uint64)
+		out.Proposer = *abi.ConvertType(data[1], new(common.Address)).(*common.Address)
+		out.Quorum = *abi.ConvertType(data[2], new(uint8)).(*uint8)
+		out.ApprovalCount = *abi.ConvertType(data[3], new(uint8)).(*uint8)
+		out.Executed = *abi.ConvertType(data[4], new(bool)).(*bool)
+		out.Target = *abi.ConvertType(data[5], new(common.Address)).(*common.Address)
+		out.Data = *abi.ConvertType(data[6], new([]byte)).(*[]byte)
+
+		return out, nil
 	}
 
-	outstruct.TimeProposed = *abi.ConvertType(out[0], new(uint64)).(*uint64)
-	outstruct.Proposer = *abi.ConvertType(out[1], new(common.Address)).(*common.Address)
-	outstruct.Quorum = *abi.ConvertType(out[2], new(uint8)).(*uint8)
-	outstruct.ApprovalCount = *abi.ConvertType(out[3], new(uint8)).(*uint8)
-	outstruct.Executed = *abi.ConvertType(out[4], new(bool)).(*bool)
-	outstruct.Target = *abi.ConvertType(out[5], new(common.Address)).(*common.Address)
-	outstruct.Data = *abi.ConvertType(out[6], new([]byte)).(*[]byte)
-
-	return *outstruct, err
-
+	return contracts.NewCaller[*ExecutorProposalsResult](_Executor.contract, "proposals", arg0).WithParser(parser)
 }
 
 // VotingContracts is a free data retrieval call binding the contract method 0xfa06792b.
 //
 // Solidity: function votingContracts(address ) view returns(bool)
-func (_Executor *Executor) VotingContracts(arg0 common.Address, revision thorest.Revision) (bool, error) {
-	var out []interface{}
-	err := _Executor.Call(revision, &out, "votingContracts", arg0)
-
-	if err != nil {
-		return *new(bool), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
-
-	return out0, err
+func (_Executor *Executor) VotingContracts(arg0 common.Address) *contracts.Caller[bool] {
+	return contracts.NewCaller[bool](_Executor.contract, "votingContracts", arg0)
 }
 
 // AddApprover is a paid mutator transaction binding the contract method 0x3ef0c09e.
 //
 // Solidity: function addApprover(address _approver, bytes32 _identity) returns()
-func (_ExecutorTransactor *ExecutorTransactor) AddApprover(_approver common.Address, _identity [32]byte, opts *transactions.Options) *accounts.Sender {
-	return _ExecutorTransactor.Transact(opts, big.NewInt(0), "addApprover", _approver, _identity)
-}
-
-// AddApproverAsClause is a transaction clause generator 0x3ef0c09e.
-//
-// Solidity: function addApprover(address _approver, bytes32 _identity) returns()
-func (_Executor *Executor) AddApproverAsClause(_approver common.Address, _identity [32]byte) (*tx.Clause, error) {
-	return _Executor.contract.AsClause("addApprover", _approver, _identity)
+func (_Executor *Executor) AddApprover(_approver common.Address, _identity [32]byte) *contracts.Sender {
+	return contracts.NewSender(_Executor.contract, "addApprover", _approver, _identity)
 }
 
 // Approve is a paid mutator transaction binding the contract method 0xa53a1adf.
 //
 // Solidity: function approve(bytes32 _proposalID) returns()
-func (_ExecutorTransactor *ExecutorTransactor) Approve(_proposalID [32]byte, opts *transactions.Options) *accounts.Sender {
-	return _ExecutorTransactor.Transact(opts, big.NewInt(0), "approve", _proposalID)
-}
-
-// ApproveAsClause is a transaction clause generator 0xa53a1adf.
-//
-// Solidity: function approve(bytes32 _proposalID) returns()
-func (_Executor *Executor) ApproveAsClause(_proposalID [32]byte) (*tx.Clause, error) {
-	return _Executor.contract.AsClause("approve", _proposalID)
+func (_Executor *Executor) Approve(_proposalID [32]byte) *contracts.Sender {
+	return contracts.NewSender(_Executor.contract, "approve", _proposalID)
 }
 
 // AttachVotingContract is a paid mutator transaction binding the contract method 0xa1fb668f.
 //
 // Solidity: function attachVotingContract(address _contract) returns()
-func (_ExecutorTransactor *ExecutorTransactor) AttachVotingContract(_contract common.Address, opts *transactions.Options) *accounts.Sender {
-	return _ExecutorTransactor.Transact(opts, big.NewInt(0), "attachVotingContract", _contract)
-}
-
-// AttachVotingContractAsClause is a transaction clause generator 0xa1fb668f.
-//
-// Solidity: function attachVotingContract(address _contract) returns()
-func (_Executor *Executor) AttachVotingContractAsClause(_contract common.Address) (*tx.Clause, error) {
-	return _Executor.contract.AsClause("attachVotingContract", _contract)
+func (_Executor *Executor) AttachVotingContract(_contract common.Address) *contracts.Sender {
+	return contracts.NewSender(_Executor.contract, "attachVotingContract", _contract)
 }
 
 // DetachVotingContract is a paid mutator transaction binding the contract method 0xa83b3bd8.
 //
 // Solidity: function detachVotingContract(address _contract) returns()
-func (_ExecutorTransactor *ExecutorTransactor) DetachVotingContract(_contract common.Address, opts *transactions.Options) *accounts.Sender {
-	return _ExecutorTransactor.Transact(opts, big.NewInt(0), "detachVotingContract", _contract)
-}
-
-// DetachVotingContractAsClause is a transaction clause generator 0xa83b3bd8.
-//
-// Solidity: function detachVotingContract(address _contract) returns()
-func (_Executor *Executor) DetachVotingContractAsClause(_contract common.Address) (*tx.Clause, error) {
-	return _Executor.contract.AsClause("detachVotingContract", _contract)
+func (_Executor *Executor) DetachVotingContract(_contract common.Address) *contracts.Sender {
+	return contracts.NewSender(_Executor.contract, "detachVotingContract", _contract)
 }
 
 // Execute is a paid mutator transaction binding the contract method 0xe751f271.
 //
 // Solidity: function execute(bytes32 _proposalID) returns()
-func (_ExecutorTransactor *ExecutorTransactor) Execute(_proposalID [32]byte, opts *transactions.Options) *accounts.Sender {
-	return _ExecutorTransactor.Transact(opts, big.NewInt(0), "execute", _proposalID)
-}
-
-// ExecuteAsClause is a transaction clause generator 0xe751f271.
-//
-// Solidity: function execute(bytes32 _proposalID) returns()
-func (_Executor *Executor) ExecuteAsClause(_proposalID [32]byte) (*tx.Clause, error) {
-	return _Executor.contract.AsClause("execute", _proposalID)
+func (_Executor *Executor) Execute(_proposalID [32]byte) *contracts.Sender {
+	return contracts.NewSender(_Executor.contract, "execute", _proposalID)
 }
 
 // Propose is a paid mutator transaction binding the contract method 0x9d481848.
 //
 // Solidity: function propose(address _target, bytes _data) returns(bytes32)
-func (_ExecutorTransactor *ExecutorTransactor) Propose(_target common.Address, _data []byte, opts *transactions.Options) *accounts.Sender {
-	return _ExecutorTransactor.Transact(opts, big.NewInt(0), "propose", _target, _data)
-}
-
-// ProposeAsClause is a transaction clause generator 0x9d481848.
-//
-// Solidity: function propose(address _target, bytes _data) returns(bytes32)
-func (_Executor *Executor) ProposeAsClause(_target common.Address, _data []byte) (*tx.Clause, error) {
-	return _Executor.contract.AsClause("propose", _target, _data)
+func (_Executor *Executor) Propose(_target common.Address, _data []byte) *contracts.Sender {
+	return contracts.NewSender(_Executor.contract, "propose", _target, _data)
 }
 
 // RevokeApprover is a paid mutator transaction binding the contract method 0x18d13ef7.
 //
 // Solidity: function revokeApprover(address _approver) returns()
-func (_ExecutorTransactor *ExecutorTransactor) RevokeApprover(_approver common.Address, opts *transactions.Options) *accounts.Sender {
-	return _ExecutorTransactor.Transact(opts, big.NewInt(0), "revokeApprover", _approver)
-}
-
-// RevokeApproverAsClause is a transaction clause generator 0x18d13ef7.
-//
-// Solidity: function revokeApprover(address _approver) returns()
-func (_Executor *Executor) RevokeApproverAsClause(_approver common.Address) (*tx.Clause, error) {
-	return _Executor.contract.AsClause("revokeApprover", _approver)
+func (_Executor *Executor) RevokeApprover(_approver common.Address) *contracts.Sender {
+	return contracts.NewSender(_Executor.contract, "revokeApprover", _approver)
 }
 
 // ExecutorApprover represents a Approver event raised by the Executor contract.

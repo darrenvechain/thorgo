@@ -10,11 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/blocks"
+	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
-	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -41,15 +40,8 @@ var PrototypeMetaData = &bind.MetaData{
 
 // Prototype is an auto generated Go binding around an Ethereum contract, allowing you to query and create clauses.
 type Prototype struct {
-	thor     *thorest.Client    // Thor client connection to use
-	contract *accounts.Contract // Generic contract wrapper for the low level calls
-}
-
-// PrototypeTransactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
-type PrototypeTransactor struct {
-	*Prototype
-	contract *accounts.ContractTransactor // Generic contract wrapper for the low level calls
-	manager  accounts.TxManager           // TxManager to use
+	thor     *thorest.Client     // Thor client connection to use
+	contract *contracts.Contract // Generic contract wrapper for the low level calls
 }
 
 // NewPrototype creates a new instance of Prototype, bound to a specific deployed contract.
@@ -58,17 +50,8 @@ func NewPrototype(thor *thorest.Client) (*Prototype, error) {
 	if err != nil {
 		return nil, err
 	}
-	contract := accounts.New(thor, common.HexToAddress("0x000000000000000000000050726f746f74797065")).Contract(parsed)
+	contract := contracts.New(thor, common.HexToAddress("0x000000000000000000000050726f746f74797065"), parsed)
 	return &Prototype{thor: thor, contract: contract}, nil
-}
-
-// NewPrototypeTransactor creates a new instance of PrototypeTransactor, bound to a specific deployed contract.
-func NewPrototypeTransactor(thor *thorest.Client, manager accounts.TxManager) (*PrototypeTransactor, error) {
-	base, err := NewPrototype(thor)
-	if err != nil {
-		return nil, err
-	}
-	return &PrototypeTransactor{Prototype: base, contract: base.contract.Transactor(manager), manager: manager}, nil
 }
 
 // Address returns the address of the contract.
@@ -76,287 +59,138 @@ func (_Prototype *Prototype) Address() common.Address {
 	return _Prototype.contract.Address
 }
 
-// Transactor constructs a new transactor for the contract, which allows to send transactions.
-func (_Prototype *Prototype) Transactor(manager accounts.TxManager) *PrototypeTransactor {
-	return &PrototypeTransactor{Prototype: _Prototype, contract: _Prototype.contract.Transactor(manager), manager: manager}
-}
-
-// Call invokes the (constant) contract method with params as input values and
-// sets the output to result. The result type might be a single field for simple
-// returns, a slice of interfaces for anonymous returns and a struct for named
-// returns.
-func (_Prototype *Prototype) Call(revision thorest.Revision, result *[]interface{}, method string, params ...interface{}) error {
-	return _Prototype.contract.CallAt(revision, method, result, params...)
-}
-
-// Transact invokes the (paid) contract method with params as input values.
-func (_PrototypeTransactor *PrototypeTransactor) Transact(opts *transactions.Options, vet *big.Int, method string, params ...interface{}) *accounts.Sender {
-	return _PrototypeTransactor.contract.SendPayable(opts, vet, method, params...)
-}
-
 // Balance is a free data retrieval call binding the contract method 0x6d8c859a.
 //
 // Solidity: function balance(address _self, uint256 _blockNumber) view returns(uint256)
-func (_Prototype *Prototype) Balance(_self common.Address, _blockNumber *big.Int, revision thorest.Revision) (*big.Int, error) {
-	var out []interface{}
-	err := _Prototype.Call(revision, &out, "balance", _self, _blockNumber)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
+func (_Prototype *Prototype) Balance(_self common.Address, _blockNumber *big.Int) *contracts.Caller[*big.Int] {
+	return contracts.NewCaller[*big.Int](_Prototype.contract, "balance", _self, _blockNumber)
 }
 
-// CreditPlan is a free data retrieval call binding the contract method 0x80df45b4.
+// PrototypeCreditPlanResult is a free data retrieval call binding the contract method 0x80df45b4.
 //
 // Solidity: function creditPlan(address _self) view returns(uint256 credit, uint256 recoveryRate)
-func (_Prototype *Prototype) CreditPlan(_self common.Address, revision thorest.Revision) (struct {
+type PrototypeCreditPlanResult struct {
 	Credit       *big.Int
 	RecoveryRate *big.Int
-}, error) {
-	var out []interface{}
-	err := _Prototype.Call(revision, &out, "creditPlan", _self)
+}
 
-	outstruct := new(struct {
-		Credit       *big.Int
-		RecoveryRate *big.Int
-	})
-	if err != nil {
-		return *outstruct, err
+func (_Prototype *Prototype) CreditPlan(_self common.Address) *contracts.Caller[*PrototypeCreditPlanResult] {
+	parser := func(data []interface{}) (*PrototypeCreditPlanResult, error) {
+		if len(data) != 2 {
+			return nil, errors.New("invalid number of return values")
+		}
+		out := new(PrototypeCreditPlanResult)
+
+		out.Credit = *abi.ConvertType(data[0], new(*big.Int)).(**big.Int)
+		out.RecoveryRate = *abi.ConvertType(data[1], new(*big.Int)).(**big.Int)
+
+		return out, nil
 	}
 
-	outstruct.Credit = *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-	outstruct.RecoveryRate = *abi.ConvertType(out[1], new(*big.Int)).(**big.Int)
-
-	return *outstruct, err
-
+	return contracts.NewCaller[*PrototypeCreditPlanResult](_Prototype.contract, "creditPlan", _self).WithParser(parser)
 }
 
 // CurrentSponsor is a free data retrieval call binding the contract method 0x23d8c7db.
 //
 // Solidity: function currentSponsor(address _self) view returns(address)
-func (_Prototype *Prototype) CurrentSponsor(_self common.Address, revision thorest.Revision) (common.Address, error) {
-	var out []interface{}
-	err := _Prototype.Call(revision, &out, "currentSponsor", _self)
-
-	if err != nil {
-		return *new(common.Address), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
-
-	return out0, err
+func (_Prototype *Prototype) CurrentSponsor(_self common.Address) *contracts.Caller[common.Address] {
+	return contracts.NewCaller[common.Address](_Prototype.contract, "currentSponsor", _self)
 }
 
 // Energy is a free data retrieval call binding the contract method 0x1e95be45.
 //
 // Solidity: function energy(address _self, uint256 _blockNumber) view returns(uint256)
-func (_Prototype *Prototype) Energy(_self common.Address, _blockNumber *big.Int, revision thorest.Revision) (*big.Int, error) {
-	var out []interface{}
-	err := _Prototype.Call(revision, &out, "energy", _self, _blockNumber)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
+func (_Prototype *Prototype) Energy(_self common.Address, _blockNumber *big.Int) *contracts.Caller[*big.Int] {
+	return contracts.NewCaller[*big.Int](_Prototype.contract, "energy", _self, _blockNumber)
 }
 
 // HasCode is a free data retrieval call binding the contract method 0x9538c4b3.
 //
 // Solidity: function hasCode(address _self) view returns(bool)
-func (_Prototype *Prototype) HasCode(_self common.Address, revision thorest.Revision) (bool, error) {
-	var out []interface{}
-	err := _Prototype.Call(revision, &out, "hasCode", _self)
-
-	if err != nil {
-		return *new(bool), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
-
-	return out0, err
+func (_Prototype *Prototype) HasCode(_self common.Address) *contracts.Caller[bool] {
+	return contracts.NewCaller[bool](_Prototype.contract, "hasCode", _self)
 }
 
 // IsSponsor is a free data retrieval call binding the contract method 0xd87333ac.
 //
 // Solidity: function isSponsor(address _self, address _sponsor) view returns(bool)
-func (_Prototype *Prototype) IsSponsor(_self common.Address, _sponsor common.Address, revision thorest.Revision) (bool, error) {
-	var out []interface{}
-	err := _Prototype.Call(revision, &out, "isSponsor", _self, _sponsor)
-
-	if err != nil {
-		return *new(bool), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
-
-	return out0, err
+func (_Prototype *Prototype) IsSponsor(_self common.Address, _sponsor common.Address) *contracts.Caller[bool] {
+	return contracts.NewCaller[bool](_Prototype.contract, "isSponsor", _self, _sponsor)
 }
 
 // IsUser is a free data retrieval call binding the contract method 0x02d43dc8.
 //
 // Solidity: function isUser(address _self, address _user) view returns(bool)
-func (_Prototype *Prototype) IsUser(_self common.Address, _user common.Address, revision thorest.Revision) (bool, error) {
-	var out []interface{}
-	err := _Prototype.Call(revision, &out, "isUser", _self, _user)
-
-	if err != nil {
-		return *new(bool), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
-
-	return out0, err
+func (_Prototype *Prototype) IsUser(_self common.Address, _user common.Address) *contracts.Caller[bool] {
+	return contracts.NewCaller[bool](_Prototype.contract, "isUser", _self, _user)
 }
 
 // Master is a free data retrieval call binding the contract method 0x9ed153c0.
 //
 // Solidity: function master(address _self) view returns(address)
-func (_Prototype *Prototype) Master(_self common.Address, revision thorest.Revision) (common.Address, error) {
-	var out []interface{}
-	err := _Prototype.Call(revision, &out, "master", _self)
-
-	if err != nil {
-		return *new(common.Address), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
-
-	return out0, err
+func (_Prototype *Prototype) Master(_self common.Address) *contracts.Caller[common.Address] {
+	return contracts.NewCaller[common.Address](_Prototype.contract, "master", _self)
 }
 
 // StorageFor is a free data retrieval call binding the contract method 0x04e7a457.
 //
 // Solidity: function storageFor(address _self, bytes32 _key) view returns(bytes32)
-func (_Prototype *Prototype) StorageFor(_self common.Address, _key [32]byte, revision thorest.Revision) ([32]byte, error) {
-	var out []interface{}
-	err := _Prototype.Call(revision, &out, "storageFor", _self, _key)
-
-	if err != nil {
-		return *new([32]byte), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
-
-	return out0, err
+func (_Prototype *Prototype) StorageFor(_self common.Address, _key [32]byte) *contracts.Caller[[32]byte] {
+	return contracts.NewCaller[[32]byte](_Prototype.contract, "storageFor", _self, _key)
 }
 
 // UserCredit is a free data retrieval call binding the contract method 0xc9c4fc41.
 //
 // Solidity: function userCredit(address _self, address _user) view returns(uint256)
-func (_Prototype *Prototype) UserCredit(_self common.Address, _user common.Address, revision thorest.Revision) (*big.Int, error) {
-	var out []interface{}
-	err := _Prototype.Call(revision, &out, "userCredit", _self, _user)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
+func (_Prototype *Prototype) UserCredit(_self common.Address, _user common.Address) *contracts.Caller[*big.Int] {
+	return contracts.NewCaller[*big.Int](_Prototype.contract, "userCredit", _self, _user)
 }
 
 // AddUser is a paid mutator transaction binding the contract method 0x8ca3b448.
 //
 // Solidity: function addUser(address _self, address _user) returns()
-func (_PrototypeTransactor *PrototypeTransactor) AddUser(_self common.Address, _user common.Address, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "addUser", _self, _user)
-}
-
-// AddUserAsClause is a transaction clause generator 0x8ca3b448.
-//
-// Solidity: function addUser(address _self, address _user) returns()
-func (_Prototype *Prototype) AddUserAsClause(_self common.Address, _user common.Address) (*tx.Clause, error) {
-	return _Prototype.contract.AsClause("addUser", _self, _user)
+func (_Prototype *Prototype) AddUser(_self common.Address, _user common.Address) *contracts.Sender {
+	return contracts.NewSender(_Prototype.contract, "addUser", _self, _user)
 }
 
 // RemoveUser is a paid mutator transaction binding the contract method 0x22928d6b.
 //
 // Solidity: function removeUser(address _self, address _user) returns()
-func (_PrototypeTransactor *PrototypeTransactor) RemoveUser(_self common.Address, _user common.Address, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "removeUser", _self, _user)
-}
-
-// RemoveUserAsClause is a transaction clause generator 0x22928d6b.
-//
-// Solidity: function removeUser(address _self, address _user) returns()
-func (_Prototype *Prototype) RemoveUserAsClause(_self common.Address, _user common.Address) (*tx.Clause, error) {
-	return _Prototype.contract.AsClause("removeUser", _self, _user)
+func (_Prototype *Prototype) RemoveUser(_self common.Address, _user common.Address) *contracts.Sender {
+	return contracts.NewSender(_Prototype.contract, "removeUser", _self, _user)
 }
 
 // SelectSponsor is a paid mutator transaction binding the contract method 0x3871a9fb.
 //
 // Solidity: function selectSponsor(address _self, address _sponsor) returns()
-func (_PrototypeTransactor *PrototypeTransactor) SelectSponsor(_self common.Address, _sponsor common.Address, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "selectSponsor", _self, _sponsor)
-}
-
-// SelectSponsorAsClause is a transaction clause generator 0x3871a9fb.
-//
-// Solidity: function selectSponsor(address _self, address _sponsor) returns()
-func (_Prototype *Prototype) SelectSponsorAsClause(_self common.Address, _sponsor common.Address) (*tx.Clause, error) {
-	return _Prototype.contract.AsClause("selectSponsor", _self, _sponsor)
+func (_Prototype *Prototype) SelectSponsor(_self common.Address, _sponsor common.Address) *contracts.Sender {
+	return contracts.NewSender(_Prototype.contract, "selectSponsor", _self, _sponsor)
 }
 
 // SetCreditPlan is a paid mutator transaction binding the contract method 0x3659f8ed.
 //
 // Solidity: function setCreditPlan(address _self, uint256 _credit, uint256 _recoveryRate) returns()
-func (_PrototypeTransactor *PrototypeTransactor) SetCreditPlan(_self common.Address, _credit *big.Int, _recoveryRate *big.Int, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "setCreditPlan", _self, _credit, _recoveryRate)
-}
-
-// SetCreditPlanAsClause is a transaction clause generator 0x3659f8ed.
-//
-// Solidity: function setCreditPlan(address _self, uint256 _credit, uint256 _recoveryRate) returns()
-func (_Prototype *Prototype) SetCreditPlanAsClause(_self common.Address, _credit *big.Int, _recoveryRate *big.Int) (*tx.Clause, error) {
-	return _Prototype.contract.AsClause("setCreditPlan", _self, _credit, _recoveryRate)
+func (_Prototype *Prototype) SetCreditPlan(_self common.Address, _credit *big.Int, _recoveryRate *big.Int) *contracts.Sender {
+	return contracts.NewSender(_Prototype.contract, "setCreditPlan", _self, _credit, _recoveryRate)
 }
 
 // SetMaster is a paid mutator transaction binding the contract method 0x01378b58.
 //
 // Solidity: function setMaster(address _self, address _newMaster) returns()
-func (_PrototypeTransactor *PrototypeTransactor) SetMaster(_self common.Address, _newMaster common.Address, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "setMaster", _self, _newMaster)
-}
-
-// SetMasterAsClause is a transaction clause generator 0x01378b58.
-//
-// Solidity: function setMaster(address _self, address _newMaster) returns()
-func (_Prototype *Prototype) SetMasterAsClause(_self common.Address, _newMaster common.Address) (*tx.Clause, error) {
-	return _Prototype.contract.AsClause("setMaster", _self, _newMaster)
+func (_Prototype *Prototype) SetMaster(_self common.Address, _newMaster common.Address) *contracts.Sender {
+	return contracts.NewSender(_Prototype.contract, "setMaster", _self, _newMaster)
 }
 
 // Sponsor is a paid mutator transaction binding the contract method 0x766c4f37.
 //
 // Solidity: function sponsor(address _self) returns()
-func (_PrototypeTransactor *PrototypeTransactor) Sponsor(_self common.Address, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "sponsor", _self)
-}
-
-// SponsorAsClause is a transaction clause generator 0x766c4f37.
-//
-// Solidity: function sponsor(address _self) returns()
-func (_Prototype *Prototype) SponsorAsClause(_self common.Address) (*tx.Clause, error) {
-	return _Prototype.contract.AsClause("sponsor", _self)
+func (_Prototype *Prototype) Sponsor(_self common.Address) *contracts.Sender {
+	return contracts.NewSender(_Prototype.contract, "sponsor", _self)
 }
 
 // Unsponsor is a paid mutator transaction binding the contract method 0xcdd2a99f.
 //
 // Solidity: function unsponsor(address _self) returns()
-func (_PrototypeTransactor *PrototypeTransactor) Unsponsor(_self common.Address, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "unsponsor", _self)
-}
-
-// UnsponsorAsClause is a transaction clause generator 0xcdd2a99f.
-//
-// Solidity: function unsponsor(address _self) returns()
-func (_Prototype *Prototype) UnsponsorAsClause(_self common.Address) (*tx.Clause, error) {
-	return _Prototype.contract.AsClause("unsponsor", _self)
+func (_Prototype *Prototype) Unsponsor(_self common.Address) *contracts.Sender {
+	return contracts.NewSender(_Prototype.contract, "unsponsor", _self)
 }

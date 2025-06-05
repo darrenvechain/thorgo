@@ -16,7 +16,7 @@ func TestEnergy_Name(t *testing.T) {
 	energy, err := NewVTHO(thor)
 	assert.NoError(t, err)
 
-	name, err := energy.Name(thorest.RevisionBest())
+	name, err := energy.Name().Execute()
 	assert.NoError(t, err)
 	assert.Equal(t, "VeThor", name)
 }
@@ -25,7 +25,7 @@ func TestEnergy_Symbol(t *testing.T) {
 	energy, err := NewVTHO(thor)
 	assert.NoError(t, err)
 
-	symbol, err := energy.Symbol(thorest.RevisionBest())
+	symbol, err := energy.Symbol().Execute()
 	assert.NoError(t, err)
 	assert.Equal(t, "VTHO", symbol)
 }
@@ -34,7 +34,7 @@ func TestEnergy_Decimals(t *testing.T) {
 	energy, err := NewVTHO(thor)
 	assert.NoError(t, err)
 
-	decimals, err := energy.Decimals(thorest.RevisionBest())
+	decimals, err := energy.Decimals().Execute()
 	assert.NoError(t, err)
 	assert.Equal(t, uint8(18), decimals)
 }
@@ -43,7 +43,7 @@ func TestEnergy_TotalSupply(t *testing.T) {
 	energy, err := NewVTHO(thor)
 	assert.NoError(t, err)
 
-	totalSupply, err := energy.TotalSupply(thorest.RevisionBest())
+	totalSupply, err := energy.TotalSupply().Execute()
 	assert.NoError(t, err)
 	assert.NotZero(t, totalSupply)
 }
@@ -52,7 +52,7 @@ func TestEnergy_BalanceOf(t *testing.T) {
 	energy, err := NewVTHO(thor)
 	assert.NoError(t, err)
 
-	energyBal, err := energy.BalanceOf(energy.Address(), thorest.RevisionBest())
+	energyBal, err := energy.BalanceOf(energy.Address()).Execute()
 	assert.NoError(t, err)
 	assert.NotZero(t, energyBal)
 }

@@ -1,6 +1,7 @@
 package accounts
 
 import (
+	"github.com/darrenvechain/thorgo/contracts"
 	"math/big"
 
 	"github.com/darrenvechain/thorgo/crypto/tx"
@@ -77,6 +78,6 @@ func (a *Visitor) Call(calldata []byte) (*thorest.InspectResponse, error) {
 }
 
 // Contract returns a new Contract instance.
-func (a *Visitor) Contract(abi *abi.ABI) *Contract {
-	return NewContract(a.client, a.account, abi)
+func (a *Visitor) Contract(abi *abi.ABI) *contracts.Contract {
+	return contracts.New(a.client, a.account, abi)
 }

@@ -28,7 +28,7 @@ go get github.com/darrenvechain/thorgo
 
 ## CLIs
 
-- [thorgen](./cmd/thorgen/README.md): A command line tool that generates Go smart contract wrappers for VeChainThor blockchain.
+- [thorgen](cmd/thorgen/README.md): A command line tool that generates Go smart contract wrappers for VeChainThor blockchain.
 
 ## Packages
 

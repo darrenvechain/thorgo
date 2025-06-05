@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/blocks"
+	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
@@ -41,7 +41,7 @@ var StakerMetaData = &bind.MetaData{
 }
 
 // DeployStaker deploys a new Ethereum contract, binding an instance of Staker to it.
-func DeployStaker(ctx context.Context, thor *thorest.Client, sender accounts.TxManager, opts *transactions.Options) (common.Hash, *StakerTransactor, error) {
+func DeployStaker(ctx context.Context, thor *thorest.Client, sender contracts.TxManager, opts *transactions.Options) (common.Hash, *Staker, error) {
 	parsed, err := StakerMetaData.GetAbi()
 	if err != nil {
 		return common.Hash{}, nil, err
@@ -51,24 +51,17 @@ func DeployStaker(ctx context.Context, thor *thorest.Client, sender accounts.TxM
 	if err != nil {
 		return common.Hash{}, nil, err
 	}
-	contract, txID, err := accounts.NewDeployer(thor, bytes, parsed).Deploy(ctx, sender, opts)
+	contract, txID, err := contracts.NewDeployer(thor, bytes, parsed).Deploy(ctx, sender, opts)
 	if err != nil {
 		return common.Hash{}, nil, err
 	}
-	return txID, &StakerTransactor{&Staker{thor: thor, contract: contract}, contract.Transactor(sender), sender}, nil
+	return txID, &Staker{thor: thor, contract: contract}, nil
 }
 
 // Staker is an auto generated Go binding around an Ethereum contract, allowing you to query and create clauses.
 type Staker struct {
-	thor     *thorest.Client    // Thor client connection to use
-	contract *accounts.Contract // Generic contract wrapper for the low level calls
-}
-
-// StakerTransactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
-type StakerTransactor struct {
-	*Staker
-	contract *accounts.ContractTransactor // Generic contract wrapper for the low level calls
-	manager  accounts.TxManager           // TxManager to use
+	thor     *thorest.Client     // Thor client connection to use
+	contract *contracts.Contract // Generic contract wrapper for the low level calls
 }
 
 // NewStaker creates a new instance of Staker, bound to a specific deployed contract.
@@ -77,17 +70,8 @@ func NewStaker(address common.Address, thor *thorest.Client) (*Staker, error) {
 	if err != nil {
 		return nil, err
 	}
-	contract := accounts.New(thor, address).Contract(parsed)
+	contract := contracts.New(thor, address, parsed)
 	return &Staker{thor: thor, contract: contract}, nil
-}
-
-// NewStakerTransactor creates a new instance of StakerTransactor, bound to a specific deployed contract.
-func NewStakerTransactor(address common.Address, thor *thorest.Client, manager accounts.TxManager) (*StakerTransactor, error) {
-	base, err := NewStaker(address, thor)
-	if err != nil {
-		return nil, err
-	}
-	return &StakerTransactor{Staker: base, contract: base.contract.Transactor(manager), manager: manager}, nil
 }
 
 // Address returns the address of the contract.
@@ -95,47 +79,28 @@ func (_Staker *Staker) Address() common.Address {
 	return _Staker.contract.Address
 }
 
-// Transactor constructs a new transactor for the contract, which allows to send transactions.
-func (_Staker *Staker) Transactor(manager accounts.TxManager) *StakerTransactor {
-	return &StakerTransactor{Staker: _Staker, contract: _Staker.contract.Transactor(manager), manager: manager}
-}
-
-// Call invokes the (constant) contract method with params as input values and
-// sets the output to result. The result type might be a single field for simple
-// returns, a slice of interfaces for anonymous returns and a struct for named
-// returns.
-func (_Staker *Staker) Call(revision thorest.Revision, result *[]interface{}, method string, params ...interface{}) error {
-	return _Staker.contract.CallAt(revision, method, result, params...)
-}
-
-// Transact invokes the (paid) contract method with params as input values.
-func (_StakerTransactor *StakerTransactor) Transact(opts *transactions.Options, vet *big.Int, method string, params ...interface{}) *accounts.Sender {
-	return _StakerTransactor.contract.SendPayable(opts, vet, method, params...)
-}
-
-// Deposits is a free data retrieval call binding the contract method 0xfc7e286d.
+// StakerDepositsResult is a free data retrieval call binding the contract method 0xfc7e286d.
 //
 // Solidity: function deposits(address ) view returns(uint256 unlockBlock, uint256 amount)
-func (_Staker *Staker) Deposits(arg0 common.Address, revision thorest.Revision) (struct {
+type StakerDepositsResult struct {
 	UnlockBlock *big.Int
 	Amount      *big.Int
-}, error) {
-	var out []interface{}
-	err := _Staker.Call(revision, &out, "deposits", arg0)
+}
 
-	outstruct := new(struct {
-		UnlockBlock *big.Int
-		Amount      *big.Int
-	})
-	if err != nil {
-		return *outstruct, err
+func (_Staker *Staker) Deposits(arg0 common.Address) *contracts.Caller[*StakerDepositsResult] {
+	parser := func(data []interface{}) (*StakerDepositsResult, error) {
+		if len(data) != 2 {
+			return nil, errors.New("invalid number of return values")
+		}
+		out := new(StakerDepositsResult)
+
+		out.UnlockBlock = *abi.ConvertType(data[0], new(*big.Int)).(**big.Int)
+		out.Amount = *abi.ConvertType(data[1], new(*big.Int)).(**big.Int)
+
+		return out, nil
 	}
 
-	outstruct.UnlockBlock = *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-	outstruct.Amount = *abi.ConvertType(out[1], new(*big.Int)).(**big.Int)
-
-	return *outstruct, err
-
+	return contracts.NewCaller[*StakerDepositsResult](_Staker.contract, "deposits", arg0).WithParser(parser)
 }
 
 // Stake is a paid mutator transaction binding the contract method 0xa694fc3a.
@@ -143,29 +108,15 @@ func (_Staker *Staker) Deposits(arg0 common.Address, revision thorest.Revision) 
 // Solidity: function stake(uint256 blocks) payable returns()
 //
 // Setting the value in options is replaced by the vetValue argument.
-func (_StakerTransactor *StakerTransactor) Stake(blocks *big.Int, vetValue *big.Int, opts *transactions.Options) *accounts.Sender {
-	return _StakerTransactor.Transact(opts, vetValue, "stake", blocks)
-}
-
-// StakeAsClause is a transaction clause generator 0xa694fc3a.
-//
-// Solidity: function stake(uint256 blocks) payable returns()
-func (_Staker *Staker) StakeAsClause(blocks *big.Int, vetValue *big.Int) (*tx.Clause, error) {
-	return _Staker.contract.AsClauseWithVET(vetValue, "stake", blocks)
+func (_Staker *Staker) Stake(blocks *big.Int, vetValue *big.Int) *contracts.Sender {
+	return contracts.NewSender(_Staker.contract, "stake", blocks).WithVET(vetValue)
 }
 
 // Withdraw is a paid mutator transaction binding the contract method 0x3ccfd60b.
 //
 // Solidity: function withdraw() returns()
-func (_StakerTransactor *StakerTransactor) Withdraw(opts *transactions.Options) *accounts.Sender {
-	return _StakerTransactor.Transact(opts, big.NewInt(0), "withdraw")
-}
-
-// WithdrawAsClause is a transaction clause generator 0x3ccfd60b.
-//
-// Solidity: function withdraw() returns()
-func (_Staker *Staker) WithdrawAsClause() (*tx.Clause, error) {
-	return _Staker.contract.AsClause("withdraw")
+func (_Staker *Staker) Withdraw() *contracts.Sender {
+	return contracts.NewSender(_Staker.contract, "withdraw")
 }
 
 // StakerDeposit represents a Deposit event raised by the Staker contract.

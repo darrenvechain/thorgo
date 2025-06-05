@@ -1,6 +1,7 @@
 package accounts_test
 
 import (
+	"github.com/darrenvechain/thorgo/contracts"
 	"math/big"
 	"testing"
 
@@ -17,7 +18,7 @@ import (
 var (
 	thorClient   *thorest.Client
 	vthoContract *builtins.VTHO
-	vthoRaw      *accounts.Contract
+	vthoRaw      *contracts.Contract
 	account1     *txmanager.PKManager
 )
 
@@ -27,7 +28,7 @@ func TestMain(m *testing.M) {
 	defer cancel()
 	vthoContract, _ = builtins.NewVTHO(thorClient)
 	abi, _ := builtins.VTHOMetaData.GetAbi()
-	vthoRaw = accounts.NewContract(thorClient, vthoContract.Address(), abi)
+	vthoRaw = contracts.New(thorClient, vthoContract.Address(), abi)
 	account1 = txmanager.FromPK(solo.Keys()[0], thorClient)
 	m.Run()
 }

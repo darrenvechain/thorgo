@@ -1,10 +1,10 @@
 package txmanager_test
 
 import (
+	"github.com/darrenvechain/thorgo/contracts"
 	"math/big"
 	"testing"
 
-	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/thorest"
@@ -25,7 +25,7 @@ func TestMain(m *testing.M) {
 
 var (
 	// PKManager should implement accounts.TxManager
-	_ accounts.TxManager = &txmanager.PKManager{}
+	_ contracts.TxManager = &txmanager.PKManager{}
 )
 
 // TestPKSigner demonstrates ease the ease of sending a transaction using a private key signer

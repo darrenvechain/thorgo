@@ -10,11 +10,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/darrenvechain/thorgo/accounts"
+	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/thorest"
-	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/transactions"
+	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -61,7 +61,7 @@ var (
 
     {{if .InputBin}}
         // Deploy{{.Type}} deploys a new Ethereum contract, binding an instance of {{.Type}} to it.
-        func Deploy{{.Type}}(ctx context.Context, thor *thorest.Client, sender accounts.TxManager, opts *transactions.Options{{range .Constructor.Inputs}}, {{.Name}} {{bindtype .Type $structs}}{{end}}) (common.Hash, *{{.Type}}Transactor, error) {
+        func Deploy{{.Type}}(ctx context.Context, thor *thorest.Client, sender contracts.TxManager, opts *transactions.Options{{range .Constructor.Inputs}}, {{.Name}} {{bindtype .Type $structs}}{{end}}) (common.Hash, *{{.Type}}, error) {
             parsed, err := {{.Type}}MetaData.GetAbi()
             if err != nil {
                 return common.Hash{}, nil, err
@@ -74,27 +74,19 @@ var (
             if err != nil {
                 return common.Hash{}, nil, err
             }
-            contract, txID, err := accounts.NewDeployer(thor, bytes, parsed).Deploy(ctx, sender, opts{{range .Constructor.Inputs}}, {{.Name}}{{end}})
+            contract, txID, err := contracts.NewDeployer(thor, bytes, parsed).Deploy(ctx, sender, opts{{range .Constructor.Inputs}}, {{.Name}}{{end}})
             if err != nil {
                 return common.Hash{}, nil, err
             }
-            return txID, &{{.Type}}Transactor{&{{.Type}}{thor: thor, contract: contract}, contract.Transactor(sender), sender}, nil
+            return txID, &{{.Type}}{thor: thor, contract: contract}, nil
         }
     {{end}}
 
 	// {{.Type}} is an auto generated Go binding around an Ethereum contract, allowing you to query and create clauses.
 	type {{.Type}} struct {
 		thor     *thorest.Client // Thor client connection to use
-		contract *accounts.Contract // Generic contract wrapper for the low level calls
+		contract *contracts.Contract // Generic contract wrapper for the low level calls
 	}
-
-	// {{.Type}}Transactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
-    type {{.Type}}Transactor struct {
-            *{{.Type}}
-            contract *accounts.ContractTransactor // Generic contract wrapper for the low level calls
-    		manager accounts.TxManager // TxManager to use
-    }
-
 
 	// New{{.Type}} creates a new instance of {{.Type}}, bound to a specific deployed contract.
 	func New{{.Type}}(address common.Address, thor *thorest.Client) (*{{.Type}}, error) {
@@ -102,67 +94,48 @@ var (
 		if err != nil {
 			return nil, err
 		}
-		contract := accounts.New(thor, address).Contract(parsed)
+		contract := contracts.New(thor, address, parsed)
 		return &{{.Type}}{ thor: thor, contract: contract }, nil
 	}
-
-	// New{{.Type}}Transactor creates a new instance of {{.Type}}Transactor, bound to a specific deployed contract.
-    func New{{.Type}}Transactor(address common.Address, thor *thorest.Client, manager accounts.TxManager) (*{{.Type}}Transactor, error) {
-        base, err := New{{.Type}}(address, thor)
-        if err != nil {
-            return nil, err
-        }
-        return &{{.Type}}Transactor{ {{.Type}}: base, contract: base.contract.Transactor(manager), manager: manager }, nil
-    }
 
 	// Address returns the address of the contract.
 	func (_{{$contract.Type}} *{{$contract.Type}}) Address() common.Address {
         return _{{$contract.Type}}.contract.Address
     }
 
-    // Transactor constructs a new transactor for the contract, which allows to send transactions.
-    func (_{{$contract.Type}} *{{$contract.Type}}) Transactor(manager accounts.TxManager) *{{$contract.Type}}Transactor {
-        return &{{$contract.Type}}Transactor{ {{$contract.Type}}: _{{$contract.Type}}, contract: _{{$contract.Type}}.contract.Transactor(manager), manager: manager }
-    }
-
-	// Call invokes the (constant) contract method with params as input values and
-	// sets the output to result. The result type might be a single field for simple
-	// returns, a slice of interfaces for anonymous returns and a struct for named
-	// returns.
-	func (_{{$contract.Type}} *{{$contract.Type}}) Call(revision thorest.Revision, result *[]interface{}, method string, params ...interface{}) error {
-		return _{{$contract.Type}}.contract.CallAt(revision, method, result, params...)
-	}
-
-	// Transact invokes the (paid) contract method with params as input values.
-	func (_{{$contract.Type}}Transactor *{{$contract.Type}}Transactor) Transact(opts *transactions.Options, vet *big.Int, method string, params ...interface{}) *accounts.Sender {
-		return _{{$contract.Type}}Transactor.contract.SendPayable(opts, vet, method, params...)
-	}
-
 	{{range .Calls}}
+		{{if gt (len .Normalized.Outputs) 1}}
+		// {{$contract.Type}}{{.Normalized.Name}}Result is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.ID}}.
+		//
+		// Solidity: {{.Original.String}}
+		type {{$contract.Type}}{{.Normalized.Name}}Result struct {
+			{{range $i, $output := .Normalized.Outputs}}{{if .Name}}{{.Name}}{{else}}Result{{$i}}{{end}} {{bindtype .Type $structs}}
+			{{end}}
+		}
+
+		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}({{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}}, {{end}}) *contracts.Caller[*{{$contract.Type}}{{.Normalized.Name}}Result] {
+			parser := func(data []interface{}) (*{{$contract.Type}}{{.Normalized.Name}}Result, error) {
+				if len(data) != {{len .Normalized.Outputs}} {
+					return nil, errors.New("invalid number of return values")
+				}
+				out := new({{$contract.Type}}{{.Normalized.Name}}Result)
+
+				{{range $i, $t := .Normalized.Outputs}}out.{{if .Name}}{{.Name}}{{else}}Result{{$i}}{{end}} = *abi.ConvertType(data[{{$i}}], new({{bindtype .Type $structs}})).(*{{bindtype .Type $structs}})
+				{{end}}
+
+				return out, nil
+			}
+
+			return contracts.NewCaller[*{{$contract.Type}}{{.Normalized.Name}}Result](_{{$contract.Type}}.contract, "{{.Original.Name}}"{{range .Normalized.Inputs}}, {{.Name}}{{end}}).WithParser(parser)
+		}
+		{{else}}
 		// {{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.ID}}.
 		//
 		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}({{range .Normalized.Inputs}} {{.Name}} {{bindtype .Type $structs}}, {{end}} revision thorest.Revision) ({{if .Structured}}struct{ {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};{{end}} },{{else}}{{range .Normalized.Outputs}}{{bindtype .Type $structs}},{{end}}{{end}} error) {
-			var out []interface{}
-			err := _{{$contract.Type}}.Call(revision, &out, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
-			{{if .Structured}}
-			outstruct := new(struct{ {{range .Normalized.Outputs}} {{.Name}} {{bindtype .Type $structs}}; {{end}} })
-			if err != nil {
-				return *outstruct, err
-			}
-			{{range $i, $t := .Normalized.Outputs}}
-			outstruct.{{.Name}} = *abi.ConvertType(out[{{$i}}], new({{bindtype .Type $structs}})).(*{{bindtype .Type $structs}}){{end}}
-
-			return *outstruct, err
-			{{else}}
-			if err != nil {
-				return {{range $i, $_ := .Normalized.Outputs}}*new({{bindtype .Type $structs}}), {{end}} err
-			}
-			{{range $i, $t := .Normalized.Outputs}}
-			out{{$i}} := *abi.ConvertType(out[{{$i}}], new({{bindtype .Type $structs}})).(*{{bindtype .Type $structs}}){{end}}
-
-			return {{range $i, $t := .Normalized.Outputs}}out{{$i}}, {{end}} err {{end}}
+		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}({{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}}, {{end}}) *contracts.Caller[{{range .Normalized.Outputs}}{{bindtype .Type $structs}}{{end}}] {
+			return contracts.NewCaller[{{range .Normalized.Outputs}}{{bindtype .Type $structs}}{{end}}](_{{$contract.Type}}.contract, "{{.Original.Name}}"{{range .Normalized.Inputs}}, {{.Name}}{{end}})
 		}
+		{{end}}
 	{{end}}
 
 	{{range .Transacts}}
@@ -173,21 +146,13 @@ var (
         //
         // Setting the value in options is replaced by the vetValue argument.
         {{- end }}
-		func (_{{$contract.Type}}Transactor *{{$contract.Type}}Transactor) {{.Normalized.Name}}({{range .Normalized.Inputs}} {{.Name}} {{bindtype .Type $structs}}, {{end}} {{- if eq .Normalized.StateMutability "payable" }}vetValue *big.Int, {{end}}  opts *transactions.Options) *accounts.Sender {
+		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}({{range .Normalized.Inputs}} {{.Name}} {{bindtype .Type $structs}}, {{end}} {{- if eq .Normalized.StateMutability "payable" }}vetValue *big.Int, {{end}}) *contracts.Sender {
             {{- if eq .Normalized.StateMutability "payable" }}
-            return _{{$contract.Type}}Transactor.Transact(opts, vetValue, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
+            return contracts.NewSender(_{{$contract.Type}}.contract, "{{.Original.Name}}"{{range .Normalized.Inputs}}, {{.Name}}{{end}}).WithVET(vetValue)
             {{- else }}
-            return _{{$contract.Type}}Transactor.Transact(opts, big.NewInt(0), "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
+            return contracts.NewSender(_{{$contract.Type}}.contract, "{{.Original.Name}}"{{range .Normalized.Inputs}}, {{.Name}}{{end}})
             {{- end }}
 		}
-
-        // {{.Normalized.Name}}AsClause is a transaction clause generator 0x{{printf "%x" .Original.ID}}.
-        //
-        // Solidity: {{.Original.String}}
-        func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}AsClause({{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}}, {{end}} {{- if eq .Normalized.StateMutability "payable" }}vetValue *big.Int{{end}}) (*tx.Clause, error) {
-            {{- if eq .Normalized.StateMutability "payable" }}return _{{$contract.Type}}.contract.AsClauseWithVET(vetValue, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
-            {{else}}return _{{$contract.Type}}.contract.AsClause("{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}}){{end -}}
-        }
 	{{end}}
 
 	{{range .Events}}

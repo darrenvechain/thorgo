@@ -1,4 +1,4 @@
-package accounts
+package contracts
 
 import (
 	"bytes"
@@ -19,8 +19,8 @@ type Contract struct {
 	Address common.Address
 }
 
-// NewContract creates a new instance of the Contract struct.
-func NewContract(
+// New creates a new instance of the Contract struct.
+func New(
 	client *thorest.Client,
 	address common.Address,
 	abi *abi.ABI,
@@ -28,42 +28,14 @@ func NewContract(
 	return &Contract{client: client, Address: address, ABI: abi}
 }
 
-// Call executes a read-only contract call.
-func (c *Contract) Call(method string, results *[]any, args ...any) error {
-	return c.CallAt(thorest.RevisionNext(), method, results, args...)
+// Call creates a contract caller for the specified method and arguments.
+func (c *Contract) Call(method string, args ...any) *Caller[any] {
+	return NewCaller[any](c, method, args...)
 }
 
-// CallAt executes a read-only contract call at a specific revision.
-func (c *Contract) CallAt(revision thorest.Revision, method string, results *[]any, args ...any) error {
-	if results == nil {
-		results = new([]any)
-	}
-	packed, err := c.ABI.Pack(method, args...)
-	if err != nil {
-		return fmt.Errorf("failed to pack method %s: %w", method, err)
-	}
-	clause := tx.NewClause(&c.Address).WithData(packed).WithValue(big.NewInt(0))
-	request := thorest.InspectRequest{
-		Clauses: []*tx.Clause{clause},
-	}
-	response, err := c.client.InspectAt(request, revision)
-	if err != nil {
-		return fmt.Errorf("failed to inspect contract: %w", err)
-	}
-	inspection := response[0]
-	if inspection.Reverted {
-		return errors.New("contract call reverted")
-	}
-	if inspection.VmError != "" {
-		return errors.New(inspection.VmError)
-	}
-	if len(*results) == 0 {
-		res, err := c.ABI.Unpack(method, inspection.Data)
-		*results = res
-		return err
-	}
-	res := *results
-	return c.ABI.UnpackIntoInterface(res[0], method, inspection.Data)
+// Send creates a contract transaction sender for the specified method and arguments.
+func (c *Contract) Send(method string, args ...any) *Sender {
+	return NewSender(c, method, args...)
 }
 
 // DecodeCall decodes the result of a contract call, for example, decoding a clause's 'data'.
@@ -106,11 +78,6 @@ func (c *Contract) AsClauseWithVET(vet *big.Int, method string, args ...any) (*t
 		return nil, fmt.Errorf("failed to pack method %s: %w", method, err)
 	}
 	return tx.NewClause(&c.Address).WithData(packed).WithValue(vet), nil
-}
-
-// Transactor returns a new ContractTransactor instance for sending transactions to the contract.
-func (c *Contract) Transactor(manager TxManager) *ContractTransactor {
-	return &ContractTransactor{Contract: c, manager: manager}
 }
 
 // EventCriteria generates criteria to query contract events by name.
