@@ -53,10 +53,10 @@ go get github.com/darrenvechain/thorgo
 - The delegation managers can be used to easily delegate transaction gas fees.
 - **Note**: The private key implementations in this package are not secure. It is recommended to use a secure key
   management solution in a production environment.
-- To create your own transaction manager or signer, you can implement the `accounts.TxManager` interface:
+- To create your own transaction manager or signer, you can implement the `contracts.TxManager` interface:
 
 ```golang
-// github.com/darrenvechain/thorgo/accounts
+// github.com/darrenvechain/thorgo/contracts
 type TxManager interface {
 	SendClauses(clauses []*tx.Clause, opts *transactions.Options) (*transactions.Visitor, error)
 }
@@ -129,8 +129,6 @@ import (
   "github.com/darrenvechain/thorgo"
   "github.com/darrenvechain/thorgo/builtins"
   "github.com/darrenvechain/thorgo/solo"
-  "github.com/darrenvechain/thorgo/thorest"
-  "github.com/darrenvechain/thorgo/transactions"
   "github.com/darrenvechain/thorgo/txmanager"
 )
 
@@ -143,26 +141,26 @@ func main() {
   txSender := txmanager.NewDelegated(thor.Client(), origin, gasPayer)
 
   // Use the `thorgen` CLI to build your own smart contract wrapper
-  vtho, _ := builtins.NewVTHOTransactor(thor.Client(), txSender)
+  vtho, _ := builtins.NewVTHO(thor.Client())
 
   // Create a new account to receive the tokens
   recipient, _ := txmanager.GeneratePK(thor.Client())
 
   // Call the balanceOf function
-  balance, err := vtho.BalanceOf(recipient.Address(), thorest.RevisionBest())
+  balance, err := vtho.BalanceOf(recipient.Address()).Execute()
   slog.Info("recipient balance before", "balance", balance, "error", err)
 
-  receipt, err := vtho.Transfer(recipient.Address(), big.NewInt(1000000000000000000), &transactions.Options{}).
-    Receipt(context.Background())
+  receipt, err := vtho.Transfer(recipient.Address(), big.NewInt(1000000000000000000)).Receipt(context.Background(), txSender)
   if err != nil {
     slog.Error("transfer error", "error", err)
     return
   }
   slog.Info("transfer receipt", "error", receipt.Reverted)
 
-  balance, err = vtho.BalanceOf(recipient.Address(), thorest.RevisionBest())
+  balance, err = vtho.BalanceOf(recipient.Address()).Execute()
   slog.Info("recipient balance after", "balance", balance, "error", err)
 }
+
 ```
 
 </details>
@@ -184,7 +182,6 @@ import (
   "github.com/darrenvechain/thorgo/builtins"
   "github.com/darrenvechain/thorgo/crypto/tx"
   "github.com/darrenvechain/thorgo/solo"
-  "github.com/darrenvechain/thorgo/thorest"
   "github.com/darrenvechain/thorgo/transactions"
   "github.com/darrenvechain/thorgo/txmanager"
 )
@@ -197,18 +194,18 @@ func main() {
   recipient1, _ := txmanager.GeneratePK(thor.Client())
   recipient2, _ := txmanager.GeneratePK(thor.Client())
 
-  vtho, _ := builtins.NewVTHOTransactor(thor.Client(), origin)
+  vtho, _ := builtins.NewVTHO(thor.Client())
 
-  clause1, _ := vtho.TransferAsClause(recipient1.Address(), big.NewInt(1000))
-  clause2, _ := vtho.TransferAsClause(recipient2.Address(), big.NewInt(9999))
+  clause1, _ := vtho.Transfer(recipient1.Address(), big.NewInt(1000)).Clause()
+  clause2, _ := vtho.Transfer(recipient2.Address(), big.NewInt(9999)).Clause()
 
   tx, _ := origin.SendClauses([]*tx.Clause{clause1, clause2}, &transactions.Options{})
   slog.Info("transaction sent", "id", tx.ID())
   trx, _ := tx.Wait(context.Background())
   slog.Info("transaction mined", "reverted", trx.Reverted)
 
-  balance1, _ := vtho.BalanceOf(recipient1.Address(), thorest.RevisionBest())
-  balance2, _ := vtho.BalanceOf(recipient2.Address(), thorest.RevisionBest())
+  balance1, _ := vtho.BalanceOf(recipient1.Address()).Execute()
+  balance2, _ := vtho.BalanceOf(recipient2.Address()).Execute()
 
   slog.Info("recipient1", "balance", balance1)
   slog.Info("recipient2", "balance", balance2)
