@@ -32,6 +32,7 @@ var (
 	_ = tx.NewClause
 	_ = blocks.New
 	_ = time.Sleep
+	_ = transactions.New
 )
 
 // Erc20MetaData contains all meta data concerning the Erc20 contract.

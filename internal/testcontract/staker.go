@@ -32,6 +32,7 @@ var (
 	_ = tx.NewClause
 	_ = blocks.New
 	_ = time.Sleep
+	_ = transactions.New
 )
 
 // StakerMetaData contains all meta data concerning the Staker contract.
