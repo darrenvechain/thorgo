@@ -6,7 +6,7 @@ import (
 	"math/big"
 	"sync"
 	"sync/atomic"
-	
+
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
