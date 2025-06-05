@@ -91,7 +91,7 @@ func (s *Sender) Send(manager TxManager) (*transactions.Visitor, error) {
 	}
 	clause, err := s.Clause()
 	if err != nil {
-		return &transactions.Visitor{}, fmt.Errorf("failed to pack method %s: %w", s.method, err)
+		return nil, err
 	}
 	res, err := manager.SendClauses([]*tx.Clause{clause}, s.opts)
 	if err != nil {
