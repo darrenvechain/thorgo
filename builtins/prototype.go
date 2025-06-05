@@ -14,6 +14,7 @@ import (
 	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
+	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -31,6 +32,7 @@ var (
 	_ = tx.NewClause
 	_ = blocks.New
 	_ = time.Sleep
+	_ = transactions.New
 )
 
 // PrototypeMetaData contains all meta data concerning the Prototype contract.
