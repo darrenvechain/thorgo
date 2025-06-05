@@ -9,7 +9,7 @@ import (
 	"github.com/darrenvechain/thorgo/thorest"
 )
 
-type ParserFunc[T any] func(data []interface{}) (T, error)
+type ParserFunc[T any] func(data []any) (T, error)
 
 type Caller[T any] struct {
 	contract *Contract
