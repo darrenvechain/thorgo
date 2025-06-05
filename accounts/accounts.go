@@ -1,9 +1,9 @@
 package accounts
 
 import (
-	"github.com/darrenvechain/thorgo/contracts"
 	"math/big"
 
+	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/ethereum/go-ethereum/accounts/abi"

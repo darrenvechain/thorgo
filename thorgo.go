@@ -2,10 +2,10 @@ package thorgo
 
 import (
 	"context"
-	"github.com/darrenvechain/thorgo/contracts"
 
 	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/blocks"
+	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"

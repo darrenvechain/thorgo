@@ -92,7 +92,7 @@ func (c *Caller[T]) Execute() (T, error) {
 		return zero, fmt.Errorf("unexpected type returned: %T", res[0])
 	}
 	if c.parser == nil {
-		return zero, fmt.Errorf("parser function must be defined for multiple return values, got %d values", len(res))
+		return zero, fmt.Errorf("parser function must be defined for multiple/struct return values, got %d values", len(res))
 	}
 	return c.parser(res)
 }

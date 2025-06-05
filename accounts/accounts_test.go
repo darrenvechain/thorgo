@@ -1,12 +1,12 @@
 package accounts_test
 
 import (
-	"github.com/darrenvechain/thorgo/contracts"
 	"math/big"
 	"testing"
 
 	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/builtins"
+	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/solo"
 	"github.com/darrenvechain/thorgo/thorest"

@@ -3,13 +3,14 @@ package contracts
 import (
 	"context"
 	"fmt"
+	"math/big"
+	"sync"
+	"sync/atomic"
+	
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/common"
-	"math/big"
-	"sync"
-	"sync/atomic"
 )
 
 type TxManager interface {

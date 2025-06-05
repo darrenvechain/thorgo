@@ -1,10 +1,10 @@
 package txmanager_test
 
 import (
-	"github.com/darrenvechain/thorgo/contracts"
 	"math/big"
 	"testing"
 
+	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/thorest"
