@@ -1,35 +1,53 @@
-package accounts_test
+package contracts_test
 
 import (
 	"context"
 	"math/big"
 	"testing"
 
+	"github.com/darrenvechain/thorgo/builtins"
+	"github.com/darrenvechain/thorgo/contracts"
+	"github.com/darrenvechain/thorgo/internal/testcontainer"
+	"github.com/darrenvechain/thorgo/solo"
 	"github.com/darrenvechain/thorgo/thorest"
-	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/darrenvechain/thorgo/txmanager"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
 )
 
+var (
+	thorClient   *thorest.Client
+	vthoContract *builtins.VTHO
+	vthoRaw      *contracts.Contract
+	account1     *txmanager.PKManager
+)
+
+func TestMain(m *testing.M) {
+	var cancel func()
+	thorClient, cancel = testcontainer.NewSolo()
+	defer cancel()
+	vthoContract, _ = builtins.NewVTHO(thorClient)
+	abi, _ := builtins.VTHOMetaData.GetAbi()
+	vthoRaw = contracts.New(thorClient, vthoContract.Address(), abi)
+	account1 = txmanager.FromPK(solo.Keys()[0], thorClient)
+	m.Run()
+}
+
 func TestContract_Call(t *testing.T) {
 	// name
-	var name []any
-	err := vthoRaw.Call("name", &name)
+	name, err := vthoRaw.Call("name").Execute()
 	assert.NoError(t, err)
-	assert.Equal(t, "VeThor", name[0])
+	assert.Equal(t, "VeThor", name)
 
 	// symbol
-	var symbol []any
-	err = vthoRaw.Call("symbol", &symbol)
+	symbol, err := vthoRaw.Call("symbol").Execute()
 	assert.NoError(t, err)
-	assert.Equal(t, "VTHO", symbol[0])
+	assert.Equal(t, "VTHO", symbol)
 
 	// decimals
-	var decimals []any
-	err = vthoRaw.Call("decimals", &decimals)
+	decimals, err := vthoRaw.Call("decimals").Execute()
 	assert.NoError(t, err)
-	assert.Equal(t, uint8(18), decimals[0])
+	assert.Equal(t, uint8(18), decimals)
 }
 
 func TestContract_DecodeCall(t *testing.T) {
@@ -57,9 +75,9 @@ func TestContract_Send(t *testing.T) {
 	receiver, err := txmanager.GeneratePK(thorClient)
 	assert.NoError(t, err)
 
-	receipt, err := vthoRaw.Transactor(account1).
-		Send(&transactions.Options{}, "transfer", receiver.Address(), big.NewInt(1000)).
-		Receipt(context.Background())
+	receipt, err := vthoRaw.
+		Send("transfer", receiver.Address(), big.NewInt(1000)).
+		Receipt(context.Background(), account1)
 	assert.NoError(t, err)
 	assert.False(t, receipt.Reverted)
 }
@@ -68,9 +86,8 @@ func TestContract_EventCriteria(t *testing.T) {
 	receiver, err := txmanager.GeneratePK(thorClient)
 	assert.NoError(t, err)
 
-	receipt, err := vthoRaw.Transactor(account1).
-		Send(&transactions.Options{}, "transfer", receiver.Address(), big.NewInt(1000)).
-		Receipt(context.Background())
+	receipt, err := vthoRaw.Send("transfer", receiver.Address(), big.NewInt(1000)).
+		Receipt(context.Background(), account1)
 	assert.NoError(t, err)
 	assert.False(t, receipt.Reverted)
 
@@ -100,9 +117,8 @@ func TestContract_UnpackLog(t *testing.T) {
 	receiver, err := txmanager.GeneratePK(thorClient)
 	assert.NoError(t, err)
 
-	receipt, err := vthoRaw.Transactor(account1).
-		Send(&transactions.Options{}, "transfer", receiver.Address(), big.NewInt(1000)).
-		Receipt(context.Background())
+	receipt, err := vthoRaw.Send("transfer", receiver.Address(), big.NewInt(1000)).
+		Receipt(context.Background(), account1)
 	assert.NoError(t, err)
 	assert.False(t, receipt.Reverted)
 
