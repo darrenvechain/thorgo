@@ -20,6 +20,7 @@ type Options struct {
 	BlockRef             *tx.BlockRef    // BlockRef specifies the block reference.
 	DependsOn            *common.Hash    // DependsOn specifies the transaction that this transaction depends on.
 	ChainTag             *byte           // ChainTag specifies the chain tag.
+	GasBuffer            *uint64         // GasBuffer is the amount of gas to add to an estimation
 }
 
 // OptionsBuilder is a builder for creating transaction options.

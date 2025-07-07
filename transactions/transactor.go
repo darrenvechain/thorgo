@@ -11,6 +11,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+const GasBuffer = uint64(20_000)
+
 // Transactor is a transaction builder that can be used to simulate and build and send transactions.
 type Transactor struct {
 	client  *thorest.Client
@@ -80,6 +82,7 @@ func (t *Transactor) Simulate(caller common.Address, options *Options) (*Simulat
 // - MaxFeePerGas: If not provided, retrieves the max fee from the client.
 // - MaxPriorityFeePerGas: If not provided, an additional 5% of the bast fee is added.
 // - GasPriceCoef: If not provided, defaults to 0 for legacy transactions.
+// - GasBuffer: If not provided, defaults to 20,000 to ensure sufficient gas is available for the transaction.
 func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transaction, error) {
 	if options == nil {
 		options = &Options{}
@@ -114,15 +117,22 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 		builder.Features(tx.DelegationFeature)
 	}
 
+	var gas uint64
 	if options.Gas != nil {
-		builder.Gas(*options.Gas)
+		gas = *options.Gas
 	} else {
 		simulation, err := t.Simulate(caller, options)
 		if err != nil {
 			return nil, err
 		}
-		builder.Gas(simulation.TotalGas())
+		gas = simulation.TotalGas()
 	}
+	if options.GasBuffer != nil {
+		gas += *options.GasBuffer
+	} else {
+		gas += GasBuffer
+	}
+	builder.Gas(gas)
 
 	switch txType {
 	case tx.TypeLegacy:
