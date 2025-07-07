@@ -31,13 +31,14 @@ func TestContractClause(t *testing.T) {
 	assert.False(t, simulation.Reverted())
 
 	// build
-	tx, err := txbuilder.Build(account1Addr, &transactions.Options{})
+	trx, err := txbuilder.Build(account1Addr, &transactions.Options{})
 	assert.NoError(t, err)
+	assert.Equal(t, trx.Type(), tx.TypeDynamicFee)
 
 	// sign
-	signingHash := tx.SigningHash()
+	signingHash := trx.SigningHash()
 	signature, _ := crypto.Sign(signingHash.Bytes(), account1)
-	signedTx := tx.WithSignature(signature)
+	signedTx := trx.WithSignature(signature)
 
 	// send
 	res, err := thorClient.SendTransaction(signedTx)
