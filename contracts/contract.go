@@ -29,8 +29,8 @@ func New(
 }
 
 // Call creates a contract caller for the specified method and arguments.
-func (c *Contract) Call(method string, args ...any) *Caller[any] {
-	return NewCaller[any](c, method, args...)
+func (c *Contract) Call(method string, args ...any) *Caller {
+	return NewCaller(c, method, args...)
 }
 
 // Send creates a contract transaction sender for the specified method and arguments.
@@ -231,4 +231,9 @@ func (c *Contract) UnpackLog(out any, event string, log *thorest.EventLog) error
 		}
 	}
 	return abi.ParseTopics(out, indexed, log.Topics[1:])
+}
+
+// Filter creates a contract event filterer for the specified event name.
+func (c *Contract) Filter(eventName string) *Filterer {
+	return NewFilterer(c, eventName)
 }

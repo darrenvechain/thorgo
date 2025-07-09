@@ -11,7 +11,7 @@ func TestAuthority(t *testing.T) {
 	authority, err := NewAuthority(thor)
 	assert.NoError(t, err)
 
-	candidates, err := authority.FilterCandidate([]AuthorityCandidateCriteria{}, &thorest.LogFilters{})
+	candidates, err := authority.FilterCandidate(nil).Limit(1).Execute()
 	assert.NoError(t, err)
 	assert.NotEmpty(t, candidates)
 

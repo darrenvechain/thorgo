@@ -2,6 +2,7 @@ package thorgo
 
 import (
 	"context"
+	"github.com/darrenvechain/thorgo/logs"
 
 	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/blocks"
@@ -56,13 +57,13 @@ func (t *Thor) Transactor(clauses []*tx.Clause) *transactions.Transactor {
 }
 
 // Events sets up a query builder to fetch smart contract solidity events.
-func (t *Thor) Events(criteria []thorest.EventCriteria, filters *thorest.LogFilters) ([]*thorest.EventLog, error) {
-	return t.client.FilterEvents(criteria, filters)
+func (t *Thor) Events() *logs.EventQuerier {
+	return logs.NewEventQuerier(t.client)
 }
 
 // Transfers sets up a query builder to fetch VET transfers.
-func (t *Thor) Transfers(criteria []thorest.TransferCriteria, filters *thorest.LogFilters) ([]*thorest.TransferLog, error) {
-	return t.client.FilterTransfers(criteria, filters)
+func (t *Thor) Transfers() *logs.TransfersQuerier {
+	return logs.NewTransfersQuerier(t.client)
 }
 
 // Deployer makes it easier to deploy contracts.

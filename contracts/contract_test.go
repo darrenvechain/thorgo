@@ -37,17 +37,17 @@ func TestContract_Call(t *testing.T) {
 	// name
 	name, err := vthoRaw.Call("name").Execute()
 	assert.NoError(t, err)
-	assert.Equal(t, "VeThor", name)
+	assert.Equal(t, "VeThor", name[0])
 
 	// symbol
 	symbol, err := vthoRaw.Call("symbol").Execute()
 	assert.NoError(t, err)
-	assert.Equal(t, "VTHO", symbol)
+	assert.Equal(t, "VTHO", symbol[0])
 
 	// decimals
 	decimals, err := vthoRaw.Call("decimals").Execute()
 	assert.NoError(t, err)
-	assert.Equal(t, uint8(18), decimals)
+	assert.Equal(t, uint8(18), decimals[0])
 }
 
 func TestContract_DecodeCall(t *testing.T) {
@@ -91,12 +91,9 @@ func TestContract_EventCriteria(t *testing.T) {
 	assert.NoError(t, err)
 	assert.False(t, receipt.Reverted)
 
-	// event criteria - match the newly created receiver
-	criteria, err := vthoRaw.EventCriteria("Transfer", nil, receiver.Address())
-	assert.NoError(t, err)
-
 	// fetch events
-	transfers, err := thorClient.FilterEvents([]thorest.EventCriteria{criteria}, &thorest.LogFilters{})
+	criteria := contracts.EventCriteria{Topic2: receiver.Address()}
+	transfers, err := vthoRaw.Filter("Transfer").AddCriteria(criteria).Execute()
 	assert.NoError(t, err)
 
 	// decode events
@@ -122,12 +119,9 @@ func TestContract_UnpackLog(t *testing.T) {
 	assert.NoError(t, err)
 	assert.False(t, receipt.Reverted)
 
-	// event criteria - match the newly created receiver
-	criteria, err := vthoRaw.EventCriteria("Transfer", nil, receiver.Address())
-	assert.NoError(t, err)
-
 	// fetch events
-	transfers, err := thorClient.FilterEvents([]thorest.EventCriteria{criteria}, nil)
+	criteria := contracts.EventCriteria{Topic2: receiver.Address()}
+	transfers, err := vthoRaw.Filter("Transfer").AddCriteria(criteria).Execute()
 	assert.NoError(t, err)
 	assert.Greater(t, len(transfers), 0)
 

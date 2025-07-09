@@ -11,19 +11,16 @@ import (
 
 type ParserFunc[T any] func(data []any) (T, error)
 
-type Caller[T any] struct {
+type Caller struct {
 	contract *Contract
-
-	method string
-	args   []any
-
-	rev    thorest.Revision
-	value  *big.Int
-	parser ParserFunc[T]
+	method   string
+	args     []any
+	rev      thorest.Revision
+	value    *big.Int
 }
 
-func NewCaller[T any](contract *Contract, method string, args ...any) *Caller[T] {
-	return &Caller[T]{
+func NewCaller(contract *Contract, method string, args ...any) *Caller {
+	return &Caller{
 		contract: contract,
 		method:   method,
 		args:     args,
@@ -31,22 +28,18 @@ func NewCaller[T any](contract *Contract, method string, args ...any) *Caller[T]
 	}
 }
 
-func (c *Caller[T]) WithRevision(rev thorest.Revision) *Caller[T] {
+func (c *Caller) WithRevision(rev thorest.Revision) *Caller {
 	c.rev = rev
 	return c
 }
 
-func (c *Caller[T]) WithValue(value *big.Int) *Caller[T] {
+func (c *Caller) WithValue(value *big.Int) *Caller {
 	c.value = value
 	return c
 }
 
-func (c *Caller[T]) WithParser(parser ParserFunc[T]) *Caller[T] {
-	c.parser = parser
-	return c
-}
-
-func (c *Caller[any]) Call() (*thorest.InspectResponse, error) {
+// Call executes the contract call and returns the raw response
+func (c *Caller) Call() (*thorest.InspectResponse, error) {
 	packed, err := c.contract.ABI.Pack(c.method, c.args...)
 	if err != nil {
 		return nil, errors.New("failed to pack method: " + err.Error())
@@ -72,27 +65,19 @@ func (c *Caller[any]) Call() (*thorest.InspectResponse, error) {
 	return &output, nil
 }
 
-func (c *Caller[T]) Execute() (T, error) {
-	response, err := c.Call()
-	var zero T
-	if err != nil {
-		return zero, err
-	}
+// UnpackResult unpacks the response data using the ABI
+func (c *Caller) UnpackResult(response *thorest.InspectResponse) ([]any, error) {
 	if len(response.Data) == 0 {
-		return zero, errors.New("no data returned from contract call")
+		return nil, errors.New("no data returned from contract call")
 	}
-	res, err := c.contract.ABI.Unpack(c.method, response.Data)
+	return c.contract.ABI.Unpack(c.method, response.Data)
+}
+
+// Execute calls the contract and returns the unpacked result
+func (c *Caller) Execute() ([]any, error) {
+	response, err := c.Call()
 	if err != nil {
-		return zero, err
+		return nil, err
 	}
-	if len(res) == 1 {
-		if result, ok := res[0].(T); ok {
-			return result, nil
-		}
-		return zero, fmt.Errorf("unexpected type returned: %T", res[0])
-	}
-	if c.parser == nil {
-		return zero, fmt.Errorf("parser function must be defined for multiple/struct return values, got %d values", len(res))
-	}
-	return c.parser(res)
+	return c.UnpackResult(response)
 }

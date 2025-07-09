@@ -59,6 +59,7 @@ func (s *Sender) Simulate(caller *common.Address) (*thorest.InspectResponse, err
 	if len(response) == 0 {
 		return nil, fmt.Errorf("no response from inspection")
 	}
+	// TODO: if response.Reverted is true, abi.UnpackRevert
 	return &response[0], nil
 }
 

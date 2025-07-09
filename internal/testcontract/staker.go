@@ -6,6 +6,7 @@ package testcontract
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 	"strings"
 	"time"
@@ -33,6 +34,7 @@ var (
 	_ = blocks.New
 	_ = time.Sleep
 	_ = transactions.New
+	_ = fmt.Errorf
 )
 
 // StakerMetaData contains all meta data concerning the Staker contract.
@@ -88,20 +90,44 @@ type StakerDepositsResult struct {
 	Amount      *big.Int
 }
 
-func (_Staker *Staker) Deposits(arg0 common.Address) *contracts.Caller[*StakerDepositsResult] {
-	parser := func(data []interface{}) (*StakerDepositsResult, error) {
-		if len(data) != 2 {
-			return nil, errors.New("invalid number of return values")
-		}
-		out := new(StakerDepositsResult)
+// StakerDepositsCaller provides typed access to the Deposits method
+type StakerDepositsCaller struct {
+	caller *contracts.Caller
+}
 
-		out.UnlockBlock = *abi.ConvertType(data[0], new(*big.Int)).(**big.Int)
-		out.Amount = *abi.ConvertType(data[1], new(*big.Int)).(**big.Int)
-
-		return out, nil
+func (_Staker *Staker) Deposits(arg0 common.Address) *StakerDepositsCaller {
+	return &StakerDepositsCaller{
+		caller: _Staker.contract.Call("deposits", arg0),
 	}
+}
 
-	return contracts.NewCaller[*StakerDepositsResult](_Staker.contract, "deposits", arg0).WithParser(parser)
+func (c *StakerDepositsCaller) WithRevision(rev thorest.Revision) *StakerDepositsCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+func (c *StakerDepositsCaller) WithValue(value *big.Int) *StakerDepositsCaller {
+	c.caller.WithValue(value)
+	return c
+}
+
+func (c *StakerDepositsCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+func (c *StakerDepositsCaller) Execute() (*StakerDepositsResult, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		return nil, err
+	}
+	if len(data) != 2 {
+		return nil, errors.New("invalid number of return values")
+	}
+	out := new(StakerDepositsResult)
+	out.UnlockBlock = *abi.ConvertType(data[0], new(*big.Int)).(**big.Int)
+	out.Amount = *abi.ConvertType(data[1], new(*big.Int)).(**big.Int)
+
+	return out, nil
 }
 
 // Stake is a paid mutator transaction binding the contract method 0xa694fc3a.
@@ -131,38 +157,62 @@ type StakerDepositCriteria struct {
 	From *common.Address `abi:"_from"`
 }
 
+// StakerDepositFilterer provides typed access to filtering Deposit events
+type StakerDepositFilterer struct {
+	filterer *contracts.Filterer
+	contract *contracts.Contract
+}
+
 // FilterDeposit is a free log retrieval operation binding the contract event 0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c.
 //
 // Solidity: event Deposit(address indexed _from, uint256 _value)
-func (_Staker *Staker) FilterDeposit(criteria []StakerDepositCriteria, filters *thorest.LogFilters) ([]StakerDeposit, error) {
-	topicHash := _Staker.contract.ABI.Events["Deposit"].ID
+func (_Staker *Staker) FilterDeposit(criteria []StakerDepositCriteria) *StakerDepositFilterer {
+	filterer := _Staker.contract.Filter("Deposit")
 
-	criteriaSet := make([]thorest.EventCriteria, len(criteria))
-	for i, c := range criteria {
-		crteria := thorest.EventCriteria{
-			Address: &_Staker.contract.Address,
-			Topic0:  &topicHash,
-		}
+	// Add criteria to the filterer
+	for _, c := range criteria {
+		eventCriteria := contracts.EventCriteria{}
 		if c.From != nil {
-			matcher := *c.From
-			topics, err := abi.MakeTopics([]interface{}{matcher})
-			if err != nil {
-				return nil, err
-			}
-			crteria.Topic1 = &topics[0][0]
+			eventCriteria.Topic1 = *c.From
 		}
-
-		criteriaSet[i] = crteria
+		filterer.AddCriteria(eventCriteria)
 	}
 
-	if len(criteriaSet) == 0 {
-		criteriaSet = append(criteriaSet, thorest.EventCriteria{
-			Address: &_Staker.contract.Address,
-			Topic0:  &topicHash,
-		})
-	}
+	return &StakerDepositFilterer{filterer: filterer, contract: _Staker.contract}
+}
 
-	logs, err := _Staker.thor.FilterEvents(criteriaSet, filters)
+func (f *StakerDepositFilterer) Range(from, to int64) *StakerDepositFilterer {
+	f.filterer.Range(from, to)
+	return f
+}
+
+func (f *StakerDepositFilterer) From(from int64) *StakerDepositFilterer {
+	f.filterer.From(from)
+	return f
+}
+
+func (f *StakerDepositFilterer) To(to int64) *StakerDepositFilterer {
+	f.filterer.To(to)
+	return f
+}
+
+func (f *StakerDepositFilterer) Offset(offset int64) *StakerDepositFilterer {
+	f.filterer.Offset(offset)
+	return f
+}
+
+func (f *StakerDepositFilterer) Limit(limit int64) *StakerDepositFilterer {
+	f.filterer.Limit(limit)
+	return f
+}
+
+func (f *StakerDepositFilterer) Order(order string) *StakerDepositFilterer {
+	f.filterer.Order(order)
+	return f
+}
+
+func (f *StakerDepositFilterer) Execute() ([]StakerDeposit, error) {
+	logs, err := f.filterer.Execute()
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +220,7 @@ func (_Staker *Staker) FilterDeposit(criteria []StakerDepositCriteria, filters *
 	events := make([]StakerDeposit, len(logs))
 	for i, log := range logs {
 		event := new(StakerDeposit)
-		if err := _Staker.contract.UnpackLog(event, "Deposit", log); err != nil {
+		if err := f.contract.UnpackLog(event, "Deposit", log); err != nil {
 			return nil, err
 		}
 		event.Log = log
@@ -258,38 +308,62 @@ type StakerWithdrawalCriteria struct {
 	To *common.Address `abi:"_to"`
 }
 
+// StakerWithdrawalFilterer provides typed access to filtering Withdrawal events
+type StakerWithdrawalFilterer struct {
+	filterer *contracts.Filterer
+	contract *contracts.Contract
+}
+
 // FilterWithdrawal is a free log retrieval operation binding the contract event 0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65.
 //
 // Solidity: event Withdrawal(address indexed _to, uint256 _value)
-func (_Staker *Staker) FilterWithdrawal(criteria []StakerWithdrawalCriteria, filters *thorest.LogFilters) ([]StakerWithdrawal, error) {
-	topicHash := _Staker.contract.ABI.Events["Withdrawal"].ID
+func (_Staker *Staker) FilterWithdrawal(criteria []StakerWithdrawalCriteria) *StakerWithdrawalFilterer {
+	filterer := _Staker.contract.Filter("Withdrawal")
 
-	criteriaSet := make([]thorest.EventCriteria, len(criteria))
-	for i, c := range criteria {
-		crteria := thorest.EventCriteria{
-			Address: &_Staker.contract.Address,
-			Topic0:  &topicHash,
-		}
+	// Add criteria to the filterer
+	for _, c := range criteria {
+		eventCriteria := contracts.EventCriteria{}
 		if c.To != nil {
-			matcher := *c.To
-			topics, err := abi.MakeTopics([]interface{}{matcher})
-			if err != nil {
-				return nil, err
-			}
-			crteria.Topic1 = &topics[0][0]
+			eventCriteria.Topic1 = *c.To
 		}
-
-		criteriaSet[i] = crteria
+		filterer.AddCriteria(eventCriteria)
 	}
 
-	if len(criteriaSet) == 0 {
-		criteriaSet = append(criteriaSet, thorest.EventCriteria{
-			Address: &_Staker.contract.Address,
-			Topic0:  &topicHash,
-		})
-	}
+	return &StakerWithdrawalFilterer{filterer: filterer, contract: _Staker.contract}
+}
 
-	logs, err := _Staker.thor.FilterEvents(criteriaSet, filters)
+func (f *StakerWithdrawalFilterer) Range(from, to int64) *StakerWithdrawalFilterer {
+	f.filterer.Range(from, to)
+	return f
+}
+
+func (f *StakerWithdrawalFilterer) From(from int64) *StakerWithdrawalFilterer {
+	f.filterer.From(from)
+	return f
+}
+
+func (f *StakerWithdrawalFilterer) To(to int64) *StakerWithdrawalFilterer {
+	f.filterer.To(to)
+	return f
+}
+
+func (f *StakerWithdrawalFilterer) Offset(offset int64) *StakerWithdrawalFilterer {
+	f.filterer.Offset(offset)
+	return f
+}
+
+func (f *StakerWithdrawalFilterer) Limit(limit int64) *StakerWithdrawalFilterer {
+	f.filterer.Limit(limit)
+	return f
+}
+
+func (f *StakerWithdrawalFilterer) Order(order string) *StakerWithdrawalFilterer {
+	f.filterer.Order(order)
+	return f
+}
+
+func (f *StakerWithdrawalFilterer) Execute() ([]StakerWithdrawal, error) {
+	logs, err := f.filterer.Execute()
 	if err != nil {
 		return nil, err
 	}
@@ -297,7 +371,7 @@ func (_Staker *Staker) FilterWithdrawal(criteria []StakerWithdrawalCriteria, fil
 	events := make([]StakerWithdrawal, len(logs))
 	for i, log := range logs {
 		event := new(StakerWithdrawal)
-		if err := _Staker.contract.UnpackLog(event, "Withdrawal", log); err != nil {
+		if err := f.contract.UnpackLog(event, "Withdrawal", log); err != nil {
 			return nil, err
 		}
 		event.Log = log

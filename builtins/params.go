@@ -6,6 +6,7 @@ package builtins
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 	"strings"
 	"time"
@@ -33,6 +34,7 @@ var (
 	_ = blocks.New
 	_ = time.Sleep
 	_ = transactions.New
+	_ = fmt.Errorf
 )
 
 // ParamsMetaData contains all meta data concerning the Params contract.
@@ -61,18 +63,94 @@ func (_Params *Params) Address() common.Address {
 	return _Params.contract.Address
 }
 
+// ParamsExecutorCaller provides typed access to the Executor method
+type ParamsExecutorCaller struct {
+	caller *contracts.Caller
+}
+
 // Executor is a free data retrieval call binding the contract method 0xc34c08e5.
 //
 // Solidity: function executor() view returns(address)
-func (_Params *Params) Executor() *contracts.Caller[common.Address] {
-	return contracts.NewCaller[common.Address](_Params.contract, "executor")
+func (_Params *Params) Executor() *ParamsExecutorCaller {
+	return &ParamsExecutorCaller{
+		caller: _Params.contract.Call("executor"),
+	}
+}
+
+func (c *ParamsExecutorCaller) WithRevision(rev thorest.Revision) *ParamsExecutorCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+func (c *ParamsExecutorCaller) WithValue(value *big.Int) *ParamsExecutorCaller {
+	c.caller.WithValue(value)
+	return c
+}
+
+func (c *ParamsExecutorCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+func (c *ParamsExecutorCaller) Execute() (common.Address, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero common.Address
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero common.Address
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(common.Address); ok {
+		return result, nil
+	}
+	var zero common.Address
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// ParamsGetCaller provides typed access to the Get method
+type ParamsGetCaller struct {
+	caller *contracts.Caller
 }
 
 // Get is a free data retrieval call binding the contract method 0x8eaa6ac0.
 //
 // Solidity: function get(bytes32 _key) view returns(uint256)
-func (_Params *Params) Get(_key [32]byte) *contracts.Caller[*big.Int] {
-	return contracts.NewCaller[*big.Int](_Params.contract, "get", _key)
+func (_Params *Params) Get(_key [32]byte) *ParamsGetCaller {
+	return &ParamsGetCaller{
+		caller: _Params.contract.Call("get", _key),
+	}
+}
+
+func (c *ParamsGetCaller) WithRevision(rev thorest.Revision) *ParamsGetCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+func (c *ParamsGetCaller) WithValue(value *big.Int) *ParamsGetCaller {
+	c.caller.WithValue(value)
+	return c
+}
+
+func (c *ParamsGetCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+func (c *ParamsGetCaller) Execute() (*big.Int, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero *big.Int
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero *big.Int
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(*big.Int); ok {
+		return result, nil
+	}
+	var zero *big.Int
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
 }
 
 // Set is a paid mutator transaction binding the contract method 0x273f4940.
@@ -93,38 +171,62 @@ type ParamsSetCriteria struct {
 	Key *[32]byte `abi:"key"`
 }
 
+// ParamsSetFilterer provides typed access to filtering Set events
+type ParamsSetFilterer struct {
+	filterer *contracts.Filterer
+	contract *contracts.Contract
+}
+
 // FilterSet is a free log retrieval operation binding the contract event 0x28e3246f80515f5c1ed987b133ef2f193439b25acba6a5e69f219e896fc9d179.
 //
 // Solidity: event Set(bytes32 indexed key, uint256 value)
-func (_Params *Params) FilterSet(criteria []ParamsSetCriteria, filters *thorest.LogFilters) ([]ParamsSet, error) {
-	topicHash := _Params.contract.ABI.Events["Set"].ID
+func (_Params *Params) FilterSet(criteria []ParamsSetCriteria) *ParamsSetFilterer {
+	filterer := _Params.contract.Filter("Set")
 
-	criteriaSet := make([]thorest.EventCriteria, len(criteria))
-	for i, c := range criteria {
-		crteria := thorest.EventCriteria{
-			Address: &_Params.contract.Address,
-			Topic0:  &topicHash,
-		}
+	// Add criteria to the filterer
+	for _, c := range criteria {
+		eventCriteria := contracts.EventCriteria{}
 		if c.Key != nil {
-			matcher := *c.Key
-			topics, err := abi.MakeTopics([]interface{}{matcher})
-			if err != nil {
-				return nil, err
-			}
-			crteria.Topic1 = &topics[0][0]
+			eventCriteria.Topic1 = *c.Key
 		}
-
-		criteriaSet[i] = crteria
+		filterer.AddCriteria(eventCriteria)
 	}
 
-	if len(criteriaSet) == 0 {
-		criteriaSet = append(criteriaSet, thorest.EventCriteria{
-			Address: &_Params.contract.Address,
-			Topic0:  &topicHash,
-		})
-	}
+	return &ParamsSetFilterer{filterer: filterer, contract: _Params.contract}
+}
 
-	logs, err := _Params.thor.FilterEvents(criteriaSet, filters)
+func (f *ParamsSetFilterer) Range(from, to int64) *ParamsSetFilterer {
+	f.filterer.Range(from, to)
+	return f
+}
+
+func (f *ParamsSetFilterer) From(from int64) *ParamsSetFilterer {
+	f.filterer.From(from)
+	return f
+}
+
+func (f *ParamsSetFilterer) To(to int64) *ParamsSetFilterer {
+	f.filterer.To(to)
+	return f
+}
+
+func (f *ParamsSetFilterer) Offset(offset int64) *ParamsSetFilterer {
+	f.filterer.Offset(offset)
+	return f
+}
+
+func (f *ParamsSetFilterer) Limit(limit int64) *ParamsSetFilterer {
+	f.filterer.Limit(limit)
+	return f
+}
+
+func (f *ParamsSetFilterer) Order(order string) *ParamsSetFilterer {
+	f.filterer.Order(order)
+	return f
+}
+
+func (f *ParamsSetFilterer) Execute() ([]ParamsSet, error) {
+	logs, err := f.filterer.Execute()
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +234,7 @@ func (_Params *Params) FilterSet(criteria []ParamsSetCriteria, filters *thorest.
 	events := make([]ParamsSet, len(logs))
 	for i, log := range logs {
 		event := new(ParamsSet)
-		if err := _Params.contract.UnpackLog(event, "Set", log); err != nil {
+		if err := f.contract.UnpackLog(event, "Set", log); err != nil {
 			return nil, err
 		}
 		event.Log = log

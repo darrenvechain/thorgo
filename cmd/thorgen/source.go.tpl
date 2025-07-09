@@ -9,6 +9,7 @@ import (
 	"math/big"
 	"strings"
 	"time"
+	"fmt"
 
 	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/blocks"
@@ -33,6 +34,7 @@ var (
 	_ = blocks.New
 	_ = time.Sleep
 	_ = transactions.New
+	_ = fmt.Errorf
 )
 
 {{$structs := .Structs}}
@@ -114,27 +116,88 @@ var (
 			{{end}}
 		}
 
-		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}({{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}}, {{end}}) *contracts.Caller[*{{$contract.Type}}{{.Normalized.Name}}Result] {
-			parser := func(data []interface{}) (*{{$contract.Type}}{{.Normalized.Name}}Result, error) {
-				if len(data) != {{len .Normalized.Outputs}} {
-					return nil, errors.New("invalid number of return values")
-				}
-				out := new({{$contract.Type}}{{.Normalized.Name}}Result)
+		// {{$contract.Type}}{{.Normalized.Name}}Caller provides typed access to the {{.Normalized.Name}} method
+		type {{$contract.Type}}{{.Normalized.Name}}Caller struct {
+			caller *contracts.Caller
+		}
 
-				{{range $i, $t := .Normalized.Outputs}}out.{{if .Name}}{{.Name}}{{else}}Result{{$i}}{{end}} = *abi.ConvertType(data[{{$i}}], new({{bindtype .Type $structs}})).(*{{bindtype .Type $structs}})
-				{{end}}
-
-				return out, nil
+		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}({{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}}, {{end}}) *{{$contract.Type}}{{.Normalized.Name}}Caller {
+			return &{{$contract.Type}}{{.Normalized.Name}}Caller{
+				caller: _{{$contract.Type}}.contract.Call("{{.Original.Name}}"{{range .Normalized.Inputs}}, {{.Name}}{{end}}),
 			}
+		}
 
-			return contracts.NewCaller[*{{$contract.Type}}{{.Normalized.Name}}Result](_{{$contract.Type}}.contract, "{{.Original.Name}}"{{range .Normalized.Inputs}}, {{.Name}}{{end}}).WithParser(parser)
+		func (c *{{$contract.Type}}{{.Normalized.Name}}Caller) WithRevision(rev thorest.Revision) *{{$contract.Type}}{{.Normalized.Name}}Caller {
+			c.caller.WithRevision(rev)
+			return c
+		}
+
+		func (c *{{$contract.Type}}{{.Normalized.Name}}Caller) WithValue(value *big.Int) *{{$contract.Type}}{{.Normalized.Name}}Caller {
+			c.caller.WithValue(value)
+			return c
+		}
+
+		func (c *{{$contract.Type}}{{.Normalized.Name}}Caller) Call() (*thorest.InspectResponse, error) {
+			return c.caller.Call()
+		}
+
+		func (c *{{$contract.Type}}{{.Normalized.Name}}Caller) Execute() (*{{$contract.Type}}{{.Normalized.Name}}Result, error) {
+			data, err := c.caller.Execute()
+			if err != nil {
+				return nil, err
+			}
+			if len(data) != {{len .Normalized.Outputs}} {
+				return nil, errors.New("invalid number of return values")
+			}
+			out := new({{$contract.Type}}{{.Normalized.Name}}Result)
+			{{range $i, $t := .Normalized.Outputs}}out.{{if .Name}}{{.Name}}{{else}}Result{{$i}}{{end}} = *abi.ConvertType(data[{{$i}}], new({{bindtype .Type $structs}})).(*{{bindtype .Type $structs}})
+			{{end}}
+			return out, nil
 		}
 		{{else}}
+		// {{$contract.Type}}{{.Normalized.Name}}Caller provides typed access to the {{.Normalized.Name}} method
+		type {{$contract.Type}}{{.Normalized.Name}}Caller struct {
+			caller *contracts.Caller
+		}
+
 		// {{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.ID}}.
 		//
 		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}({{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}}, {{end}}) *contracts.Caller[{{range .Normalized.Outputs}}{{bindtype .Type $structs}}{{end}}] {
-			return contracts.NewCaller[{{range .Normalized.Outputs}}{{bindtype .Type $structs}}{{end}}](_{{$contract.Type}}.contract, "{{.Original.Name}}"{{range .Normalized.Inputs}}, {{.Name}}{{end}})
+		func (_{{$contract.Type}} *{{$contract.Type}}) {{.Normalized.Name}}({{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}}, {{end}}) *{{$contract.Type}}{{.Normalized.Name}}Caller {
+			return &{{$contract.Type}}{{.Normalized.Name}}Caller{
+				caller: _{{$contract.Type}}.contract.Call("{{.Original.Name}}"{{range .Normalized.Inputs}}, {{.Name}}{{end}}),
+			}
+		}
+
+		func (c *{{$contract.Type}}{{.Normalized.Name}}Caller) WithRevision(rev thorest.Revision) *{{$contract.Type}}{{.Normalized.Name}}Caller {
+			c.caller.WithRevision(rev)
+			return c
+		}
+
+		func (c *{{$contract.Type}}{{.Normalized.Name}}Caller) WithValue(value *big.Int) *{{$contract.Type}}{{.Normalized.Name}}Caller {
+			c.caller.WithValue(value)
+			return c
+		}
+
+		func (c *{{$contract.Type}}{{.Normalized.Name}}Caller) Call() (*thorest.InspectResponse, error) {
+			return c.caller.Call()
+		}
+
+		func (c *{{$contract.Type}}{{.Normalized.Name}}Caller) Execute() ({{range .Normalized.Outputs}}{{bindtype .Type $structs}}{{end}}, error) {
+			data, err := c.caller.Execute()
+			if err != nil {
+				var zero {{range .Normalized.Outputs}}{{bindtype .Type $structs}}{{end}}
+				return zero, err
+			}
+			if len(data) != 1 {
+				var zero {{range .Normalized.Outputs}}{{bindtype .Type $structs}}{{end}}
+				return zero, errors.New("expected single return value")
+			}
+			if result, ok := data[0].({{range .Normalized.Outputs}}{{bindtype .Type $structs}}{{end}}); ok {
+				return result, nil
+			}
+			var zero {{range .Normalized.Outputs}}{{bindtype .Type $structs}}{{end}}
+			return zero, fmt.Errorf("unexpected type returned: %T", data[0])
 		}
 		{{end}}
 	{{end}}
@@ -182,83 +245,90 @@ var (
             }
         {{ end }}
 
-		// Filter{{.Normalized.Name}} is a free log retrieval operation binding the contract event 0x{{printf "%x" .Original.ID}}.
-		//
-		// Solidity: {{.Original.String}}
-		func (_{{$contract.Type}} *{{$contract.Type}}) Filter{{.Normalized.Name}}({{ if gt $indexedArgCount 0 }}criteria []{{$contract.Type}}{{.Normalized.Name}}Criteria, {{ end }}filters *thorest.LogFilters) ([]{{$contract.Type}}{{.Normalized.Name}}, error) {
-			topicHash := _{{$contract.Type}}.contract.ABI.Events["{{.Normalized.Name}}"].ID
-            {{ if gt $indexedArgCount 0 }}
-                criteriaSet := make([]thorest.EventCriteria, len(criteria))
-                for i, c := range criteria {
-                    crteria := thorest.EventCriteria{
-                        Address: &_{{$contract.Type}}.contract.Address,
-                        Topic0:  &topicHash,
-                    }
-                    {{- range $index, $element := .Normalized.Inputs }}
-                        {{- if .Indexed }}
-                            if c.{{capitalise .Name}} != nil {
-                                {{- $type := bindtype .Type $structs }}
-                                {{- if (eq (slice $type 0 1) "*") }}
-                                    matcher := c.{{capitalise .Name}}
-                                {{- else }}
-                                    matcher := *c.{{capitalise .Name}}
-                                {{- end }}
-                                topics, err := abi.MakeTopics([]interface{}{matcher})
-                                if err != nil {
-                                    return nil, err
-                                }
+	// {{$contract.Type}}{{.Normalized.Name}}Filterer provides typed access to filtering {{.Normalized.Name}} events
+	type {{$contract.Type}}{{.Normalized.Name}}Filterer struct {
+		filterer *contracts.Filterer
+		contract *contracts.Contract
+	}
 
-                                {{- if eq $index 0}}
-                                    crteria.Topic1 = &topics[0][0]
-                                {{- end}}
-                                {{- if eq $index 1}}
-                                    crteria.Topic2 = &topics[0][0]
-                                {{- end}}
-                                {{- if eq $index 2}}
-                                    crteria.Topic3 = &topics[0][0]
-                                {{- end}}
-                                {{- if eq $index 3}}
-                                    crteria.Topic4 = &topics[0][0]
-                                {{- end}}
-                            }
-                        {{- end }}
-                    {{- end }}
+	// Filter{{.Normalized.Name}} is a free log retrieval operation binding the contract event 0x{{printf "%x" .Original.ID}}.
+	//
+	// Solidity: {{.Original.String}}
+	func (_{{$contract.Type}} *{{$contract.Type}}) Filter{{.Normalized.Name}}({{ if gt $indexedArgCount 0 }}criteria []{{$contract.Type}}{{.Normalized.Name}}Criteria{{ end }}) *{{$contract.Type}}{{.Normalized.Name}}Filterer {
+		filterer := _{{$contract.Type}}.contract.Filter("{{.Normalized.Name}}")
+		
+		{{ if gt $indexedArgCount 0 }}
+		// Add criteria to the filterer
+		for _, c := range criteria {
+			eventCriteria := contracts.EventCriteria{}
+			{{- range $index, $element := .Normalized.Inputs }}
+				{{- if .Indexed }}
+					if c.{{capitalise .Name}} != nil {
+						{{- $type := bindtype .Type $structs }}
+						{{- if (eq (slice $type 0 1) "*") }}
+							eventCriteria.Topic{{add $index 1}} = c.{{capitalise .Name}}
+						{{- else }}
+							eventCriteria.Topic{{add $index 1}} = *c.{{capitalise .Name}}
+						{{- end }}
+					}
+				{{- end }}
+			{{- end }}
+			filterer.AddCriteria(eventCriteria)
+		}
+		{{ end }}
+		
+		return &{{$contract.Type}}{{.Normalized.Name}}Filterer{filterer: filterer, contract: _{{$contract.Type}}.contract}
+	}
 
-                    criteriaSet[i] = crteria
-                }
+	func (f *{{$contract.Type}}{{.Normalized.Name}}Filterer) Range(from, to int64) *{{$contract.Type}}{{.Normalized.Name}}Filterer {
+		f.filterer.Range(from, to)
+		return f
+	}
 
-                if len(criteriaSet) == 0 {
-                    criteriaSet = append(criteriaSet, thorest.EventCriteria{
-                        Address: &_{{$contract.Type}}.contract.Address,
-                        Topic0: &topicHash,
-                    })
-                }
-            {{ else }}
-                criteriaSet := []thorest.EventCriteria{
-                    thorest.EventCriteria{
-                        Address: &_{{$contract.Type}}.contract.Address,
-                        Topic0: &topicHash,
-                    },
-                }
-            {{ end }}
+	func (f *{{$contract.Type}}{{.Normalized.Name}}Filterer) From(from int64) *{{$contract.Type}}{{.Normalized.Name}}Filterer {
+		f.filterer.From(from)
+		return f
+	}
 
-            logs, err := _{{$contract.Type}}.thor.FilterEvents(criteriaSet, filters)
-			if err != nil {
+	func (f *{{$contract.Type}}{{.Normalized.Name}}Filterer) To(to int64) *{{$contract.Type}}{{.Normalized.Name}}Filterer {
+		f.filterer.To(to)
+		return f
+	}
+
+	func (f *{{$contract.Type}}{{.Normalized.Name}}Filterer) Offset(offset int64) *{{$contract.Type}}{{.Normalized.Name}}Filterer {
+		f.filterer.Offset(offset)
+		return f
+	}
+
+	func (f *{{$contract.Type}}{{.Normalized.Name}}Filterer) Limit(limit int64) *{{$contract.Type}}{{.Normalized.Name}}Filterer {
+		f.filterer.Limit(limit)
+		return f
+	}
+
+	func (f *{{$contract.Type}}{{.Normalized.Name}}Filterer) Order(order string) *{{$contract.Type}}{{.Normalized.Name}}Filterer {
+		f.filterer.Order(order)
+		return f
+	}
+
+	func (f *{{$contract.Type}}{{.Normalized.Name}}Filterer) Execute() ([]{{$contract.Type}}{{.Normalized.Name}}, error) {
+		logs, err := f.filterer.Execute()
+		if err != nil {
+			return nil, err
+		}
+
+		events := make([]{{$contract.Type}}{{.Normalized.Name}}, len(logs))
+		for i, log := range logs {
+			event := new({{$contract.Type}}{{.Normalized.Name}})
+			if err := f.contract.UnpackLog(event, "{{.Normalized.Name}}", log); err != nil {
 				return nil, err
 			}
-
-			events := make([]{{$contract.Type}}{{.Normalized.Name}}, len(logs))
-			for i, log := range logs {
-				event := new({{$contract.Type}}{{.Normalized.Name}})
-                if err := _{{$contract.Type}}.contract.UnpackLog(event, "{{.Normalized.Name}}", log); err != nil {
-                    return nil, err
-                }
-				event.Log = log
-				events[i] = *event
-			}
-
-			return events, nil
+			event.Log = log
+			events[i] = *event
 		}
+
+		return events, nil
+	}
+
 
         // Watch{{.Normalized.Name}} listens for on chain events binding the contract event 0x{{printf "%x" .Original.ID}}.
         //

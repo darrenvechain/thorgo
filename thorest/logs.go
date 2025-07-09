@@ -14,13 +14,13 @@ type LogMeta struct {
 	ClauseIndex int64          `json:"clauseIndex"`
 }
 
-type filterRange struct {
+type LogRange struct {
 	Unit *string `json:"unit,omitempty"`
 	From *int64  `json:"from,omitempty"`
 	To   *int64  `json:"to,omitempty"`
 }
 
-type filterOptions struct {
+type LogOptions struct {
 	Offset *int64 `json:"offset,omitempty"`
 	Limit  *int64 `json:"limit,omitempty"`
 }
@@ -30,8 +30,8 @@ type filterOptions struct {
 //
 //	filters := thorest.NewFilter().BlockRange(0, 1000).Limit(10).Offset(0).Order("desc")
 type LogFilters struct {
-	filterRange *filterRange
-	options     *filterOptions
+	filterRange *LogRange
+	options     *LogOptions
 	order       *string
 }
 
@@ -48,7 +48,7 @@ func (lf *LogFilters) Order(order string) *LogFilters {
 
 // Options sets the offset and limit of the logs.
 func (lf *LogFilters) Options(offset, limit int64) *LogFilters {
-	lf.options = &filterOptions{
+	lf.options = &LogOptions{
 		Offset: &offset,
 		Limit:  &limit,
 	}
@@ -58,7 +58,7 @@ func (lf *LogFilters) Options(offset, limit int64) *LogFilters {
 // Limit sets the limit of the number of logs to fetch.
 func (lf *LogFilters) Limit(limit int64) *LogFilters {
 	if lf.options == nil {
-		lf.options = &filterOptions{}
+		lf.options = &LogOptions{}
 	}
 	lf.options.Limit = &limit
 	return lf
@@ -67,7 +67,7 @@ func (lf *LogFilters) Limit(limit int64) *LogFilters {
 // Offset sets the offset of the logs to fetch.
 func (lf *LogFilters) Offset(offset int64) *LogFilters {
 	if lf.options == nil {
-		lf.options = &filterOptions{}
+		lf.options = &LogOptions{}
 	}
 	lf.options.Offset = &offset
 	return lf
@@ -75,7 +75,7 @@ func (lf *LogFilters) Offset(offset int64) *LogFilters {
 
 // Range sets the range of logs to filter, either from a block number or a timestamp.
 func (lf *LogFilters) Range(from, to int64, unit string) *LogFilters {
-	lf.filterRange = &filterRange{
+	lf.filterRange = &LogRange{
 		From: &from,
 		To:   &to,
 		Unit: &unit,
@@ -91,7 +91,7 @@ func (lf *LogFilters) BlockRange(from, to int64) *LogFilters {
 
 // ToRange sets the maximum block number to filter logs from
 func (lf *LogFilters) ToRange(to int64) *LogFilters {
-	lf.filterRange = &filterRange{
+	lf.filterRange = &LogRange{
 		To:   &to,
 		Unit: &unitBlock,
 	}
@@ -100,7 +100,7 @@ func (lf *LogFilters) ToRange(to int64) *LogFilters {
 
 // FromRange sets the minimum block number to filter logs from
 func (lf *LogFilters) FromRange(from int64) *LogFilters {
-	lf.filterRange = &filterRange{
+	lf.filterRange = &LogRange{
 		From: &from,
 		Unit: &unitBlock,
 	}

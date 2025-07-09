@@ -6,6 +6,7 @@ package builtins
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 	"strings"
 	"time"
@@ -33,6 +34,7 @@ var (
 	_ = blocks.New
 	_ = time.Sleep
 	_ = transactions.New
+	_ = fmt.Errorf
 )
 
 // VTHOMetaData contains all meta data concerning the VTHO contract.
@@ -61,53 +63,319 @@ func (_VTHO *VTHO) Address() common.Address {
 	return _VTHO.contract.Address
 }
 
+// VTHOAllowanceCaller provides typed access to the Allowance method
+type VTHOAllowanceCaller struct {
+	caller *contracts.Caller
+}
+
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
 //
 // Solidity: function allowance(address _owner, address _spender) view returns(uint256 remaining)
-func (_VTHO *VTHO) Allowance(_owner common.Address, _spender common.Address) *contracts.Caller[*big.Int] {
-	return contracts.NewCaller[*big.Int](_VTHO.contract, "allowance", _owner, _spender)
+func (_VTHO *VTHO) Allowance(_owner common.Address, _spender common.Address) *VTHOAllowanceCaller {
+	return &VTHOAllowanceCaller{
+		caller: _VTHO.contract.Call("allowance", _owner, _spender),
+	}
+}
+
+func (c *VTHOAllowanceCaller) WithRevision(rev thorest.Revision) *VTHOAllowanceCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+func (c *VTHOAllowanceCaller) WithValue(value *big.Int) *VTHOAllowanceCaller {
+	c.caller.WithValue(value)
+	return c
+}
+
+func (c *VTHOAllowanceCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+func (c *VTHOAllowanceCaller) Execute() (*big.Int, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero *big.Int
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero *big.Int
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(*big.Int); ok {
+		return result, nil
+	}
+	var zero *big.Int
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// VTHOBalanceOfCaller provides typed access to the BalanceOf method
+type VTHOBalanceOfCaller struct {
+	caller *contracts.Caller
 }
 
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
 // Solidity: function balanceOf(address _owner) view returns(uint256 balance)
-func (_VTHO *VTHO) BalanceOf(_owner common.Address) *contracts.Caller[*big.Int] {
-	return contracts.NewCaller[*big.Int](_VTHO.contract, "balanceOf", _owner)
+func (_VTHO *VTHO) BalanceOf(_owner common.Address) *VTHOBalanceOfCaller {
+	return &VTHOBalanceOfCaller{
+		caller: _VTHO.contract.Call("balanceOf", _owner),
+	}
+}
+
+func (c *VTHOBalanceOfCaller) WithRevision(rev thorest.Revision) *VTHOBalanceOfCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+func (c *VTHOBalanceOfCaller) WithValue(value *big.Int) *VTHOBalanceOfCaller {
+	c.caller.WithValue(value)
+	return c
+}
+
+func (c *VTHOBalanceOfCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+func (c *VTHOBalanceOfCaller) Execute() (*big.Int, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero *big.Int
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero *big.Int
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(*big.Int); ok {
+		return result, nil
+	}
+	var zero *big.Int
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// VTHODecimalsCaller provides typed access to the Decimals method
+type VTHODecimalsCaller struct {
+	caller *contracts.Caller
 }
 
 // Decimals is a free data retrieval call binding the contract method 0x313ce567.
 //
 // Solidity: function decimals() pure returns(uint8)
-func (_VTHO *VTHO) Decimals() *contracts.Caller[uint8] {
-	return contracts.NewCaller[uint8](_VTHO.contract, "decimals")
+func (_VTHO *VTHO) Decimals() *VTHODecimalsCaller {
+	return &VTHODecimalsCaller{
+		caller: _VTHO.contract.Call("decimals"),
+	}
+}
+
+func (c *VTHODecimalsCaller) WithRevision(rev thorest.Revision) *VTHODecimalsCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+func (c *VTHODecimalsCaller) WithValue(value *big.Int) *VTHODecimalsCaller {
+	c.caller.WithValue(value)
+	return c
+}
+
+func (c *VTHODecimalsCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+func (c *VTHODecimalsCaller) Execute() (uint8, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero uint8
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero uint8
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(uint8); ok {
+		return result, nil
+	}
+	var zero uint8
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// VTHONameCaller provides typed access to the Name method
+type VTHONameCaller struct {
+	caller *contracts.Caller
 }
 
 // Name is a free data retrieval call binding the contract method 0x06fdde03.
 //
 // Solidity: function name() pure returns(string)
-func (_VTHO *VTHO) Name() *contracts.Caller[string] {
-	return contracts.NewCaller[string](_VTHO.contract, "name")
+func (_VTHO *VTHO) Name() *VTHONameCaller {
+	return &VTHONameCaller{
+		caller: _VTHO.contract.Call("name"),
+	}
+}
+
+func (c *VTHONameCaller) WithRevision(rev thorest.Revision) *VTHONameCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+func (c *VTHONameCaller) WithValue(value *big.Int) *VTHONameCaller {
+	c.caller.WithValue(value)
+	return c
+}
+
+func (c *VTHONameCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+func (c *VTHONameCaller) Execute() (string, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero string
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero string
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(string); ok {
+		return result, nil
+	}
+	var zero string
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// VTHOSymbolCaller provides typed access to the Symbol method
+type VTHOSymbolCaller struct {
+	caller *contracts.Caller
 }
 
 // Symbol is a free data retrieval call binding the contract method 0x95d89b41.
 //
 // Solidity: function symbol() pure returns(string)
-func (_VTHO *VTHO) Symbol() *contracts.Caller[string] {
-	return contracts.NewCaller[string](_VTHO.contract, "symbol")
+func (_VTHO *VTHO) Symbol() *VTHOSymbolCaller {
+	return &VTHOSymbolCaller{
+		caller: _VTHO.contract.Call("symbol"),
+	}
+}
+
+func (c *VTHOSymbolCaller) WithRevision(rev thorest.Revision) *VTHOSymbolCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+func (c *VTHOSymbolCaller) WithValue(value *big.Int) *VTHOSymbolCaller {
+	c.caller.WithValue(value)
+	return c
+}
+
+func (c *VTHOSymbolCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+func (c *VTHOSymbolCaller) Execute() (string, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero string
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero string
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(string); ok {
+		return result, nil
+	}
+	var zero string
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// VTHOTotalBurnedCaller provides typed access to the TotalBurned method
+type VTHOTotalBurnedCaller struct {
+	caller *contracts.Caller
 }
 
 // TotalBurned is a free data retrieval call binding the contract method 0xd89135cd.
 //
 // Solidity: function totalBurned() view returns(uint256)
-func (_VTHO *VTHO) TotalBurned() *contracts.Caller[*big.Int] {
-	return contracts.NewCaller[*big.Int](_VTHO.contract, "totalBurned")
+func (_VTHO *VTHO) TotalBurned() *VTHOTotalBurnedCaller {
+	return &VTHOTotalBurnedCaller{
+		caller: _VTHO.contract.Call("totalBurned"),
+	}
+}
+
+func (c *VTHOTotalBurnedCaller) WithRevision(rev thorest.Revision) *VTHOTotalBurnedCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+func (c *VTHOTotalBurnedCaller) WithValue(value *big.Int) *VTHOTotalBurnedCaller {
+	c.caller.WithValue(value)
+	return c
+}
+
+func (c *VTHOTotalBurnedCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+func (c *VTHOTotalBurnedCaller) Execute() (*big.Int, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero *big.Int
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero *big.Int
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(*big.Int); ok {
+		return result, nil
+	}
+	var zero *big.Int
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// VTHOTotalSupplyCaller provides typed access to the TotalSupply method
+type VTHOTotalSupplyCaller struct {
+	caller *contracts.Caller
 }
 
 // TotalSupply is a free data retrieval call binding the contract method 0x18160ddd.
 //
 // Solidity: function totalSupply() view returns(uint256)
-func (_VTHO *VTHO) TotalSupply() *contracts.Caller[*big.Int] {
-	return contracts.NewCaller[*big.Int](_VTHO.contract, "totalSupply")
+func (_VTHO *VTHO) TotalSupply() *VTHOTotalSupplyCaller {
+	return &VTHOTotalSupplyCaller{
+		caller: _VTHO.contract.Call("totalSupply"),
+	}
+}
+
+func (c *VTHOTotalSupplyCaller) WithRevision(rev thorest.Revision) *VTHOTotalSupplyCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+func (c *VTHOTotalSupplyCaller) WithValue(value *big.Int) *VTHOTotalSupplyCaller {
+	c.caller.WithValue(value)
+	return c
+}
+
+func (c *VTHOTotalSupplyCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+func (c *VTHOTotalSupplyCaller) Execute() (*big.Int, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero *big.Int
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero *big.Int
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(*big.Int); ok {
+		return result, nil
+	}
+	var zero *big.Int
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
 }
 
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
@@ -151,46 +419,65 @@ type VTHOApprovalCriteria struct {
 	Spender *common.Address `abi:"_spender"`
 }
 
+// VTHOApprovalFilterer provides typed access to filtering Approval events
+type VTHOApprovalFilterer struct {
+	filterer *contracts.Filterer
+	contract *contracts.Contract
+}
+
 // FilterApproval is a free log retrieval operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
 //
 // Solidity: event Approval(address indexed _owner, address indexed _spender, uint256 _value)
-func (_VTHO *VTHO) FilterApproval(criteria []VTHOApprovalCriteria, filters *thorest.LogFilters) ([]VTHOApproval, error) {
-	topicHash := _VTHO.contract.ABI.Events["Approval"].ID
+func (_VTHO *VTHO) FilterApproval(criteria []VTHOApprovalCriteria) *VTHOApprovalFilterer {
+	filterer := _VTHO.contract.Filter("Approval")
 
-	criteriaSet := make([]thorest.EventCriteria, len(criteria))
-	for i, c := range criteria {
-		crteria := thorest.EventCriteria{
-			Address: &_VTHO.contract.Address,
-			Topic0:  &topicHash,
-		}
+	// Add criteria to the filterer
+	for _, c := range criteria {
+		eventCriteria := contracts.EventCriteria{}
 		if c.Owner != nil {
-			matcher := *c.Owner
-			topics, err := abi.MakeTopics([]interface{}{matcher})
-			if err != nil {
-				return nil, err
-			}
-			crteria.Topic1 = &topics[0][0]
+			eventCriteria.Topic1 = *c.Owner
 		}
 		if c.Spender != nil {
-			matcher := *c.Spender
-			topics, err := abi.MakeTopics([]interface{}{matcher})
-			if err != nil {
-				return nil, err
-			}
-			crteria.Topic2 = &topics[0][0]
+			eventCriteria.Topic2 = *c.Spender
 		}
-
-		criteriaSet[i] = crteria
+		filterer.AddCriteria(eventCriteria)
 	}
 
-	if len(criteriaSet) == 0 {
-		criteriaSet = append(criteriaSet, thorest.EventCriteria{
-			Address: &_VTHO.contract.Address,
-			Topic0:  &topicHash,
-		})
-	}
+	return &VTHOApprovalFilterer{filterer: filterer, contract: _VTHO.contract}
+}
 
-	logs, err := _VTHO.thor.FilterEvents(criteriaSet, filters)
+func (f *VTHOApprovalFilterer) Range(from, to int64) *VTHOApprovalFilterer {
+	f.filterer.Range(from, to)
+	return f
+}
+
+func (f *VTHOApprovalFilterer) From(from int64) *VTHOApprovalFilterer {
+	f.filterer.From(from)
+	return f
+}
+
+func (f *VTHOApprovalFilterer) To(to int64) *VTHOApprovalFilterer {
+	f.filterer.To(to)
+	return f
+}
+
+func (f *VTHOApprovalFilterer) Offset(offset int64) *VTHOApprovalFilterer {
+	f.filterer.Offset(offset)
+	return f
+}
+
+func (f *VTHOApprovalFilterer) Limit(limit int64) *VTHOApprovalFilterer {
+	f.filterer.Limit(limit)
+	return f
+}
+
+func (f *VTHOApprovalFilterer) Order(order string) *VTHOApprovalFilterer {
+	f.filterer.Order(order)
+	return f
+}
+
+func (f *VTHOApprovalFilterer) Execute() ([]VTHOApproval, error) {
+	logs, err := f.filterer.Execute()
 	if err != nil {
 		return nil, err
 	}
@@ -198,7 +485,7 @@ func (_VTHO *VTHO) FilterApproval(criteria []VTHOApprovalCriteria, filters *thor
 	events := make([]VTHOApproval, len(logs))
 	for i, log := range logs {
 		event := new(VTHOApproval)
-		if err := _VTHO.contract.UnpackLog(event, "Approval", log); err != nil {
+		if err := f.contract.UnpackLog(event, "Approval", log); err != nil {
 			return nil, err
 		}
 		event.Log = log
@@ -296,46 +583,65 @@ type VTHOTransferCriteria struct {
 	To   *common.Address `abi:"_to"`
 }
 
+// VTHOTransferFilterer provides typed access to filtering Transfer events
+type VTHOTransferFilterer struct {
+	filterer *contracts.Filterer
+	contract *contracts.Contract
+}
+
 // FilterTransfer is a free log retrieval operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
 //
 // Solidity: event Transfer(address indexed _from, address indexed _to, uint256 _value)
-func (_VTHO *VTHO) FilterTransfer(criteria []VTHOTransferCriteria, filters *thorest.LogFilters) ([]VTHOTransfer, error) {
-	topicHash := _VTHO.contract.ABI.Events["Transfer"].ID
+func (_VTHO *VTHO) FilterTransfer(criteria []VTHOTransferCriteria) *VTHOTransferFilterer {
+	filterer := _VTHO.contract.Filter("Transfer")
 
-	criteriaSet := make([]thorest.EventCriteria, len(criteria))
-	for i, c := range criteria {
-		crteria := thorest.EventCriteria{
-			Address: &_VTHO.contract.Address,
-			Topic0:  &topicHash,
-		}
+	// Add criteria to the filterer
+	for _, c := range criteria {
+		eventCriteria := contracts.EventCriteria{}
 		if c.From != nil {
-			matcher := *c.From
-			topics, err := abi.MakeTopics([]interface{}{matcher})
-			if err != nil {
-				return nil, err
-			}
-			crteria.Topic1 = &topics[0][0]
+			eventCriteria.Topic1 = *c.From
 		}
 		if c.To != nil {
-			matcher := *c.To
-			topics, err := abi.MakeTopics([]interface{}{matcher})
-			if err != nil {
-				return nil, err
-			}
-			crteria.Topic2 = &topics[0][0]
+			eventCriteria.Topic2 = *c.To
 		}
-
-		criteriaSet[i] = crteria
+		filterer.AddCriteria(eventCriteria)
 	}
 
-	if len(criteriaSet) == 0 {
-		criteriaSet = append(criteriaSet, thorest.EventCriteria{
-			Address: &_VTHO.contract.Address,
-			Topic0:  &topicHash,
-		})
-	}
+	return &VTHOTransferFilterer{filterer: filterer, contract: _VTHO.contract}
+}
 
-	logs, err := _VTHO.thor.FilterEvents(criteriaSet, filters)
+func (f *VTHOTransferFilterer) Range(from, to int64) *VTHOTransferFilterer {
+	f.filterer.Range(from, to)
+	return f
+}
+
+func (f *VTHOTransferFilterer) From(from int64) *VTHOTransferFilterer {
+	f.filterer.From(from)
+	return f
+}
+
+func (f *VTHOTransferFilterer) To(to int64) *VTHOTransferFilterer {
+	f.filterer.To(to)
+	return f
+}
+
+func (f *VTHOTransferFilterer) Offset(offset int64) *VTHOTransferFilterer {
+	f.filterer.Offset(offset)
+	return f
+}
+
+func (f *VTHOTransferFilterer) Limit(limit int64) *VTHOTransferFilterer {
+	f.filterer.Limit(limit)
+	return f
+}
+
+func (f *VTHOTransferFilterer) Order(order string) *VTHOTransferFilterer {
+	f.filterer.Order(order)
+	return f
+}
+
+func (f *VTHOTransferFilterer) Execute() ([]VTHOTransfer, error) {
+	logs, err := f.filterer.Execute()
 	if err != nil {
 		return nil, err
 	}
@@ -343,7 +649,7 @@ func (_VTHO *VTHO) FilterTransfer(criteria []VTHOTransferCriteria, filters *thor
 	events := make([]VTHOTransfer, len(logs))
 	for i, log := range logs {
 		event := new(VTHOTransfer)
-		if err := _VTHO.contract.UnpackLog(event, "Transfer", log); err != nil {
+		if err := f.contract.UnpackLog(event, "Transfer", log); err != nil {
 			return nil, err
 		}
 		event.Log = log

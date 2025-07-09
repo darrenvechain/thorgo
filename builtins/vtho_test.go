@@ -10,7 +10,6 @@ import (
 
 var thor = thorest.NewClientFromURL("https://mainnet.vechain.org")
 var eventLimit = int64(10)
-var logFilter = thorest.NewFilter().Limit(eventLimit)
 
 func TestEnergy_Name(t *testing.T) {
 	energy, err := NewVTHO(thor)
@@ -61,7 +60,7 @@ func TestEnergy_FilterTransfer(t *testing.T) {
 	energy, err := NewVTHO(thor)
 	assert.NoError(t, err)
 
-	events, err := energy.FilterTransfer(make([]VTHOTransferCriteria, 0), logFilter)
+	events, err := energy.FilterTransfer(make([]VTHOTransferCriteria, 0)).Limit(eventLimit).Execute()
 	assert.NoError(t, err)
 	assert.Equal(t, eventLimit, int64(len(events)))
 }
@@ -70,7 +69,7 @@ func TestEnergy_FilterApproval(t *testing.T) {
 	energy, err := NewVTHO(thor)
 	assert.NoError(t, err)
 
-	events, err := energy.FilterApproval(make([]VTHOApprovalCriteria, 0), logFilter)
+	events, err := energy.FilterApproval(make([]VTHOApprovalCriteria, 0)).Limit(eventLimit).Execute()
 	assert.NoError(t, err)
 	assert.Equal(t, eventLimit, int64(len(events)))
 }
@@ -81,7 +80,7 @@ func TestEnergy_FilterTransfer_WithCriteria(t *testing.T) {
 
 	to := common.HexToAddress("0xbF89016e670595AAa225eEfa0a84B7FB17b8dAC8")
 
-	events, err := energy.FilterTransfer([]VTHOTransferCriteria{{To: &to}}, logFilter)
+	events, err := energy.FilterTransfer([]VTHOTransferCriteria{{To: &to}}).Limit(eventLimit).Execute()
 	assert.NoError(t, err)
 	assert.NotZero(t, len(events))
 }

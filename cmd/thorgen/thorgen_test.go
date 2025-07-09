@@ -76,7 +76,7 @@ func TestFilter(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, receipt)
 
-	events, err := erc20.FilterTransfer(make([]testcontract.Erc20TransferCriteria, 0), nil)
+	events, err := erc20.FilterTransfer(make([]testcontract.Erc20TransferCriteria, 0)).Limit(1).Execute()
 	assert.NoError(t, err)
 	assert.Len(t, events, 1)
 	assert.Equal(t, common.Address{}, events[0].From)
