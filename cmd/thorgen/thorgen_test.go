@@ -4,7 +4,6 @@ import (
 	"context"
 	"math/big"
 	"testing"
-	"time"
 
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/internal/testcontract"
@@ -20,7 +19,7 @@ var (
 	client, cancel = testcontainer.NewSolo()
 )
 
-func deployErc20(client *thorest.Client, txsender *txmanager.PKManager) (common.Hash, *testcontract.Erc20Transactor, error) {
+func deployErc20(client *thorest.Client, txsender *txmanager.PKManager) (common.Hash, *testcontract.Erc20, error) {
 	return testcontract.DeployErc20(context.Background(), client, txsender, &transactions.Options{}, "TestToken", "TT")
 }
 
@@ -42,7 +41,7 @@ func TestCall(t *testing.T) {
 	_, erc20, err := deployErc20(client, txsender)
 	assert.NoError(t, err)
 
-	supply, err := erc20.TotalSupply(thorest.RevisionBest())
+	supply, err := erc20.TotalSupply().Execute()
 	assert.NoError(t, err)
 
 	assert.True(t, supply.Cmp(big.NewInt(0)) == 0)
@@ -55,11 +54,11 @@ func TestTransactor(t *testing.T) {
 	_, erc20, err := deployErc20(client, txsender)
 	assert.NoError(t, err)
 
-	receipt, err := erc20.Mint(receiver.Address(), big.NewInt(1000), &transactions.Options{}).Receipt(context.Background())
+	receipt, err := erc20.Mint(receiver.Address(), big.NewInt(1000)).Receipt(context.Background(), txsender)
 	assert.NoError(t, err)
 	assert.NotNil(t, receipt)
 
-	supply, err := erc20.TotalSupply(thorest.RevisionBest())
+	supply, err := erc20.TotalSupply().Execute()
 	assert.NoError(t, err)
 
 	assert.True(t, supply.Cmp(big.NewInt(1000)) == 0)
@@ -72,43 +71,16 @@ func TestFilter(t *testing.T) {
 	_, erc20, err := deployErc20(client, txsender)
 	assert.NoError(t, err)
 
-	receipt, err := erc20.Mint(receiver.Address(), big.NewInt(1000), &transactions.Options{}).Receipt(context.Background())
+	receipt, err := erc20.Mint(receiver.Address(), big.NewInt(1000)).Receipt(context.Background(), txsender)
 	assert.NoError(t, err)
 	assert.NotNil(t, receipt)
 
-	events, err := erc20.FilterTransfer(make([]testcontract.Erc20TransferCriteria, 0), nil)
+	events, err := erc20.FilterTransfer(make([]testcontract.Erc20TransferCriteria, 0)).Limit(1).Execute()
 	assert.NoError(t, err)
 	assert.Len(t, events, 1)
 	assert.Equal(t, common.Address{}, events[0].From)
 	assert.Equal(t, receiver.Address(), events[0].To)
 	assert.True(t, events[0].Value.Cmp(big.NewInt(1000)) == 0)
-}
-
-func TestWatch(t *testing.T) {
-	txsender := txmanager.FromPK(solo.Keys()[0], client)
-	receiver := txmanager.FromPK(solo.Keys()[1], client)
-
-	_, erc20, err := deployErc20(client, txsender)
-	assert.NoError(t, err)
-
-	timeout, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
-	eventChan, err := erc20.WatchTransfer(make([]testcontract.Erc20TransferCriteria, 0), timeout, 10)
-	assert.NoError(t, err)
-
-	receipt, err := erc20.Mint(receiver.Address(), big.NewInt(1000), &transactions.Options{}).Receipt(context.Background())
-	assert.NoError(t, err)
-	assert.NotNil(t, receipt)
-
-	select {
-	case event := <-eventChan:
-		assert.Equal(t, common.Address{}, event.From)
-		assert.Equal(t, receiver.Address(), event.To)
-		assert.True(t, event.Value.Cmp(big.NewInt(1000)) == 0)
-	case <-timeout.Done():
-		assert.Fail(t, "timeout")
-	}
 }
 
 func TestPayable_AsClause(t *testing.T) {
@@ -120,7 +92,7 @@ func TestPayable_AsClause(t *testing.T) {
 	blocks := big.NewInt(1)
 	vet := big.NewInt(1000)
 
-	clause, err := staker.StakeAsClause(blocks, vet)
+	clause, err := staker.Stake(blocks, vet).Clause()
 	assert.NoError(t, err)
 
 	assert.Equal(t, vet, clause.Value())
@@ -135,7 +107,7 @@ func TestPayable_Send(t *testing.T) {
 	blocks := big.NewInt(1)
 	vet := big.NewInt(1000)
 
-	receipt, err := staker.Stake(blocks, vet, &transactions.Options{}).Receipt(context.Background())
+	receipt, err := staker.Stake(blocks, vet).Receipt(context.Background(), txsender)
 	assert.NoError(t, err)
 	assert.Len(t, receipt.Outputs[0].Transfers, 1)
 }

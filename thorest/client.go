@@ -205,18 +205,10 @@ func (c *Client) TransactionReceiptAt(id common.Hash, head common.Hash) (*Transa
 }
 
 // FilterEvents fetches the event logs that match the given filter.
-func (c *Client) FilterEvents(criteriaSet []EventCriteria, filters *LogFilters) ([]*EventLog, error) {
+func (c *Client) FilterEvents(filter *EventFilter) ([]*EventLog, error) {
 	path := "/logs/event"
 	events := make([]*EventLog, 0)
-	request := eventFilter{
-		Criteria: &criteriaSet,
-	}
-	if filters != nil {
-		request.Range = filters.filterRange
-		request.Options = filters.options
-		request.Order = filters.order
-	}
-	_, err := httpPost(c, path, request, &events)
+	_, err := httpPost(c, path, filter, &events)
 	if err != nil {
 		return nil, err
 	}
@@ -224,18 +216,10 @@ func (c *Client) FilterEvents(criteriaSet []EventCriteria, filters *LogFilters) 
 }
 
 // FilterTransfers fetches the transfer logs that match the given filter.
-func (c *Client) FilterTransfers(criteriaSet []TransferCriteria, filters *LogFilters) ([]*TransferLog, error) {
+func (c *Client) FilterTransfers(filter *TransferFilter) ([]*TransferLog, error) {
 	path := "/logs/transfer"
 	transfers := make([]*TransferLog, 0)
-	request := transferFilter{
-		Criteria: &criteriaSet,
-	}
-	if filters != nil {
-		request.Range = filters.filterRange
-		request.Options = filters.options
-		request.Order = filters.order
-	}
-	_, err := httpPost(c, path, request, &transfers)
+	_, err := httpPost(c, path, filter, &transfers)
 	if err != nil {
 		return nil, err
 	}

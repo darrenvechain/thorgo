@@ -75,11 +75,11 @@ func TestVisitor_RevertReason(t *testing.T) {
 	assert.NoError(t, err)
 	_, err = transactions.New(thorClient, deploymentTxID).Wait(context.Background())
 	assert.NoError(t, err)
-	_, err = erc20.Mint(account1.Address(), balance, &transactions.Options{}).Receipt(context.Background())
+	_, err = erc20.Mint(account1.Address(), balance).Receipt(context.Background(), account1)
 	assert.NoError(t, err)
 
 	// send funds too much erc20 tokens
-	receipt, err := erc20.Transfer(account2.Address(), transferAmount, &transactions.Options{}).Receipt(context.Background())
+	receipt, err := erc20.Transfer(account2.Address(), transferAmount).Receipt(context.Background(), account1)
 	assert.NoError(t, err)
 
 	// get revert reason

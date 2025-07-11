@@ -19,9 +19,9 @@ type TransferCriteria struct {
 	Recipient *common.Address `json:"recipient,omitempty"` // Recipient is the address of the recipient
 }
 
-type transferFilter struct {
-	Range    *filterRange        `json:"range,omitempty"`
-	Options  *filterOptions      `json:"options,omitempty"`
+type TransferFilter struct {
+	Range    *LogRange           `json:"range,omitempty"`
+	Options  *LogOptions         `json:"options,omitempty"`
 	Criteria *[]TransferCriteria `json:"criteriaSet,omitempty"`
 	Order    *string             `json:"order,omitempty"`
 }

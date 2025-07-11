@@ -13,9 +13,9 @@ type EventLog struct {
 	Meta    *LogMeta        `json:"meta"`              // Meta contains metadata about the log
 }
 
-type eventFilter struct {
-	Range    *filterRange     `json:"range,omitempty"`
-	Options  *filterOptions   `json:"options,omitempty"`
+type EventFilter struct {
+	Range    *LogRange        `json:"range,omitempty"`
+	Options  *LogOptions      `json:"options,omitempty"`
 	Criteria *[]EventCriteria `json:"criteriaSet,omitempty"`
 	Order    *string          `json:"order,omitempty"`
 }

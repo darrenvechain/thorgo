@@ -1,4 +1,4 @@
-package accounts
+package contracts
 
 import (
 	"context"
@@ -50,7 +50,7 @@ func (d *Deployer) Deploy(ctx context.Context, sender TxManager, opts *transacti
 
 	address := receipt.Outputs[0].ContractAddress
 
-	return NewContract(d.client, *address, d.abi), trx.ID(), nil
+	return New(d.client, *address, d.abi), trx.ID(), nil
 }
 
 // AsClause returns the contract deployment clause.
