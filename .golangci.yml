@@ -1,34 +1,51 @@
-# This file configures github.com/golangci/golangci-lint.
-
+version: "2"
 run:
-  timeout: 20m
   tests: true
-
 linters:
-  disable-all: true
+  default: none
   enable:
-    - goimports
-    - gosimple
+    - bidichk
+    - gosec
     - govet
     - ineffassign
     - misspell
-    - unconvert
-    - typecheck
-    - unused
-    - staticcheck
-    - bidichk
-    - whitespace
     - revive
-    - gosec
+    - staticcheck
+    - unconvert
+    - unused
+    - whitespace
+  settings:
+    revive:
+      enable-all-rules: false
+      rules:
+        - name: receiver-naming
+          severity: warning
+          disabled: false
+          exclude:
+            - ""
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - cmd/test
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
     - gofmt
-
-linters-settings:
-  gofmt:
-    simplify: true
-  revive:
-    enable-all-rules: false
-    rules:
-      - name: receiver-naming
-        severity: warning
-        disabled: false
-        exclude: [""]
+    - goimports
+  settings:
+    gofmt:
+      simplify: true
+  exclusions:
+    generated: lax
+    paths:
+      - cmd/test
+      - third_party$
+      - builtin$
+      - examples$
