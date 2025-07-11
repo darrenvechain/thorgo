@@ -171,7 +171,7 @@ func (f *Filterer) ExecuteAndDecode() ([]Event, error) {
 
 // makeTopicHash converts a matcher value to a topic hash
 func (f *Filterer) makeTopicHash(matcher any) (common.Hash, error) {
-	topics, err := abi.MakeTopics([]interface{}{matcher})
+	topics, err := abi.MakeTopics([]any{matcher})
 	if err != nil {
 		return common.Hash{}, err
 	}
