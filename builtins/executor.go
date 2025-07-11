@@ -63,201 +63,37 @@ func (_Executor *Executor) Address() common.Address {
 	return _Executor.contract.Address
 }
 
-// ExecutorApproverCountCaller provides typed access to the ApproverCount method
-type ExecutorApproverCountCaller struct {
-	caller *contracts.Caller
-}
+// ==================== View Functions ====================
 
 // ApproverCount is a free data retrieval call binding the contract method 0x128e9be6.
 //
 // Solidity: function approverCount() view returns(uint8)
 func (_Executor *Executor) ApproverCount() *ExecutorApproverCountCaller {
-	return &ExecutorApproverCountCaller{
-		caller: _Executor.contract.Call("approverCount"),
-	}
+	return &ExecutorApproverCountCaller{caller: _Executor.contract.Call("approverCount")}
 }
 
-func (c *ExecutorApproverCountCaller) WithRevision(rev thorest.Revision) *ExecutorApproverCountCaller {
-	c.caller.WithRevision(rev)
-	return c
-}
-
-func (c *ExecutorApproverCountCaller) WithValue(value *big.Int) *ExecutorApproverCountCaller {
-	c.caller.WithValue(value)
-	return c
-}
-
-func (c *ExecutorApproverCountCaller) Call() (*thorest.InspectResponse, error) {
-	return c.caller.Call()
-}
-
-func (c *ExecutorApproverCountCaller) Execute() (uint8, error) {
-	data, err := c.caller.Execute()
-	if err != nil {
-		var zero uint8
-		return zero, err
-	}
-	if len(data) != 1 {
-		var zero uint8
-		return zero, errors.New("expected single return value")
-	}
-	if result, ok := data[0].(uint8); ok {
-		return result, nil
-	}
-	var zero uint8
-	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
-}
-
-// ExecutorApproversResult is a free data retrieval call binding the contract method 0x0a144391.
+// Approvers is a free data retrieval call binding the contract method 0x0a144391.
 //
 // Solidity: function approvers(address ) view returns(bytes32 identity, bool inPower)
-type ExecutorApproversResult struct {
-	Identity [32]byte
-	InPower  bool
-}
-
-// ExecutorApproversCaller provides typed access to the Approvers method
-type ExecutorApproversCaller struct {
-	caller *contracts.Caller
-}
-
 func (_Executor *Executor) Approvers(arg0 common.Address) *ExecutorApproversCaller {
-	return &ExecutorApproversCaller{
-		caller: _Executor.contract.Call("approvers", arg0),
-	}
+	return &ExecutorApproversCaller{caller: _Executor.contract.Call("approvers", arg0)}
 }
 
-func (c *ExecutorApproversCaller) WithRevision(rev thorest.Revision) *ExecutorApproversCaller {
-	c.caller.WithRevision(rev)
-	return c
-}
-
-func (c *ExecutorApproversCaller) WithValue(value *big.Int) *ExecutorApproversCaller {
-	c.caller.WithValue(value)
-	return c
-}
-
-func (c *ExecutorApproversCaller) Call() (*thorest.InspectResponse, error) {
-	return c.caller.Call()
-}
-
-func (c *ExecutorApproversCaller) Execute() (*ExecutorApproversResult, error) {
-	data, err := c.caller.Execute()
-	if err != nil {
-		return nil, err
-	}
-	if len(data) != 2 {
-		return nil, errors.New("invalid number of return values")
-	}
-	out := new(ExecutorApproversResult)
-	out.Identity = *abi.ConvertType(data[0], new([32]byte)).(*[32]byte)
-	out.InPower = *abi.ConvertType(data[1], new(bool)).(*bool)
-
-	return out, nil
-}
-
-// ExecutorProposalsResult is a free data retrieval call binding the contract method 0x32ed5b12.
+// Proposals is a free data retrieval call binding the contract method 0x32ed5b12.
 //
 // Solidity: function proposals(bytes32 ) view returns(uint64 timeProposed, address proposer, uint8 quorum, uint8 approvalCount, bool executed, address target, bytes data)
-type ExecutorProposalsResult struct {
-	TimeProposed  uint64
-	Proposer      common.Address
-	Quorum        uint8
-	ApprovalCount uint8
-	Executed      bool
-	Target        common.Address
-	Data          []byte
-}
-
-// ExecutorProposalsCaller provides typed access to the Proposals method
-type ExecutorProposalsCaller struct {
-	caller *contracts.Caller
-}
-
 func (_Executor *Executor) Proposals(arg0 [32]byte) *ExecutorProposalsCaller {
-	return &ExecutorProposalsCaller{
-		caller: _Executor.contract.Call("proposals", arg0),
-	}
-}
-
-func (c *ExecutorProposalsCaller) WithRevision(rev thorest.Revision) *ExecutorProposalsCaller {
-	c.caller.WithRevision(rev)
-	return c
-}
-
-func (c *ExecutorProposalsCaller) WithValue(value *big.Int) *ExecutorProposalsCaller {
-	c.caller.WithValue(value)
-	return c
-}
-
-func (c *ExecutorProposalsCaller) Call() (*thorest.InspectResponse, error) {
-	return c.caller.Call()
-}
-
-func (c *ExecutorProposalsCaller) Execute() (*ExecutorProposalsResult, error) {
-	data, err := c.caller.Execute()
-	if err != nil {
-		return nil, err
-	}
-	if len(data) != 7 {
-		return nil, errors.New("invalid number of return values")
-	}
-	out := new(ExecutorProposalsResult)
-	out.TimeProposed = *abi.ConvertType(data[0], new(uint64)).(*uint64)
-	out.Proposer = *abi.ConvertType(data[1], new(common.Address)).(*common.Address)
-	out.Quorum = *abi.ConvertType(data[2], new(uint8)).(*uint8)
-	out.ApprovalCount = *abi.ConvertType(data[3], new(uint8)).(*uint8)
-	out.Executed = *abi.ConvertType(data[4], new(bool)).(*bool)
-	out.Target = *abi.ConvertType(data[5], new(common.Address)).(*common.Address)
-	out.Data = *abi.ConvertType(data[6], new([]byte)).(*[]byte)
-
-	return out, nil
-}
-
-// ExecutorVotingContractsCaller provides typed access to the VotingContracts method
-type ExecutorVotingContractsCaller struct {
-	caller *contracts.Caller
+	return &ExecutorProposalsCaller{caller: _Executor.contract.Call("proposals", arg0)}
 }
 
 // VotingContracts is a free data retrieval call binding the contract method 0xfa06792b.
 //
 // Solidity: function votingContracts(address ) view returns(bool)
 func (_Executor *Executor) VotingContracts(arg0 common.Address) *ExecutorVotingContractsCaller {
-	return &ExecutorVotingContractsCaller{
-		caller: _Executor.contract.Call("votingContracts", arg0),
-	}
+	return &ExecutorVotingContractsCaller{caller: _Executor.contract.Call("votingContracts", arg0)}
 }
 
-func (c *ExecutorVotingContractsCaller) WithRevision(rev thorest.Revision) *ExecutorVotingContractsCaller {
-	c.caller.WithRevision(rev)
-	return c
-}
-
-func (c *ExecutorVotingContractsCaller) WithValue(value *big.Int) *ExecutorVotingContractsCaller {
-	c.caller.WithValue(value)
-	return c
-}
-
-func (c *ExecutorVotingContractsCaller) Call() (*thorest.InspectResponse, error) {
-	return c.caller.Call()
-}
-
-func (c *ExecutorVotingContractsCaller) Execute() (bool, error) {
-	data, err := c.caller.Execute()
-	if err != nil {
-		var zero bool
-		return zero, err
-	}
-	if len(data) != 1 {
-		var zero bool
-		return zero, errors.New("expected single return value")
-	}
-	if result, ok := data[0].(bool); ok {
-		return result, nil
-	}
-	var zero bool
-	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
-}
+// ==================== Transaction Functions ====================
 
 // AddApprover is a paid mutator transaction binding the contract method 0x3ef0c09e.
 //
@@ -308,22 +144,7 @@ func (_Executor *Executor) RevokeApprover(_approver common.Address) *contracts.S
 	return contracts.NewSender(_Executor.contract, "revokeApprover", _approver)
 }
 
-// ExecutorApprover represents a Approver event raised by the Executor contract.
-type ExecutorApprover struct {
-	Approver common.Address
-	Action   [32]byte
-	Log      *thorest.EventLog
-}
-
-type ExecutorApproverCriteria struct {
-	Approver *common.Address `abi:"approver"`
-}
-
-// ExecutorApproverFilterer provides typed access to filtering Approver events
-type ExecutorApproverFilterer struct {
-	filterer *contracts.Filterer
-	contract *contracts.Contract
-}
+// ==================== Event Functions ====================
 
 // FilterApprover is a free log retrieval operation binding the contract event 0x770115cde75e60f17b265d7e0c5e39c57abf243bc316c7e5c2f8d851771da6ac.
 //
@@ -341,139 +162,6 @@ func (_Executor *Executor) FilterApprover(criteria []ExecutorApproverCriteria) *
 	}
 
 	return &ExecutorApproverFilterer{filterer: filterer, contract: _Executor.contract}
-}
-
-func (f *ExecutorApproverFilterer) Range(from, to int64) *ExecutorApproverFilterer {
-	f.filterer.Range(from, to)
-	return f
-}
-
-func (f *ExecutorApproverFilterer) From(from int64) *ExecutorApproverFilterer {
-	f.filterer.From(from)
-	return f
-}
-
-func (f *ExecutorApproverFilterer) To(to int64) *ExecutorApproverFilterer {
-	f.filterer.To(to)
-	return f
-}
-
-func (f *ExecutorApproverFilterer) Offset(offset int64) *ExecutorApproverFilterer {
-	f.filterer.Offset(offset)
-	return f
-}
-
-func (f *ExecutorApproverFilterer) Limit(limit int64) *ExecutorApproverFilterer {
-	f.filterer.Limit(limit)
-	return f
-}
-
-func (f *ExecutorApproverFilterer) Order(order string) *ExecutorApproverFilterer {
-	f.filterer.Order(order)
-	return f
-}
-
-func (f *ExecutorApproverFilterer) Execute() ([]ExecutorApprover, error) {
-	logs, err := f.filterer.Execute()
-	if err != nil {
-		return nil, err
-	}
-
-	events := make([]ExecutorApprover, len(logs))
-	for i, log := range logs {
-		event := new(ExecutorApprover)
-		if err := f.contract.UnpackLog(event, "Approver", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = *event
-	}
-
-	return events, nil
-}
-
-// WatchApprover listens for on chain events binding the contract event 0x770115cde75e60f17b265d7e0c5e39c57abf243bc316c7e5c2f8d851771da6ac.
-//
-// Solidity: event Approver(address indexed approver, bytes32 action)
-func (_Executor *Executor) WatchApprover(criteria []ExecutorApproverCriteria, ctx context.Context, bufferSize int64) (chan *ExecutorApprover, error) {
-	topicHash := _Executor.contract.ABI.Events["Approver"].ID
-	criteriaSet := make([]thorest.EventCriteria, len(criteria))
-
-	for i, c := range criteria {
-		crteria := thorest.EventCriteria{
-			Address: &_Executor.contract.Address,
-			Topic0:  &topicHash,
-		}
-		if c.Approver != nil {
-			matcher := *c.Approver
-			topics, err := abi.MakeTopics([]interface{}{matcher})
-			if err != nil {
-				return nil, err
-			}
-			crteria.Topic1 = &topics[0][0]
-		}
-
-		criteriaSet[i] = crteria
-	}
-
-	eventChan := make(chan *ExecutorApprover, bufferSize)
-	blocks := blocks.New(ctx, _Executor.thor)
-	ticker := blocks.Ticker()
-	best, err := blocks.Best()
-	if err != nil {
-		return nil, err
-	}
-
-	go func(current int64) {
-		defer close(eventChan)
-
-		for {
-			select {
-			case <-ticker.C():
-				for { // loop until the current block is not found
-					block, err := blocks.Expanded(thorest.RevisionNumber(current))
-					if errors.Is(thorest.ErrNotFound, err) {
-						break
-					}
-					if err != nil {
-						time.Sleep(250 * time.Millisecond)
-						continue
-					}
-					current++
-
-					for _, log := range block.FilteredEvents(criteriaSet) {
-						ev := new(ExecutorApprover)
-						if err := _Executor.contract.UnpackLog(ev, "Approver", log); err != nil {
-							continue
-						}
-						ev.Log = log
-						eventChan <- ev
-					}
-				}
-			case <-ctx.Done():
-				return
-			}
-		}
-	}(best.Number + 1)
-
-	return eventChan, nil
-}
-
-// ExecutorProposal represents a Proposal event raised by the Executor contract.
-type ExecutorProposal struct {
-	ProposalID [32]byte
-	Action     [32]byte
-	Log        *thorest.EventLog
-}
-
-type ExecutorProposalCriteria struct {
-	ProposalID *[32]byte `abi:"proposalID"`
-}
-
-// ExecutorProposalFilterer provides typed access to filtering Proposal events
-type ExecutorProposalFilterer struct {
-	filterer *contracts.Filterer
-	contract *contracts.Contract
 }
 
 // FilterProposal is a free log retrieval operation binding the contract event 0x7d9bcf5c6cdade398a64a03053a982851ccea20dc827dbc130754b9e78c7c31a.
@@ -494,36 +182,340 @@ func (_Executor *Executor) FilterProposal(criteria []ExecutorProposalCriteria) *
 	return &ExecutorProposalFilterer{filterer: filterer, contract: _Executor.contract}
 }
 
+// FilterVotingContract is a free log retrieval operation binding the contract event 0xf4cb5443be666f872bc8a75293e99e2204a6573e5eb3d2d485d866f2e13c7ea4.
+//
+// Solidity: event VotingContract(address indexed contractAddr, bytes32 action)
+func (_Executor *Executor) FilterVotingContract(criteria []ExecutorVotingContractCriteria) *ExecutorVotingContractFilterer {
+	filterer := _Executor.contract.Filter("VotingContract")
+
+	// Add criteria to the filterer
+	for _, c := range criteria {
+		eventCriteria := contracts.EventCriteria{}
+		if c.ContractAddr != nil {
+			eventCriteria.Topic1 = *c.ContractAddr
+		}
+		filterer.AddCriteria(eventCriteria)
+	}
+
+	return &ExecutorVotingContractFilterer{filterer: filterer, contract: _Executor.contract}
+}
+
+// ==================== Event Types and Criteria ====================
+
+// ExecutorApprover represents a Approver event raised by the Executor contract.
+type ExecutorApprover struct {
+	Approver common.Address
+	Action   [32]byte
+	Log      *thorest.EventLog
+}
+
+type ExecutorApproverCriteria struct {
+	Approver *common.Address
+}
+
+// ExecutorProposal represents a Proposal event raised by the Executor contract.
+type ExecutorProposal struct {
+	ProposalID [32]byte
+	Action     [32]byte
+	Log        *thorest.EventLog
+}
+
+type ExecutorProposalCriteria struct {
+	ProposalID *[32]byte
+}
+
+// ExecutorVotingContract represents a VotingContract event raised by the Executor contract.
+type ExecutorVotingContract struct {
+	ContractAddr common.Address
+	Action       [32]byte
+	Log          *thorest.EventLog
+}
+
+type ExecutorVotingContractCriteria struct {
+	ContractAddr *common.Address
+}
+
+// ==================== Call Result Types ====================
+
+// ExecutorApproversResult is a free data retrieval call binding the contract method 0x0a144391.
+//
+// Solidity: function approvers(address ) view returns(bytes32 identity, bool inPower)
+type ExecutorApproversResult struct {
+	Identity [32]byte
+	InPower  bool
+}
+
+// ExecutorProposalsResult is a free data retrieval call binding the contract method 0x32ed5b12.
+//
+// Solidity: function proposals(bytes32 ) view returns(uint64 timeProposed, address proposer, uint8 quorum, uint8 approvalCount, bool executed, address target, bytes data)
+type ExecutorProposalsResult struct {
+	TimeProposed  uint64
+	Proposer      common.Address
+	Quorum        uint8
+	ApprovalCount uint8
+	Executed      bool
+	Target        common.Address
+	Data          []byte
+}
+
+// ==================== Caller Types and Methods ====================
+
+// ExecutorApproverCountCaller provides typed access to the ApproverCount method
+type ExecutorApproverCountCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x128e9be6.
+func (c *ExecutorApproverCountCaller) WithRevision(rev thorest.Revision) *ExecutorApproverCountCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x128e9be6.
+func (c *ExecutorApproverCountCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x128e9be6 and returns the result.
+func (c *ExecutorApproverCountCaller) Execute() (uint8, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero uint8
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero uint8
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(uint8); ok {
+		return result, nil
+	}
+	var zero uint8
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// ExecutorApproversCaller provides typed access to the Approvers method
+type ExecutorApproversCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x0a144391.
+func (c *ExecutorApproversCaller) WithRevision(rev thorest.Revision) *ExecutorApproversCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x0a144391.
+func (c *ExecutorApproversCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x0a144391 and returns the result.
+func (c *ExecutorApproversCaller) Execute() (*ExecutorApproversResult, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		return nil, err
+	}
+	if len(data) != 2 {
+		return nil, errors.New("invalid number of return values")
+	}
+	out := new(ExecutorApproversResult)
+	out.Identity = *abi.ConvertType(data[0], new([32]byte)).(*[32]byte)
+	out.InPower = *abi.ConvertType(data[1], new(bool)).(*bool)
+
+	return out, nil
+}
+
+// ExecutorProposalsCaller provides typed access to the Proposals method
+type ExecutorProposalsCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x32ed5b12.
+func (c *ExecutorProposalsCaller) WithRevision(rev thorest.Revision) *ExecutorProposalsCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x32ed5b12.
+func (c *ExecutorProposalsCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x32ed5b12 and returns the result.
+func (c *ExecutorProposalsCaller) Execute() (*ExecutorProposalsResult, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		return nil, err
+	}
+	if len(data) != 7 {
+		return nil, errors.New("invalid number of return values")
+	}
+	out := new(ExecutorProposalsResult)
+	out.TimeProposed = *abi.ConvertType(data[0], new(uint64)).(*uint64)
+	out.Proposer = *abi.ConvertType(data[1], new(common.Address)).(*common.Address)
+	out.Quorum = *abi.ConvertType(data[2], new(uint8)).(*uint8)
+	out.ApprovalCount = *abi.ConvertType(data[3], new(uint8)).(*uint8)
+	out.Executed = *abi.ConvertType(data[4], new(bool)).(*bool)
+	out.Target = *abi.ConvertType(data[5], new(common.Address)).(*common.Address)
+	out.Data = *abi.ConvertType(data[6], new([]byte)).(*[]byte)
+
+	return out, nil
+}
+
+// ExecutorVotingContractsCaller provides typed access to the VotingContracts method
+type ExecutorVotingContractsCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0xfa06792b.
+func (c *ExecutorVotingContractsCaller) WithRevision(rev thorest.Revision) *ExecutorVotingContractsCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0xfa06792b.
+func (c *ExecutorVotingContractsCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0xfa06792b and returns the result.
+func (c *ExecutorVotingContractsCaller) Execute() (bool, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero bool
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero bool
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(bool); ok {
+		return result, nil
+	}
+	var zero bool
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// ==================== Event Filterer Types and Methods ====================
+
+// ExecutorApproverFilterer provides typed access to filtering Approver events
+type ExecutorApproverFilterer struct {
+	filterer *contracts.Filterer
+	contract *contracts.Contract
+}
+
+// Unit sets the range type for the filterer. It can be `block` or `time`
+func (f *ExecutorApproverFilterer) Unit(unit string) *ExecutorApproverFilterer {
+	f.filterer.RangeUnit(unit)
+	return f
+}
+
+// Range sets the range for the filterer. It can be a block range or a time range.
+func (f *ExecutorApproverFilterer) Range(from, to int64) *ExecutorApproverFilterer {
+	f.filterer.Range(from, to)
+	return f
+}
+
+// From sets the start time or block number for the filterer.
+func (f *ExecutorApproverFilterer) From(from int64) *ExecutorApproverFilterer {
+	f.filterer.From(from)
+	return f
+}
+
+// To sets the end time or block number for the filterer.
+func (f *ExecutorApproverFilterer) To(to int64) *ExecutorApproverFilterer {
+	f.filterer.To(to)
+	return f
+}
+
+// Offset sets the offset for the filterer, allowing you to skip a number of events.
+func (f *ExecutorApproverFilterer) Offset(offset int64) *ExecutorApproverFilterer {
+	f.filterer.Offset(offset)
+	return f
+}
+
+// Limit sets the maximum number of events to return.
+func (f *ExecutorApproverFilterer) Limit(limit int64) *ExecutorApproverFilterer {
+	f.filterer.Limit(limit)
+	return f
+}
+
+// Order sets the order of the events returned by the filterer. It can be `asc` or `desc`.
+func (f *ExecutorApproverFilterer) Order(order string) *ExecutorApproverFilterer {
+	f.filterer.Order(order)
+	return f
+}
+
+// Execute the query and return the events matching the filter criteria.
+func (f *ExecutorApproverFilterer) Execute() ([]ExecutorApprover, error) {
+	logs, err := f.filterer.Execute()
+	if err != nil {
+		return nil, err
+	}
+
+	events := make([]ExecutorApprover, len(logs))
+	for i, log := range logs {
+		event := new(ExecutorApprover)
+		if err := f.contract.UnpackLog(event, "Approver", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = *event
+	}
+
+	return events, nil
+}
+
+// ExecutorProposalFilterer provides typed access to filtering Proposal events
+type ExecutorProposalFilterer struct {
+	filterer *contracts.Filterer
+	contract *contracts.Contract
+}
+
+// Unit sets the range type for the filterer. It can be `block` or `time`
+func (f *ExecutorProposalFilterer) Unit(unit string) *ExecutorProposalFilterer {
+	f.filterer.RangeUnit(unit)
+	return f
+}
+
+// Range sets the range for the filterer. It can be a block range or a time range.
 func (f *ExecutorProposalFilterer) Range(from, to int64) *ExecutorProposalFilterer {
 	f.filterer.Range(from, to)
 	return f
 }
 
+// From sets the start time or block number for the filterer.
 func (f *ExecutorProposalFilterer) From(from int64) *ExecutorProposalFilterer {
 	f.filterer.From(from)
 	return f
 }
 
+// To sets the end time or block number for the filterer.
 func (f *ExecutorProposalFilterer) To(to int64) *ExecutorProposalFilterer {
 	f.filterer.To(to)
 	return f
 }
 
+// Offset sets the offset for the filterer, allowing you to skip a number of events.
 func (f *ExecutorProposalFilterer) Offset(offset int64) *ExecutorProposalFilterer {
 	f.filterer.Offset(offset)
 	return f
 }
 
+// Limit sets the maximum number of events to return.
 func (f *ExecutorProposalFilterer) Limit(limit int64) *ExecutorProposalFilterer {
 	f.filterer.Limit(limit)
 	return f
 }
 
+// Order sets the order of the events returned by the filterer. It can be `asc` or `desc`.
 func (f *ExecutorProposalFilterer) Order(order string) *ExecutorProposalFilterer {
 	f.filterer.Order(order)
 	return f
 }
 
+// Execute the query and return the events matching the filter criteria.
 func (f *ExecutorProposalFilterer) Execute() ([]ExecutorProposal, error) {
 	logs, err := f.filterer.Execute()
 	if err != nil {
@@ -543,138 +535,55 @@ func (f *ExecutorProposalFilterer) Execute() ([]ExecutorProposal, error) {
 	return events, nil
 }
 
-// WatchProposal listens for on chain events binding the contract event 0x7d9bcf5c6cdade398a64a03053a982851ccea20dc827dbc130754b9e78c7c31a.
-//
-// Solidity: event Proposal(bytes32 indexed proposalID, bytes32 action)
-func (_Executor *Executor) WatchProposal(criteria []ExecutorProposalCriteria, ctx context.Context, bufferSize int64) (chan *ExecutorProposal, error) {
-	topicHash := _Executor.contract.ABI.Events["Proposal"].ID
-	criteriaSet := make([]thorest.EventCriteria, len(criteria))
-
-	for i, c := range criteria {
-		crteria := thorest.EventCriteria{
-			Address: &_Executor.contract.Address,
-			Topic0:  &topicHash,
-		}
-		if c.ProposalID != nil {
-			matcher := *c.ProposalID
-			topics, err := abi.MakeTopics([]interface{}{matcher})
-			if err != nil {
-				return nil, err
-			}
-			crteria.Topic1 = &topics[0][0]
-		}
-
-		criteriaSet[i] = crteria
-	}
-
-	eventChan := make(chan *ExecutorProposal, bufferSize)
-	blocks := blocks.New(ctx, _Executor.thor)
-	ticker := blocks.Ticker()
-	best, err := blocks.Best()
-	if err != nil {
-		return nil, err
-	}
-
-	go func(current int64) {
-		defer close(eventChan)
-
-		for {
-			select {
-			case <-ticker.C():
-				for { // loop until the current block is not found
-					block, err := blocks.Expanded(thorest.RevisionNumber(current))
-					if errors.Is(thorest.ErrNotFound, err) {
-						break
-					}
-					if err != nil {
-						time.Sleep(250 * time.Millisecond)
-						continue
-					}
-					current++
-
-					for _, log := range block.FilteredEvents(criteriaSet) {
-						ev := new(ExecutorProposal)
-						if err := _Executor.contract.UnpackLog(ev, "Proposal", log); err != nil {
-							continue
-						}
-						ev.Log = log
-						eventChan <- ev
-					}
-				}
-			case <-ctx.Done():
-				return
-			}
-		}
-	}(best.Number + 1)
-
-	return eventChan, nil
-}
-
-// ExecutorVotingContract represents a VotingContract event raised by the Executor contract.
-type ExecutorVotingContract struct {
-	ContractAddr common.Address
-	Action       [32]byte
-	Log          *thorest.EventLog
-}
-
-type ExecutorVotingContractCriteria struct {
-	ContractAddr *common.Address `abi:"contractAddr"`
-}
-
 // ExecutorVotingContractFilterer provides typed access to filtering VotingContract events
 type ExecutorVotingContractFilterer struct {
 	filterer *contracts.Filterer
 	contract *contracts.Contract
 }
 
-// FilterVotingContract is a free log retrieval operation binding the contract event 0xf4cb5443be666f872bc8a75293e99e2204a6573e5eb3d2d485d866f2e13c7ea4.
-//
-// Solidity: event VotingContract(address indexed contractAddr, bytes32 action)
-func (_Executor *Executor) FilterVotingContract(criteria []ExecutorVotingContractCriteria) *ExecutorVotingContractFilterer {
-	filterer := _Executor.contract.Filter("VotingContract")
-
-	// Add criteria to the filterer
-	for _, c := range criteria {
-		eventCriteria := contracts.EventCriteria{}
-		if c.ContractAddr != nil {
-			eventCriteria.Topic1 = *c.ContractAddr
-		}
-		filterer.AddCriteria(eventCriteria)
-	}
-
-	return &ExecutorVotingContractFilterer{filterer: filterer, contract: _Executor.contract}
+// Unit sets the range type for the filterer. It can be `block` or `time`
+func (f *ExecutorVotingContractFilterer) Unit(unit string) *ExecutorVotingContractFilterer {
+	f.filterer.RangeUnit(unit)
+	return f
 }
 
+// Range sets the range for the filterer. It can be a block range or a time range.
 func (f *ExecutorVotingContractFilterer) Range(from, to int64) *ExecutorVotingContractFilterer {
 	f.filterer.Range(from, to)
 	return f
 }
 
+// From sets the start time or block number for the filterer.
 func (f *ExecutorVotingContractFilterer) From(from int64) *ExecutorVotingContractFilterer {
 	f.filterer.From(from)
 	return f
 }
 
+// To sets the end time or block number for the filterer.
 func (f *ExecutorVotingContractFilterer) To(to int64) *ExecutorVotingContractFilterer {
 	f.filterer.To(to)
 	return f
 }
 
+// Offset sets the offset for the filterer, allowing you to skip a number of events.
 func (f *ExecutorVotingContractFilterer) Offset(offset int64) *ExecutorVotingContractFilterer {
 	f.filterer.Offset(offset)
 	return f
 }
 
+// Limit sets the maximum number of events to return.
 func (f *ExecutorVotingContractFilterer) Limit(limit int64) *ExecutorVotingContractFilterer {
 	f.filterer.Limit(limit)
 	return f
 }
 
+// Order sets the order of the events returned by the filterer. It can be `asc` or `desc`.
 func (f *ExecutorVotingContractFilterer) Order(order string) *ExecutorVotingContractFilterer {
 	f.filterer.Order(order)
 	return f
 }
 
+// Execute the query and return the events matching the filter criteria.
 func (f *ExecutorVotingContractFilterer) Execute() ([]ExecutorVotingContract, error) {
 	logs, err := f.filterer.Execute()
 	if err != nil {
@@ -692,71 +601,4 @@ func (f *ExecutorVotingContractFilterer) Execute() ([]ExecutorVotingContract, er
 	}
 
 	return events, nil
-}
-
-// WatchVotingContract listens for on chain events binding the contract event 0xf4cb5443be666f872bc8a75293e99e2204a6573e5eb3d2d485d866f2e13c7ea4.
-//
-// Solidity: event VotingContract(address indexed contractAddr, bytes32 action)
-func (_Executor *Executor) WatchVotingContract(criteria []ExecutorVotingContractCriteria, ctx context.Context, bufferSize int64) (chan *ExecutorVotingContract, error) {
-	topicHash := _Executor.contract.ABI.Events["VotingContract"].ID
-	criteriaSet := make([]thorest.EventCriteria, len(criteria))
-
-	for i, c := range criteria {
-		crteria := thorest.EventCriteria{
-			Address: &_Executor.contract.Address,
-			Topic0:  &topicHash,
-		}
-		if c.ContractAddr != nil {
-			matcher := *c.ContractAddr
-			topics, err := abi.MakeTopics([]interface{}{matcher})
-			if err != nil {
-				return nil, err
-			}
-			crteria.Topic1 = &topics[0][0]
-		}
-
-		criteriaSet[i] = crteria
-	}
-
-	eventChan := make(chan *ExecutorVotingContract, bufferSize)
-	blocks := blocks.New(ctx, _Executor.thor)
-	ticker := blocks.Ticker()
-	best, err := blocks.Best()
-	if err != nil {
-		return nil, err
-	}
-
-	go func(current int64) {
-		defer close(eventChan)
-
-		for {
-			select {
-			case <-ticker.C():
-				for { // loop until the current block is not found
-					block, err := blocks.Expanded(thorest.RevisionNumber(current))
-					if errors.Is(thorest.ErrNotFound, err) {
-						break
-					}
-					if err != nil {
-						time.Sleep(250 * time.Millisecond)
-						continue
-					}
-					current++
-
-					for _, log := range block.FilteredEvents(criteriaSet) {
-						ev := new(ExecutorVotingContract)
-						if err := _Executor.contract.UnpackLog(ev, "VotingContract", log); err != nil {
-							continue
-						}
-						ev.Log = log
-						eventChan <- ev
-					}
-				}
-			case <-ctx.Done():
-				return
-			}
-		}
-	}(best.Number + 1)
-
-	return eventChan, nil
 }

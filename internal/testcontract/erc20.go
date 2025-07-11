@@ -82,275 +82,51 @@ func (_Erc20 *Erc20) Address() common.Address {
 	return _Erc20.contract.Address
 }
 
-// Erc20AllowanceCaller provides typed access to the Allowance method
-type Erc20AllowanceCaller struct {
-	caller *contracts.Caller
-}
+// ==================== View Functions ====================
 
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
 //
 // Solidity: function allowance(address owner, address spender) view returns(uint256)
 func (_Erc20 *Erc20) Allowance(owner common.Address, spender common.Address) *Erc20AllowanceCaller {
-	return &Erc20AllowanceCaller{
-		caller: _Erc20.contract.Call("allowance", owner, spender),
-	}
-}
-
-func (c *Erc20AllowanceCaller) WithRevision(rev thorest.Revision) *Erc20AllowanceCaller {
-	c.caller.WithRevision(rev)
-	return c
-}
-
-func (c *Erc20AllowanceCaller) WithValue(value *big.Int) *Erc20AllowanceCaller {
-	c.caller.WithValue(value)
-	return c
-}
-
-func (c *Erc20AllowanceCaller) Call() (*thorest.InspectResponse, error) {
-	return c.caller.Call()
-}
-
-func (c *Erc20AllowanceCaller) Execute() (*big.Int, error) {
-	data, err := c.caller.Execute()
-	if err != nil {
-		var zero *big.Int
-		return zero, err
-	}
-	if len(data) != 1 {
-		var zero *big.Int
-		return zero, errors.New("expected single return value")
-	}
-	if result, ok := data[0].(*big.Int); ok {
-		return result, nil
-	}
-	var zero *big.Int
-	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
-}
-
-// Erc20BalanceOfCaller provides typed access to the BalanceOf method
-type Erc20BalanceOfCaller struct {
-	caller *contracts.Caller
+	return &Erc20AllowanceCaller{caller: _Erc20.contract.Call("allowance", owner, spender)}
 }
 
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
 // Solidity: function balanceOf(address account) view returns(uint256)
 func (_Erc20 *Erc20) BalanceOf(account common.Address) *Erc20BalanceOfCaller {
-	return &Erc20BalanceOfCaller{
-		caller: _Erc20.contract.Call("balanceOf", account),
-	}
-}
-
-func (c *Erc20BalanceOfCaller) WithRevision(rev thorest.Revision) *Erc20BalanceOfCaller {
-	c.caller.WithRevision(rev)
-	return c
-}
-
-func (c *Erc20BalanceOfCaller) WithValue(value *big.Int) *Erc20BalanceOfCaller {
-	c.caller.WithValue(value)
-	return c
-}
-
-func (c *Erc20BalanceOfCaller) Call() (*thorest.InspectResponse, error) {
-	return c.caller.Call()
-}
-
-func (c *Erc20BalanceOfCaller) Execute() (*big.Int, error) {
-	data, err := c.caller.Execute()
-	if err != nil {
-		var zero *big.Int
-		return zero, err
-	}
-	if len(data) != 1 {
-		var zero *big.Int
-		return zero, errors.New("expected single return value")
-	}
-	if result, ok := data[0].(*big.Int); ok {
-		return result, nil
-	}
-	var zero *big.Int
-	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
-}
-
-// Erc20DecimalsCaller provides typed access to the Decimals method
-type Erc20DecimalsCaller struct {
-	caller *contracts.Caller
+	return &Erc20BalanceOfCaller{caller: _Erc20.contract.Call("balanceOf", account)}
 }
 
 // Decimals is a free data retrieval call binding the contract method 0x313ce567.
 //
 // Solidity: function decimals() view returns(uint8)
 func (_Erc20 *Erc20) Decimals() *Erc20DecimalsCaller {
-	return &Erc20DecimalsCaller{
-		caller: _Erc20.contract.Call("decimals"),
-	}
-}
-
-func (c *Erc20DecimalsCaller) WithRevision(rev thorest.Revision) *Erc20DecimalsCaller {
-	c.caller.WithRevision(rev)
-	return c
-}
-
-func (c *Erc20DecimalsCaller) WithValue(value *big.Int) *Erc20DecimalsCaller {
-	c.caller.WithValue(value)
-	return c
-}
-
-func (c *Erc20DecimalsCaller) Call() (*thorest.InspectResponse, error) {
-	return c.caller.Call()
-}
-
-func (c *Erc20DecimalsCaller) Execute() (uint8, error) {
-	data, err := c.caller.Execute()
-	if err != nil {
-		var zero uint8
-		return zero, err
-	}
-	if len(data) != 1 {
-		var zero uint8
-		return zero, errors.New("expected single return value")
-	}
-	if result, ok := data[0].(uint8); ok {
-		return result, nil
-	}
-	var zero uint8
-	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
-}
-
-// Erc20NameCaller provides typed access to the Name method
-type Erc20NameCaller struct {
-	caller *contracts.Caller
+	return &Erc20DecimalsCaller{caller: _Erc20.contract.Call("decimals")}
 }
 
 // Name is a free data retrieval call binding the contract method 0x06fdde03.
 //
 // Solidity: function name() view returns(string)
 func (_Erc20 *Erc20) Name() *Erc20NameCaller {
-	return &Erc20NameCaller{
-		caller: _Erc20.contract.Call("name"),
-	}
-}
-
-func (c *Erc20NameCaller) WithRevision(rev thorest.Revision) *Erc20NameCaller {
-	c.caller.WithRevision(rev)
-	return c
-}
-
-func (c *Erc20NameCaller) WithValue(value *big.Int) *Erc20NameCaller {
-	c.caller.WithValue(value)
-	return c
-}
-
-func (c *Erc20NameCaller) Call() (*thorest.InspectResponse, error) {
-	return c.caller.Call()
-}
-
-func (c *Erc20NameCaller) Execute() (string, error) {
-	data, err := c.caller.Execute()
-	if err != nil {
-		var zero string
-		return zero, err
-	}
-	if len(data) != 1 {
-		var zero string
-		return zero, errors.New("expected single return value")
-	}
-	if result, ok := data[0].(string); ok {
-		return result, nil
-	}
-	var zero string
-	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
-}
-
-// Erc20SymbolCaller provides typed access to the Symbol method
-type Erc20SymbolCaller struct {
-	caller *contracts.Caller
+	return &Erc20NameCaller{caller: _Erc20.contract.Call("name")}
 }
 
 // Symbol is a free data retrieval call binding the contract method 0x95d89b41.
 //
 // Solidity: function symbol() view returns(string)
 func (_Erc20 *Erc20) Symbol() *Erc20SymbolCaller {
-	return &Erc20SymbolCaller{
-		caller: _Erc20.contract.Call("symbol"),
-	}
-}
-
-func (c *Erc20SymbolCaller) WithRevision(rev thorest.Revision) *Erc20SymbolCaller {
-	c.caller.WithRevision(rev)
-	return c
-}
-
-func (c *Erc20SymbolCaller) WithValue(value *big.Int) *Erc20SymbolCaller {
-	c.caller.WithValue(value)
-	return c
-}
-
-func (c *Erc20SymbolCaller) Call() (*thorest.InspectResponse, error) {
-	return c.caller.Call()
-}
-
-func (c *Erc20SymbolCaller) Execute() (string, error) {
-	data, err := c.caller.Execute()
-	if err != nil {
-		var zero string
-		return zero, err
-	}
-	if len(data) != 1 {
-		var zero string
-		return zero, errors.New("expected single return value")
-	}
-	if result, ok := data[0].(string); ok {
-		return result, nil
-	}
-	var zero string
-	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
-}
-
-// Erc20TotalSupplyCaller provides typed access to the TotalSupply method
-type Erc20TotalSupplyCaller struct {
-	caller *contracts.Caller
+	return &Erc20SymbolCaller{caller: _Erc20.contract.Call("symbol")}
 }
 
 // TotalSupply is a free data retrieval call binding the contract method 0x18160ddd.
 //
 // Solidity: function totalSupply() view returns(uint256)
 func (_Erc20 *Erc20) TotalSupply() *Erc20TotalSupplyCaller {
-	return &Erc20TotalSupplyCaller{
-		caller: _Erc20.contract.Call("totalSupply"),
-	}
+	return &Erc20TotalSupplyCaller{caller: _Erc20.contract.Call("totalSupply")}
 }
 
-func (c *Erc20TotalSupplyCaller) WithRevision(rev thorest.Revision) *Erc20TotalSupplyCaller {
-	c.caller.WithRevision(rev)
-	return c
-}
-
-func (c *Erc20TotalSupplyCaller) WithValue(value *big.Int) *Erc20TotalSupplyCaller {
-	c.caller.WithValue(value)
-	return c
-}
-
-func (c *Erc20TotalSupplyCaller) Call() (*thorest.InspectResponse, error) {
-	return c.caller.Call()
-}
-
-func (c *Erc20TotalSupplyCaller) Execute() (*big.Int, error) {
-	data, err := c.caller.Execute()
-	if err != nil {
-		var zero *big.Int
-		return zero, err
-	}
-	if len(data) != 1 {
-		var zero *big.Int
-		return zero, errors.New("expected single return value")
-	}
-	if result, ok := data[0].(*big.Int); ok {
-		return result, nil
-	}
-	var zero *big.Int
-	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
-}
+// ==================== Transaction Functions ====================
 
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
@@ -394,24 +170,7 @@ func (_Erc20 *Erc20) TransferFrom(from common.Address, to common.Address, value 
 	return contracts.NewSender(_Erc20.contract, "transferFrom", from, to, value)
 }
 
-// Erc20Approval represents a Approval event raised by the Erc20 contract.
-type Erc20Approval struct {
-	Owner   common.Address
-	Spender common.Address
-	Value   *big.Int
-	Log     *thorest.EventLog
-}
-
-type Erc20ApprovalCriteria struct {
-	Owner   *common.Address `abi:"owner"`
-	Spender *common.Address `abi:"spender"`
-}
-
-// Erc20ApprovalFilterer provides typed access to filtering Approval events
-type Erc20ApprovalFilterer struct {
-	filterer *contracts.Filterer
-	contract *contracts.Contract
-}
+// ==================== Event Functions ====================
 
 // FilterApproval is a free log retrieval operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
 //
@@ -432,149 +191,6 @@ func (_Erc20 *Erc20) FilterApproval(criteria []Erc20ApprovalCriteria) *Erc20Appr
 	}
 
 	return &Erc20ApprovalFilterer{filterer: filterer, contract: _Erc20.contract}
-}
-
-func (f *Erc20ApprovalFilterer) Range(from, to int64) *Erc20ApprovalFilterer {
-	f.filterer.Range(from, to)
-	return f
-}
-
-func (f *Erc20ApprovalFilterer) From(from int64) *Erc20ApprovalFilterer {
-	f.filterer.From(from)
-	return f
-}
-
-func (f *Erc20ApprovalFilterer) To(to int64) *Erc20ApprovalFilterer {
-	f.filterer.To(to)
-	return f
-}
-
-func (f *Erc20ApprovalFilterer) Offset(offset int64) *Erc20ApprovalFilterer {
-	f.filterer.Offset(offset)
-	return f
-}
-
-func (f *Erc20ApprovalFilterer) Limit(limit int64) *Erc20ApprovalFilterer {
-	f.filterer.Limit(limit)
-	return f
-}
-
-func (f *Erc20ApprovalFilterer) Order(order string) *Erc20ApprovalFilterer {
-	f.filterer.Order(order)
-	return f
-}
-
-func (f *Erc20ApprovalFilterer) Execute() ([]Erc20Approval, error) {
-	logs, err := f.filterer.Execute()
-	if err != nil {
-		return nil, err
-	}
-
-	events := make([]Erc20Approval, len(logs))
-	for i, log := range logs {
-		event := new(Erc20Approval)
-		if err := f.contract.UnpackLog(event, "Approval", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = *event
-	}
-
-	return events, nil
-}
-
-// WatchApproval listens for on chain events binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
-//
-// Solidity: event Approval(address indexed owner, address indexed spender, uint256 value)
-func (_Erc20 *Erc20) WatchApproval(criteria []Erc20ApprovalCriteria, ctx context.Context, bufferSize int64) (chan *Erc20Approval, error) {
-	topicHash := _Erc20.contract.ABI.Events["Approval"].ID
-	criteriaSet := make([]thorest.EventCriteria, len(criteria))
-
-	for i, c := range criteria {
-		crteria := thorest.EventCriteria{
-			Address: &_Erc20.contract.Address,
-			Topic0:  &topicHash,
-		}
-		if c.Owner != nil {
-			matcher := *c.Owner
-			topics, err := abi.MakeTopics([]interface{}{matcher})
-			if err != nil {
-				return nil, err
-			}
-			crteria.Topic1 = &topics[0][0]
-		}
-		if c.Spender != nil {
-			matcher := *c.Spender
-			topics, err := abi.MakeTopics([]interface{}{matcher})
-			if err != nil {
-				return nil, err
-			}
-			crteria.Topic2 = &topics[0][0]
-		}
-
-		criteriaSet[i] = crteria
-	}
-
-	eventChan := make(chan *Erc20Approval, bufferSize)
-	blocks := blocks.New(ctx, _Erc20.thor)
-	ticker := blocks.Ticker()
-	best, err := blocks.Best()
-	if err != nil {
-		return nil, err
-	}
-
-	go func(current int64) {
-		defer close(eventChan)
-
-		for {
-			select {
-			case <-ticker.C():
-				for { // loop until the current block is not found
-					block, err := blocks.Expanded(thorest.RevisionNumber(current))
-					if errors.Is(thorest.ErrNotFound, err) {
-						break
-					}
-					if err != nil {
-						time.Sleep(250 * time.Millisecond)
-						continue
-					}
-					current++
-
-					for _, log := range block.FilteredEvents(criteriaSet) {
-						ev := new(Erc20Approval)
-						if err := _Erc20.contract.UnpackLog(ev, "Approval", log); err != nil {
-							continue
-						}
-						ev.Log = log
-						eventChan <- ev
-					}
-				}
-			case <-ctx.Done():
-				return
-			}
-		}
-	}(best.Number + 1)
-
-	return eventChan, nil
-}
-
-// Erc20Transfer represents a Transfer event raised by the Erc20 contract.
-type Erc20Transfer struct {
-	From  common.Address
-	To    common.Address
-	Value *big.Int
-	Log   *thorest.EventLog
-}
-
-type Erc20TransferCriteria struct {
-	From *common.Address `abi:"from"`
-	To   *common.Address `abi:"to"`
-}
-
-// Erc20TransferFilterer provides typed access to filtering Transfer events
-type Erc20TransferFilterer struct {
-	filterer *contracts.Filterer
-	contract *contracts.Contract
 }
 
 // FilterTransfer is a free log retrieval operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
@@ -598,36 +214,361 @@ func (_Erc20 *Erc20) FilterTransfer(criteria []Erc20TransferCriteria) *Erc20Tran
 	return &Erc20TransferFilterer{filterer: filterer, contract: _Erc20.contract}
 }
 
+// ==================== Event Types and Criteria ====================
+
+// Erc20Approval represents a Approval event raised by the Erc20 contract.
+type Erc20Approval struct {
+	Owner   common.Address
+	Spender common.Address
+	Value   *big.Int
+	Log     *thorest.EventLog
+}
+
+type Erc20ApprovalCriteria struct {
+	Owner   *common.Address
+	Spender *common.Address
+}
+
+// Erc20Transfer represents a Transfer event raised by the Erc20 contract.
+type Erc20Transfer struct {
+	From  common.Address
+	To    common.Address
+	Value *big.Int
+	Log   *thorest.EventLog
+}
+
+type Erc20TransferCriteria struct {
+	From *common.Address
+	To   *common.Address
+}
+
+// ==================== Call Result Types ====================
+
+// ==================== Caller Types and Methods ====================
+
+// Erc20AllowanceCaller provides typed access to the Allowance method
+type Erc20AllowanceCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0xdd62ed3e.
+func (c *Erc20AllowanceCaller) WithRevision(rev thorest.Revision) *Erc20AllowanceCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0xdd62ed3e.
+func (c *Erc20AllowanceCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0xdd62ed3e and returns the result.
+func (c *Erc20AllowanceCaller) Execute() (*big.Int, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero *big.Int
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero *big.Int
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(*big.Int); ok {
+		return result, nil
+	}
+	var zero *big.Int
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// Erc20BalanceOfCaller provides typed access to the BalanceOf method
+type Erc20BalanceOfCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x70a08231.
+func (c *Erc20BalanceOfCaller) WithRevision(rev thorest.Revision) *Erc20BalanceOfCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x70a08231.
+func (c *Erc20BalanceOfCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x70a08231 and returns the result.
+func (c *Erc20BalanceOfCaller) Execute() (*big.Int, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero *big.Int
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero *big.Int
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(*big.Int); ok {
+		return result, nil
+	}
+	var zero *big.Int
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// Erc20DecimalsCaller provides typed access to the Decimals method
+type Erc20DecimalsCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x313ce567.
+func (c *Erc20DecimalsCaller) WithRevision(rev thorest.Revision) *Erc20DecimalsCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x313ce567.
+func (c *Erc20DecimalsCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x313ce567 and returns the result.
+func (c *Erc20DecimalsCaller) Execute() (uint8, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero uint8
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero uint8
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(uint8); ok {
+		return result, nil
+	}
+	var zero uint8
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// Erc20NameCaller provides typed access to the Name method
+type Erc20NameCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x06fdde03.
+func (c *Erc20NameCaller) WithRevision(rev thorest.Revision) *Erc20NameCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x06fdde03.
+func (c *Erc20NameCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x06fdde03 and returns the result.
+func (c *Erc20NameCaller) Execute() (string, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero string
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero string
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(string); ok {
+		return result, nil
+	}
+	var zero string
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// Erc20SymbolCaller provides typed access to the Symbol method
+type Erc20SymbolCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x95d89b41.
+func (c *Erc20SymbolCaller) WithRevision(rev thorest.Revision) *Erc20SymbolCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x95d89b41.
+func (c *Erc20SymbolCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x95d89b41 and returns the result.
+func (c *Erc20SymbolCaller) Execute() (string, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero string
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero string
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(string); ok {
+		return result, nil
+	}
+	var zero string
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// Erc20TotalSupplyCaller provides typed access to the TotalSupply method
+type Erc20TotalSupplyCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x18160ddd.
+func (c *Erc20TotalSupplyCaller) WithRevision(rev thorest.Revision) *Erc20TotalSupplyCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x18160ddd.
+func (c *Erc20TotalSupplyCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x18160ddd and returns the result.
+func (c *Erc20TotalSupplyCaller) Execute() (*big.Int, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero *big.Int
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero *big.Int
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(*big.Int); ok {
+		return result, nil
+	}
+	var zero *big.Int
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// ==================== Event Filterer Types and Methods ====================
+
+// Erc20ApprovalFilterer provides typed access to filtering Approval events
+type Erc20ApprovalFilterer struct {
+	filterer *contracts.Filterer
+	contract *contracts.Contract
+}
+
+// Unit sets the range type for the filterer. It can be `block` or `time`
+func (f *Erc20ApprovalFilterer) Unit(unit string) *Erc20ApprovalFilterer {
+	f.filterer.RangeUnit(unit)
+	return f
+}
+
+// Range sets the range for the filterer. It can be a block range or a time range.
+func (f *Erc20ApprovalFilterer) Range(from, to int64) *Erc20ApprovalFilterer {
+	f.filterer.Range(from, to)
+	return f
+}
+
+// From sets the start time or block number for the filterer.
+func (f *Erc20ApprovalFilterer) From(from int64) *Erc20ApprovalFilterer {
+	f.filterer.From(from)
+	return f
+}
+
+// To sets the end time or block number for the filterer.
+func (f *Erc20ApprovalFilterer) To(to int64) *Erc20ApprovalFilterer {
+	f.filterer.To(to)
+	return f
+}
+
+// Offset sets the offset for the filterer, allowing you to skip a number of events.
+func (f *Erc20ApprovalFilterer) Offset(offset int64) *Erc20ApprovalFilterer {
+	f.filterer.Offset(offset)
+	return f
+}
+
+// Limit sets the maximum number of events to return.
+func (f *Erc20ApprovalFilterer) Limit(limit int64) *Erc20ApprovalFilterer {
+	f.filterer.Limit(limit)
+	return f
+}
+
+// Order sets the order of the events returned by the filterer. It can be `asc` or `desc`.
+func (f *Erc20ApprovalFilterer) Order(order string) *Erc20ApprovalFilterer {
+	f.filterer.Order(order)
+	return f
+}
+
+// Execute the query and return the events matching the filter criteria.
+func (f *Erc20ApprovalFilterer) Execute() ([]Erc20Approval, error) {
+	logs, err := f.filterer.Execute()
+	if err != nil {
+		return nil, err
+	}
+
+	events := make([]Erc20Approval, len(logs))
+	for i, log := range logs {
+		event := new(Erc20Approval)
+		if err := f.contract.UnpackLog(event, "Approval", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = *event
+	}
+
+	return events, nil
+}
+
+// Erc20TransferFilterer provides typed access to filtering Transfer events
+type Erc20TransferFilterer struct {
+	filterer *contracts.Filterer
+	contract *contracts.Contract
+}
+
+// Unit sets the range type for the filterer. It can be `block` or `time`
+func (f *Erc20TransferFilterer) Unit(unit string) *Erc20TransferFilterer {
+	f.filterer.RangeUnit(unit)
+	return f
+}
+
+// Range sets the range for the filterer. It can be a block range or a time range.
 func (f *Erc20TransferFilterer) Range(from, to int64) *Erc20TransferFilterer {
 	f.filterer.Range(from, to)
 	return f
 }
 
+// From sets the start time or block number for the filterer.
 func (f *Erc20TransferFilterer) From(from int64) *Erc20TransferFilterer {
 	f.filterer.From(from)
 	return f
 }
 
+// To sets the end time or block number for the filterer.
 func (f *Erc20TransferFilterer) To(to int64) *Erc20TransferFilterer {
 	f.filterer.To(to)
 	return f
 }
 
+// Offset sets the offset for the filterer, allowing you to skip a number of events.
 func (f *Erc20TransferFilterer) Offset(offset int64) *Erc20TransferFilterer {
 	f.filterer.Offset(offset)
 	return f
 }
 
+// Limit sets the maximum number of events to return.
 func (f *Erc20TransferFilterer) Limit(limit int64) *Erc20TransferFilterer {
 	f.filterer.Limit(limit)
 	return f
 }
 
+// Order sets the order of the events returned by the filterer. It can be `asc` or `desc`.
 func (f *Erc20TransferFilterer) Order(order string) *Erc20TransferFilterer {
 	f.filterer.Order(order)
 	return f
 }
 
+// Execute the query and return the events matching the filter criteria.
 func (f *Erc20TransferFilterer) Execute() ([]Erc20Transfer, error) {
 	logs, err := f.filterer.Execute()
 	if err != nil {
@@ -645,79 +586,4 @@ func (f *Erc20TransferFilterer) Execute() ([]Erc20Transfer, error) {
 	}
 
 	return events, nil
-}
-
-// WatchTransfer listens for on chain events binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
-//
-// Solidity: event Transfer(address indexed from, address indexed to, uint256 value)
-func (_Erc20 *Erc20) WatchTransfer(criteria []Erc20TransferCriteria, ctx context.Context, bufferSize int64) (chan *Erc20Transfer, error) {
-	topicHash := _Erc20.contract.ABI.Events["Transfer"].ID
-	criteriaSet := make([]thorest.EventCriteria, len(criteria))
-
-	for i, c := range criteria {
-		crteria := thorest.EventCriteria{
-			Address: &_Erc20.contract.Address,
-			Topic0:  &topicHash,
-		}
-		if c.From != nil {
-			matcher := *c.From
-			topics, err := abi.MakeTopics([]interface{}{matcher})
-			if err != nil {
-				return nil, err
-			}
-			crteria.Topic1 = &topics[0][0]
-		}
-		if c.To != nil {
-			matcher := *c.To
-			topics, err := abi.MakeTopics([]interface{}{matcher})
-			if err != nil {
-				return nil, err
-			}
-			crteria.Topic2 = &topics[0][0]
-		}
-
-		criteriaSet[i] = crteria
-	}
-
-	eventChan := make(chan *Erc20Transfer, bufferSize)
-	blocks := blocks.New(ctx, _Erc20.thor)
-	ticker := blocks.Ticker()
-	best, err := blocks.Best()
-	if err != nil {
-		return nil, err
-	}
-
-	go func(current int64) {
-		defer close(eventChan)
-
-		for {
-			select {
-			case <-ticker.C():
-				for { // loop until the current block is not found
-					block, err := blocks.Expanded(thorest.RevisionNumber(current))
-					if errors.Is(thorest.ErrNotFound, err) {
-						break
-					}
-					if err != nil {
-						time.Sleep(250 * time.Millisecond)
-						continue
-					}
-					current++
-
-					for _, log := range block.FilteredEvents(criteriaSet) {
-						ev := new(Erc20Transfer)
-						if err := _Erc20.contract.UnpackLog(ev, "Transfer", log); err != nil {
-							continue
-						}
-						ev.Log = log
-						eventChan <- ev
-					}
-				}
-			case <-ctx.Done():
-				return
-			}
-		}
-	}(best.Number + 1)
-
-	return eventChan, nil
 }

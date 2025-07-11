@@ -38,8 +38,7 @@ func (c *Caller) WithValue(value *big.Int) *Caller {
 	return c
 }
 
-// Call executes the contract call and returns the raw response
-func (c *Caller) Call() (*thorest.InspectResponse, error) {
+func (c *Caller) Clause() (*tx.Clause, error) {
 	packed, err := c.contract.ABI.Pack(c.method, c.args...)
 	if err != nil {
 		return nil, errors.New("failed to pack method: " + err.Error())
@@ -47,6 +46,15 @@ func (c *Caller) Call() (*thorest.InspectResponse, error) {
 	clause := tx.NewClause(&c.contract.Address).WithData(packed)
 	if c.value != nil {
 		clause = clause.WithValue(c.value)
+	}
+	return clause, nil
+}
+
+// Call executes the contract call and returns the raw response
+func (c *Caller) Call() (*thorest.InspectResponse, error) {
+	clause, err := c.Clause()
+	if err != nil {
+		return nil, err
 	}
 	request := thorest.InspectRequest{
 		Clauses: []*tx.Clause{clause},

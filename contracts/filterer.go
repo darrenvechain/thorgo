@@ -117,6 +117,58 @@ func (f *Filterer) Execute() ([]*thorest.EventLog, error) {
 	return f.contract.client.FilterEvents(filter)
 }
 
+// Event represents a decoded event from a contract log.
+type Event struct {
+	Name string
+	Args map[string]any
+	Log  *thorest.EventLog
+}
+
+// ExecuteAndDecode executes the filter and decodes the events into the provided value type.
+func (f *Filterer) ExecuteAndDecode() ([]Event, error) {
+	logs, err := f.Execute()
+	if err != nil {
+		return nil, err
+	}
+
+	var decoded []Event
+	for _, log := range logs {
+		if len(log.Topics) < 2 {
+			continue
+		}
+
+		eventABI, err := f.contract.ABI.EventByID(log.Topics[0])
+		if err != nil {
+			continue
+		}
+
+		var indexed abi.Arguments
+		for _, arg := range eventABI.Inputs {
+			if arg.Indexed {
+				indexed = append(indexed, arg)
+			}
+		}
+
+		values := make(map[string]any)
+		err = abi.ParseTopicsIntoMap(values, indexed, log.Topics[1:])
+		if err != nil {
+			return nil, err
+		}
+
+		err = eventABI.Inputs.UnpackIntoMap(values, log.Data)
+		if err != nil {
+			return nil, err
+		}
+
+		decoded = append(decoded, Event{
+			Name: eventABI.Name,
+			Args: values,
+			Log:  log,
+		})
+	}
+	return decoded, nil
+}
+
 // makeTopicHash converts a matcher value to a topic hash
 func (f *Filterer) makeTopicHash(matcher any) (common.Hash, error) {
 	topics, err := abi.MakeTopics([]interface{}{matcher})

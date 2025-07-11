@@ -2,10 +2,6 @@ package main_test
 
 import (
 	"context"
-	"math/big"
-	"testing"
-	"time"
-
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/internal/testcontract"
 	"github.com/darrenvechain/thorgo/solo"
@@ -14,6 +10,8 @@ import (
 	"github.com/darrenvechain/thorgo/txmanager"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
+	"math/big"
+	"testing"
 )
 
 var (
@@ -82,33 +80,6 @@ func TestFilter(t *testing.T) {
 	assert.Equal(t, common.Address{}, events[0].From)
 	assert.Equal(t, receiver.Address(), events[0].To)
 	assert.True(t, events[0].Value.Cmp(big.NewInt(1000)) == 0)
-}
-
-func TestWatch(t *testing.T) {
-	txsender := txmanager.FromPK(solo.Keys()[0], client)
-	receiver := txmanager.FromPK(solo.Keys()[1], client)
-
-	_, erc20, err := deployErc20(client, txsender)
-	assert.NoError(t, err)
-
-	timeout, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
-	eventChan, err := erc20.WatchTransfer(make([]testcontract.Erc20TransferCriteria, 0), timeout, 10)
-	assert.NoError(t, err)
-
-	receipt, err := erc20.Mint(receiver.Address(), big.NewInt(1000)).Receipt(context.Background(), txsender)
-	assert.NoError(t, err)
-	assert.NotNil(t, receipt)
-
-	select {
-	case event := <-eventChan:
-		assert.Equal(t, common.Address{}, event.From)
-		assert.Equal(t, receiver.Address(), event.To)
-		assert.True(t, event.Value.Cmp(big.NewInt(1000)) == 0)
-	case <-timeout.Done():
-		assert.Fail(t, "timeout")
-	}
 }
 
 func TestPayable_AsClause(t *testing.T) {

@@ -63,458 +63,79 @@ func (_Prototype *Prototype) Address() common.Address {
 	return _Prototype.contract.Address
 }
 
-// PrototypeBalanceCaller provides typed access to the Balance method
-type PrototypeBalanceCaller struct {
-	caller *contracts.Caller
-}
+// ==================== View Functions ====================
 
 // Balance is a free data retrieval call binding the contract method 0x6d8c859a.
 //
 // Solidity: function balance(address _self, uint256 _blockNumber) view returns(uint256)
 func (_Prototype *Prototype) Balance(_self common.Address, _blockNumber *big.Int) *PrototypeBalanceCaller {
-	return &PrototypeBalanceCaller{
-		caller: _Prototype.contract.Call("balance", _self, _blockNumber),
-	}
+	return &PrototypeBalanceCaller{caller: _Prototype.contract.Call("balance", _self, _blockNumber)}
 }
 
-func (c *PrototypeBalanceCaller) WithRevision(rev thorest.Revision) *PrototypeBalanceCaller {
-	c.caller.WithRevision(rev)
-	return c
-}
-
-func (c *PrototypeBalanceCaller) WithValue(value *big.Int) *PrototypeBalanceCaller {
-	c.caller.WithValue(value)
-	return c
-}
-
-func (c *PrototypeBalanceCaller) Call() (*thorest.InspectResponse, error) {
-	return c.caller.Call()
-}
-
-func (c *PrototypeBalanceCaller) Execute() (*big.Int, error) {
-	data, err := c.caller.Execute()
-	if err != nil {
-		var zero *big.Int
-		return zero, err
-	}
-	if len(data) != 1 {
-		var zero *big.Int
-		return zero, errors.New("expected single return value")
-	}
-	if result, ok := data[0].(*big.Int); ok {
-		return result, nil
-	}
-	var zero *big.Int
-	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
-}
-
-// PrototypeCreditPlanResult is a free data retrieval call binding the contract method 0x80df45b4.
+// CreditPlan is a free data retrieval call binding the contract method 0x80df45b4.
 //
 // Solidity: function creditPlan(address _self) view returns(uint256 credit, uint256 recoveryRate)
-type PrototypeCreditPlanResult struct {
-	Credit       *big.Int
-	RecoveryRate *big.Int
-}
-
-// PrototypeCreditPlanCaller provides typed access to the CreditPlan method
-type PrototypeCreditPlanCaller struct {
-	caller *contracts.Caller
-}
-
 func (_Prototype *Prototype) CreditPlan(_self common.Address) *PrototypeCreditPlanCaller {
-	return &PrototypeCreditPlanCaller{
-		caller: _Prototype.contract.Call("creditPlan", _self),
-	}
-}
-
-func (c *PrototypeCreditPlanCaller) WithRevision(rev thorest.Revision) *PrototypeCreditPlanCaller {
-	c.caller.WithRevision(rev)
-	return c
-}
-
-func (c *PrototypeCreditPlanCaller) WithValue(value *big.Int) *PrototypeCreditPlanCaller {
-	c.caller.WithValue(value)
-	return c
-}
-
-func (c *PrototypeCreditPlanCaller) Call() (*thorest.InspectResponse, error) {
-	return c.caller.Call()
-}
-
-func (c *PrototypeCreditPlanCaller) Execute() (*PrototypeCreditPlanResult, error) {
-	data, err := c.caller.Execute()
-	if err != nil {
-		return nil, err
-	}
-	if len(data) != 2 {
-		return nil, errors.New("invalid number of return values")
-	}
-	out := new(PrototypeCreditPlanResult)
-	out.Credit = *abi.ConvertType(data[0], new(*big.Int)).(**big.Int)
-	out.RecoveryRate = *abi.ConvertType(data[1], new(*big.Int)).(**big.Int)
-
-	return out, nil
-}
-
-// PrototypeCurrentSponsorCaller provides typed access to the CurrentSponsor method
-type PrototypeCurrentSponsorCaller struct {
-	caller *contracts.Caller
+	return &PrototypeCreditPlanCaller{caller: _Prototype.contract.Call("creditPlan", _self)}
 }
 
 // CurrentSponsor is a free data retrieval call binding the contract method 0x23d8c7db.
 //
 // Solidity: function currentSponsor(address _self) view returns(address)
 func (_Prototype *Prototype) CurrentSponsor(_self common.Address) *PrototypeCurrentSponsorCaller {
-	return &PrototypeCurrentSponsorCaller{
-		caller: _Prototype.contract.Call("currentSponsor", _self),
-	}
-}
-
-func (c *PrototypeCurrentSponsorCaller) WithRevision(rev thorest.Revision) *PrototypeCurrentSponsorCaller {
-	c.caller.WithRevision(rev)
-	return c
-}
-
-func (c *PrototypeCurrentSponsorCaller) WithValue(value *big.Int) *PrototypeCurrentSponsorCaller {
-	c.caller.WithValue(value)
-	return c
-}
-
-func (c *PrototypeCurrentSponsorCaller) Call() (*thorest.InspectResponse, error) {
-	return c.caller.Call()
-}
-
-func (c *PrototypeCurrentSponsorCaller) Execute() (common.Address, error) {
-	data, err := c.caller.Execute()
-	if err != nil {
-		var zero common.Address
-		return zero, err
-	}
-	if len(data) != 1 {
-		var zero common.Address
-		return zero, errors.New("expected single return value")
-	}
-	if result, ok := data[0].(common.Address); ok {
-		return result, nil
-	}
-	var zero common.Address
-	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
-}
-
-// PrototypeEnergyCaller provides typed access to the Energy method
-type PrototypeEnergyCaller struct {
-	caller *contracts.Caller
+	return &PrototypeCurrentSponsorCaller{caller: _Prototype.contract.Call("currentSponsor", _self)}
 }
 
 // Energy is a free data retrieval call binding the contract method 0x1e95be45.
 //
 // Solidity: function energy(address _self, uint256 _blockNumber) view returns(uint256)
 func (_Prototype *Prototype) Energy(_self common.Address, _blockNumber *big.Int) *PrototypeEnergyCaller {
-	return &PrototypeEnergyCaller{
-		caller: _Prototype.contract.Call("energy", _self, _blockNumber),
-	}
-}
-
-func (c *PrototypeEnergyCaller) WithRevision(rev thorest.Revision) *PrototypeEnergyCaller {
-	c.caller.WithRevision(rev)
-	return c
-}
-
-func (c *PrototypeEnergyCaller) WithValue(value *big.Int) *PrototypeEnergyCaller {
-	c.caller.WithValue(value)
-	return c
-}
-
-func (c *PrototypeEnergyCaller) Call() (*thorest.InspectResponse, error) {
-	return c.caller.Call()
-}
-
-func (c *PrototypeEnergyCaller) Execute() (*big.Int, error) {
-	data, err := c.caller.Execute()
-	if err != nil {
-		var zero *big.Int
-		return zero, err
-	}
-	if len(data) != 1 {
-		var zero *big.Int
-		return zero, errors.New("expected single return value")
-	}
-	if result, ok := data[0].(*big.Int); ok {
-		return result, nil
-	}
-	var zero *big.Int
-	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
-}
-
-// PrototypeHasCodeCaller provides typed access to the HasCode method
-type PrototypeHasCodeCaller struct {
-	caller *contracts.Caller
+	return &PrototypeEnergyCaller{caller: _Prototype.contract.Call("energy", _self, _blockNumber)}
 }
 
 // HasCode is a free data retrieval call binding the contract method 0x9538c4b3.
 //
 // Solidity: function hasCode(address _self) view returns(bool)
 func (_Prototype *Prototype) HasCode(_self common.Address) *PrototypeHasCodeCaller {
-	return &PrototypeHasCodeCaller{
-		caller: _Prototype.contract.Call("hasCode", _self),
-	}
-}
-
-func (c *PrototypeHasCodeCaller) WithRevision(rev thorest.Revision) *PrototypeHasCodeCaller {
-	c.caller.WithRevision(rev)
-	return c
-}
-
-func (c *PrototypeHasCodeCaller) WithValue(value *big.Int) *PrototypeHasCodeCaller {
-	c.caller.WithValue(value)
-	return c
-}
-
-func (c *PrototypeHasCodeCaller) Call() (*thorest.InspectResponse, error) {
-	return c.caller.Call()
-}
-
-func (c *PrototypeHasCodeCaller) Execute() (bool, error) {
-	data, err := c.caller.Execute()
-	if err != nil {
-		var zero bool
-		return zero, err
-	}
-	if len(data) != 1 {
-		var zero bool
-		return zero, errors.New("expected single return value")
-	}
-	if result, ok := data[0].(bool); ok {
-		return result, nil
-	}
-	var zero bool
-	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
-}
-
-// PrototypeIsSponsorCaller provides typed access to the IsSponsor method
-type PrototypeIsSponsorCaller struct {
-	caller *contracts.Caller
+	return &PrototypeHasCodeCaller{caller: _Prototype.contract.Call("hasCode", _self)}
 }
 
 // IsSponsor is a free data retrieval call binding the contract method 0xd87333ac.
 //
 // Solidity: function isSponsor(address _self, address _sponsor) view returns(bool)
 func (_Prototype *Prototype) IsSponsor(_self common.Address, _sponsor common.Address) *PrototypeIsSponsorCaller {
-	return &PrototypeIsSponsorCaller{
-		caller: _Prototype.contract.Call("isSponsor", _self, _sponsor),
-	}
-}
-
-func (c *PrototypeIsSponsorCaller) WithRevision(rev thorest.Revision) *PrototypeIsSponsorCaller {
-	c.caller.WithRevision(rev)
-	return c
-}
-
-func (c *PrototypeIsSponsorCaller) WithValue(value *big.Int) *PrototypeIsSponsorCaller {
-	c.caller.WithValue(value)
-	return c
-}
-
-func (c *PrototypeIsSponsorCaller) Call() (*thorest.InspectResponse, error) {
-	return c.caller.Call()
-}
-
-func (c *PrototypeIsSponsorCaller) Execute() (bool, error) {
-	data, err := c.caller.Execute()
-	if err != nil {
-		var zero bool
-		return zero, err
-	}
-	if len(data) != 1 {
-		var zero bool
-		return zero, errors.New("expected single return value")
-	}
-	if result, ok := data[0].(bool); ok {
-		return result, nil
-	}
-	var zero bool
-	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
-}
-
-// PrototypeIsUserCaller provides typed access to the IsUser method
-type PrototypeIsUserCaller struct {
-	caller *contracts.Caller
+	return &PrototypeIsSponsorCaller{caller: _Prototype.contract.Call("isSponsor", _self, _sponsor)}
 }
 
 // IsUser is a free data retrieval call binding the contract method 0x02d43dc8.
 //
 // Solidity: function isUser(address _self, address _user) view returns(bool)
 func (_Prototype *Prototype) IsUser(_self common.Address, _user common.Address) *PrototypeIsUserCaller {
-	return &PrototypeIsUserCaller{
-		caller: _Prototype.contract.Call("isUser", _self, _user),
-	}
-}
-
-func (c *PrototypeIsUserCaller) WithRevision(rev thorest.Revision) *PrototypeIsUserCaller {
-	c.caller.WithRevision(rev)
-	return c
-}
-
-func (c *PrototypeIsUserCaller) WithValue(value *big.Int) *PrototypeIsUserCaller {
-	c.caller.WithValue(value)
-	return c
-}
-
-func (c *PrototypeIsUserCaller) Call() (*thorest.InspectResponse, error) {
-	return c.caller.Call()
-}
-
-func (c *PrototypeIsUserCaller) Execute() (bool, error) {
-	data, err := c.caller.Execute()
-	if err != nil {
-		var zero bool
-		return zero, err
-	}
-	if len(data) != 1 {
-		var zero bool
-		return zero, errors.New("expected single return value")
-	}
-	if result, ok := data[0].(bool); ok {
-		return result, nil
-	}
-	var zero bool
-	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
-}
-
-// PrototypeMasterCaller provides typed access to the Master method
-type PrototypeMasterCaller struct {
-	caller *contracts.Caller
+	return &PrototypeIsUserCaller{caller: _Prototype.contract.Call("isUser", _self, _user)}
 }
 
 // Master is a free data retrieval call binding the contract method 0x9ed153c0.
 //
 // Solidity: function master(address _self) view returns(address)
 func (_Prototype *Prototype) Master(_self common.Address) *PrototypeMasterCaller {
-	return &PrototypeMasterCaller{
-		caller: _Prototype.contract.Call("master", _self),
-	}
-}
-
-func (c *PrototypeMasterCaller) WithRevision(rev thorest.Revision) *PrototypeMasterCaller {
-	c.caller.WithRevision(rev)
-	return c
-}
-
-func (c *PrototypeMasterCaller) WithValue(value *big.Int) *PrototypeMasterCaller {
-	c.caller.WithValue(value)
-	return c
-}
-
-func (c *PrototypeMasterCaller) Call() (*thorest.InspectResponse, error) {
-	return c.caller.Call()
-}
-
-func (c *PrototypeMasterCaller) Execute() (common.Address, error) {
-	data, err := c.caller.Execute()
-	if err != nil {
-		var zero common.Address
-		return zero, err
-	}
-	if len(data) != 1 {
-		var zero common.Address
-		return zero, errors.New("expected single return value")
-	}
-	if result, ok := data[0].(common.Address); ok {
-		return result, nil
-	}
-	var zero common.Address
-	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
-}
-
-// PrototypeStorageForCaller provides typed access to the StorageFor method
-type PrototypeStorageForCaller struct {
-	caller *contracts.Caller
+	return &PrototypeMasterCaller{caller: _Prototype.contract.Call("master", _self)}
 }
 
 // StorageFor is a free data retrieval call binding the contract method 0x04e7a457.
 //
 // Solidity: function storageFor(address _self, bytes32 _key) view returns(bytes32)
 func (_Prototype *Prototype) StorageFor(_self common.Address, _key [32]byte) *PrototypeStorageForCaller {
-	return &PrototypeStorageForCaller{
-		caller: _Prototype.contract.Call("storageFor", _self, _key),
-	}
-}
-
-func (c *PrototypeStorageForCaller) WithRevision(rev thorest.Revision) *PrototypeStorageForCaller {
-	c.caller.WithRevision(rev)
-	return c
-}
-
-func (c *PrototypeStorageForCaller) WithValue(value *big.Int) *PrototypeStorageForCaller {
-	c.caller.WithValue(value)
-	return c
-}
-
-func (c *PrototypeStorageForCaller) Call() (*thorest.InspectResponse, error) {
-	return c.caller.Call()
-}
-
-func (c *PrototypeStorageForCaller) Execute() ([32]byte, error) {
-	data, err := c.caller.Execute()
-	if err != nil {
-		var zero [32]byte
-		return zero, err
-	}
-	if len(data) != 1 {
-		var zero [32]byte
-		return zero, errors.New("expected single return value")
-	}
-	if result, ok := data[0].([32]byte); ok {
-		return result, nil
-	}
-	var zero [32]byte
-	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
-}
-
-// PrototypeUserCreditCaller provides typed access to the UserCredit method
-type PrototypeUserCreditCaller struct {
-	caller *contracts.Caller
+	return &PrototypeStorageForCaller{caller: _Prototype.contract.Call("storageFor", _self, _key)}
 }
 
 // UserCredit is a free data retrieval call binding the contract method 0xc9c4fc41.
 //
 // Solidity: function userCredit(address _self, address _user) view returns(uint256)
 func (_Prototype *Prototype) UserCredit(_self common.Address, _user common.Address) *PrototypeUserCreditCaller {
-	return &PrototypeUserCreditCaller{
-		caller: _Prototype.contract.Call("userCredit", _self, _user),
-	}
+	return &PrototypeUserCreditCaller{caller: _Prototype.contract.Call("userCredit", _self, _user)}
 }
 
-func (c *PrototypeUserCreditCaller) WithRevision(rev thorest.Revision) *PrototypeUserCreditCaller {
-	c.caller.WithRevision(rev)
-	return c
-}
-
-func (c *PrototypeUserCreditCaller) WithValue(value *big.Int) *PrototypeUserCreditCaller {
-	c.caller.WithValue(value)
-	return c
-}
-
-func (c *PrototypeUserCreditCaller) Call() (*thorest.InspectResponse, error) {
-	return c.caller.Call()
-}
-
-func (c *PrototypeUserCreditCaller) Execute() (*big.Int, error) {
-	data, err := c.caller.Execute()
-	if err != nil {
-		var zero *big.Int
-		return zero, err
-	}
-	if len(data) != 1 {
-		var zero *big.Int
-		return zero, errors.New("expected single return value")
-	}
-	if result, ok := data[0].(*big.Int); ok {
-		return result, nil
-	}
-	var zero *big.Int
-	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
-}
+// ==================== Transaction Functions ====================
 
 // AddUser is a paid mutator transaction binding the contract method 0x8ca3b448.
 //
@@ -564,3 +185,359 @@ func (_Prototype *Prototype) Sponsor(_self common.Address) *contracts.Sender {
 func (_Prototype *Prototype) Unsponsor(_self common.Address) *contracts.Sender {
 	return contracts.NewSender(_Prototype.contract, "unsponsor", _self)
 }
+
+// ==================== Event Functions ====================
+
+// ==================== Event Types and Criteria ====================
+
+// ==================== Call Result Types ====================
+
+// PrototypeCreditPlanResult is a free data retrieval call binding the contract method 0x80df45b4.
+//
+// Solidity: function creditPlan(address _self) view returns(uint256 credit, uint256 recoveryRate)
+type PrototypeCreditPlanResult struct {
+	Credit       *big.Int
+	RecoveryRate *big.Int
+}
+
+// ==================== Caller Types and Methods ====================
+
+// PrototypeBalanceCaller provides typed access to the Balance method
+type PrototypeBalanceCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x6d8c859a.
+func (c *PrototypeBalanceCaller) WithRevision(rev thorest.Revision) *PrototypeBalanceCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x6d8c859a.
+func (c *PrototypeBalanceCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x6d8c859a and returns the result.
+func (c *PrototypeBalanceCaller) Execute() (*big.Int, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero *big.Int
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero *big.Int
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(*big.Int); ok {
+		return result, nil
+	}
+	var zero *big.Int
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// PrototypeCreditPlanCaller provides typed access to the CreditPlan method
+type PrototypeCreditPlanCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x80df45b4.
+func (c *PrototypeCreditPlanCaller) WithRevision(rev thorest.Revision) *PrototypeCreditPlanCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x80df45b4.
+func (c *PrototypeCreditPlanCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x80df45b4 and returns the result.
+func (c *PrototypeCreditPlanCaller) Execute() (*PrototypeCreditPlanResult, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		return nil, err
+	}
+	if len(data) != 2 {
+		return nil, errors.New("invalid number of return values")
+	}
+	out := new(PrototypeCreditPlanResult)
+	out.Credit = *abi.ConvertType(data[0], new(*big.Int)).(**big.Int)
+	out.RecoveryRate = *abi.ConvertType(data[1], new(*big.Int)).(**big.Int)
+
+	return out, nil
+}
+
+// PrototypeCurrentSponsorCaller provides typed access to the CurrentSponsor method
+type PrototypeCurrentSponsorCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x23d8c7db.
+func (c *PrototypeCurrentSponsorCaller) WithRevision(rev thorest.Revision) *PrototypeCurrentSponsorCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x23d8c7db.
+func (c *PrototypeCurrentSponsorCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x23d8c7db and returns the result.
+func (c *PrototypeCurrentSponsorCaller) Execute() (common.Address, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero common.Address
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero common.Address
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(common.Address); ok {
+		return result, nil
+	}
+	var zero common.Address
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// PrototypeEnergyCaller provides typed access to the Energy method
+type PrototypeEnergyCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x1e95be45.
+func (c *PrototypeEnergyCaller) WithRevision(rev thorest.Revision) *PrototypeEnergyCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x1e95be45.
+func (c *PrototypeEnergyCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x1e95be45 and returns the result.
+func (c *PrototypeEnergyCaller) Execute() (*big.Int, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero *big.Int
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero *big.Int
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(*big.Int); ok {
+		return result, nil
+	}
+	var zero *big.Int
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// PrototypeHasCodeCaller provides typed access to the HasCode method
+type PrototypeHasCodeCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x9538c4b3.
+func (c *PrototypeHasCodeCaller) WithRevision(rev thorest.Revision) *PrototypeHasCodeCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x9538c4b3.
+func (c *PrototypeHasCodeCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x9538c4b3 and returns the result.
+func (c *PrototypeHasCodeCaller) Execute() (bool, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero bool
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero bool
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(bool); ok {
+		return result, nil
+	}
+	var zero bool
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// PrototypeIsSponsorCaller provides typed access to the IsSponsor method
+type PrototypeIsSponsorCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0xd87333ac.
+func (c *PrototypeIsSponsorCaller) WithRevision(rev thorest.Revision) *PrototypeIsSponsorCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0xd87333ac.
+func (c *PrototypeIsSponsorCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0xd87333ac and returns the result.
+func (c *PrototypeIsSponsorCaller) Execute() (bool, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero bool
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero bool
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(bool); ok {
+		return result, nil
+	}
+	var zero bool
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// PrototypeIsUserCaller provides typed access to the IsUser method
+type PrototypeIsUserCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x02d43dc8.
+func (c *PrototypeIsUserCaller) WithRevision(rev thorest.Revision) *PrototypeIsUserCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x02d43dc8.
+func (c *PrototypeIsUserCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x02d43dc8 and returns the result.
+func (c *PrototypeIsUserCaller) Execute() (bool, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero bool
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero bool
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(bool); ok {
+		return result, nil
+	}
+	var zero bool
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// PrototypeMasterCaller provides typed access to the Master method
+type PrototypeMasterCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x9ed153c0.
+func (c *PrototypeMasterCaller) WithRevision(rev thorest.Revision) *PrototypeMasterCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x9ed153c0.
+func (c *PrototypeMasterCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x9ed153c0 and returns the result.
+func (c *PrototypeMasterCaller) Execute() (common.Address, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero common.Address
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero common.Address
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(common.Address); ok {
+		return result, nil
+	}
+	var zero common.Address
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// PrototypeStorageForCaller provides typed access to the StorageFor method
+type PrototypeStorageForCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x04e7a457.
+func (c *PrototypeStorageForCaller) WithRevision(rev thorest.Revision) *PrototypeStorageForCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x04e7a457.
+func (c *PrototypeStorageForCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x04e7a457 and returns the result.
+func (c *PrototypeStorageForCaller) Execute() ([32]byte, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero [32]byte
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero [32]byte
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].([32]byte); ok {
+		return result, nil
+	}
+	var zero [32]byte
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// PrototypeUserCreditCaller provides typed access to the UserCredit method
+type PrototypeUserCreditCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0xc9c4fc41.
+func (c *PrototypeUserCreditCaller) WithRevision(rev thorest.Revision) *PrototypeUserCreditCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0xc9c4fc41.
+func (c *PrototypeUserCreditCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0xc9c4fc41 and returns the result.
+func (c *PrototypeUserCreditCaller) Execute() (*big.Int, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero *big.Int
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero *big.Int
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(*big.Int); ok {
+		return result, nil
+	}
+	var zero *big.Int
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// ==================== Event Filterer Types and Methods ====================

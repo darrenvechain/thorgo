@@ -65,11 +65,7 @@ func (s *Sender) Simulate(caller *common.Address) (*thorest.InspectResponse, err
 
 // Clause returns a transaction clause that can be used to send a transaction to the contract.
 func (s *Sender) Clause() (*tx.Clause, error) {
-	clause, err := s.contract.AsClauseWithVET(s.vet, s.method, s.args...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to pack method %s: %w", s.method, err)
-	}
-	return clause, nil
+	return s.contract.Call(s.method, s.args...).WithValue(s.vet).Clause()
 }
 
 // WithOptions sets the options for the transaction.

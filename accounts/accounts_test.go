@@ -99,7 +99,7 @@ func TestVisitor_Storage_At(t *testing.T) {
 }
 
 func TestVisitor_Call(t *testing.T) {
-	clause, err := vthoRaw.AsClause("balanceOf", account1.Address())
+	clause, err := vthoRaw.Call("balanceOf", account1.Address()).Clause()
 	assert.NoError(t, err)
 
 	res, err := accounts.New(thorClient, vthoContract.Address()).Call(clause.Data())
@@ -109,7 +109,7 @@ func TestVisitor_Call(t *testing.T) {
 }
 
 func TestVisitor_Call_At(t *testing.T) {
-	clause, err := vthoRaw.AsClause("balanceOf", account1.Address())
+	clause, err := vthoRaw.Call("balanceOf", account1.Address()).Clause()
 	assert.NoError(t, err)
 
 	res, err := accounts.New(thorClient, vthoContract.Address()).

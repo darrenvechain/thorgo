@@ -65,7 +65,7 @@ func TestContract_AsClause(t *testing.T) {
 	assert.NoError(t, err)
 
 	// transfer clause
-	clause, err := vthoRaw.AsClause("transfer", receiver.Address(), big.NewInt(1000))
+	clause, err := vthoRaw.Call("transfer", receiver.Address(), big.NewInt(1000)).Clause()
 	assert.NoError(t, err)
 	assert.Equal(t, clause.Value(), big.NewInt(0))
 	assert.Equal(t, clause.To().Hex(), vthoContract.Address().Hex())
@@ -90,14 +90,9 @@ func TestContract_EventCriteria(t *testing.T) {
 		Receipt(context.Background(), account1)
 	assert.NoError(t, err)
 	assert.False(t, receipt.Reverted)
-
-	// fetch events
-	criteria := contracts.EventCriteria{Topic2: receiver.Address()}
-	transfers, err := vthoRaw.Filter("Transfer").AddCriteria(criteria).Execute()
-	assert.NoError(t, err)
-
+	
 	// decode events
-	decodedEvs, err := vthoRaw.DecodeEvents(transfers)
+	decodedEvs, err := vthoRaw.Filter("Transfer").ExecuteAndDecode()
 	assert.NoError(t, err)
 
 	ev := decodedEvs[0]
