@@ -2,6 +2,9 @@ package main_test
 
 import (
 	"context"
+	"math/big"
+	"testing"
+
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/internal/testcontract"
 	"github.com/darrenvechain/thorgo/solo"
@@ -10,8 +13,6 @@ import (
 	"github.com/darrenvechain/thorgo/txmanager"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
-	"math/big"
-	"testing"
 )
 
 var (

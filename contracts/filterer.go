@@ -105,7 +105,7 @@ func (f *Filterer) Execute() ([]*thorest.EventLog, error) {
 		}
 	}
 
-	rng, opts, order := f.Options.Build()
+	rng, opts, order := f.Build()
 
 	filter := &thorest.EventFilter{
 		Range:    rng,

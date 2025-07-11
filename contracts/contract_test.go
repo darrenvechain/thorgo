@@ -90,7 +90,7 @@ func TestContract_EventCriteria(t *testing.T) {
 		Receipt(context.Background(), account1)
 	assert.NoError(t, err)
 	assert.False(t, receipt.Reverted)
-	
+
 	// decode events
 	decodedEvs, err := vthoRaw.Filter("Transfer").ExecuteAndDecode()
 	assert.NoError(t, err)
