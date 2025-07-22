@@ -187,7 +187,7 @@ func (_Erc20 *Erc20) FilterApproval(criteria []Erc20ApprovalCriteria) *Erc20Appr
 		if c.Spender != nil {
 			eventCriteria.Topic2 = *c.Spender
 		}
-		filterer.AddCriteria(eventCriteria)
+		filterer.Criteria(eventCriteria)
 	}
 
 	return &Erc20ApprovalFilterer{filterer: filterer, contract: _Erc20.contract}
@@ -208,7 +208,7 @@ func (_Erc20 *Erc20) FilterTransfer(criteria []Erc20TransferCriteria) *Erc20Tran
 		if c.To != nil {
 			eventCriteria.Topic2 = *c.To
 		}
-		filterer.AddCriteria(eventCriteria)
+		filterer.Criteria(eventCriteria)
 	}
 
 	return &Erc20TransferFilterer{filterer: filterer, contract: _Erc20.contract}

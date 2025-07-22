@@ -3,6 +3,7 @@ package contracts
 import (
 	"context"
 	"fmt"
+
 	"math/big"
 	"sync"
 	"sync/atomic"
@@ -10,6 +11,7 @@ import (
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -59,8 +61,21 @@ func (s *Sender) Simulate(caller *common.Address) (*thorest.InspectResponse, err
 	if len(response) == 0 {
 		return nil, fmt.Errorf("no response from inspection")
 	}
-	// TODO: if response.Reverted is true, abi.UnpackRevert
-	return &response[0], nil
+	output := &response[0]
+	if output.Reverted {
+		reason, err := abi.UnpackRevert(output.Data)
+		if err != nil {
+			return output, fmt.Errorf("failed to unpack revert reason: %w", err)
+		}
+		if reason == "" {
+			return output, fmt.Errorf("failed to unpack revert reason")
+		}
+		return output, fmt.Errorf("reverted: %s", reason)
+	}
+	if output.VmError != "" {
+		return output, fmt.Errorf("VM error: %s", output.VmError)
+	}
+	return output, nil
 }
 
 // Clause returns a transaction clause that can be used to send a transaction to the contract.
@@ -75,6 +90,7 @@ func (s *Sender) WithOptions(opts *transactions.Options) *Sender {
 }
 
 // Send the single clause transaction to the contract with the given method and arguments.
+// If the transaction has already been sent, it will return the existing transaction visitor.
 func (s *Sender) Send(manager TxManager) (*transactions.Visitor, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -98,8 +114,8 @@ func (s *Sender) Send(manager TxManager) (*transactions.Visitor, error) {
 	return res, nil
 }
 
-// Receipt waits for the transaction to be mined and returns the receipt.
-// It will send the transaction if it hasn't been sent yet.
+// Receipt sends the transaction, waits for it to be mined and returns the receipt.
+// Later calls to this method will reuse the existing transaction if it has already been sent.
 func (s *Sender) Receipt(ctx context.Context, manager TxManager) (*thorest.TransactionReceipt, error) {
 	visitor, err := s.Send(manager)
 	if err != nil {

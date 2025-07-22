@@ -161,7 +161,7 @@ func (_VTHO *VTHO) FilterApproval(criteria []VTHOApprovalCriteria) *VTHOApproval
 		if c.Spender != nil {
 			eventCriteria.Topic2 = *c.Spender
 		}
-		filterer.AddCriteria(eventCriteria)
+		filterer.Criteria(eventCriteria)
 	}
 
 	return &VTHOApprovalFilterer{filterer: filterer, contract: _VTHO.contract}
@@ -182,7 +182,7 @@ func (_VTHO *VTHO) FilterTransfer(criteria []VTHOTransferCriteria) *VTHOTransfer
 		if c.To != nil {
 			eventCriteria.Topic2 = *c.To
 		}
-		filterer.AddCriteria(eventCriteria)
+		filterer.Criteria(eventCriteria)
 	}
 
 	return &VTHOTransferFilterer{filterer: filterer, contract: _VTHO.contract}

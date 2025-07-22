@@ -102,7 +102,7 @@ func (_Params *Params) FilterSet(criteria []ParamsSetCriteria) *ParamsSetFiltere
 		if c.Key != nil {
 			eventCriteria.Topic1 = *c.Key
 		}
-		filterer.AddCriteria(eventCriteria)
+		filterer.Criteria(eventCriteria)
 	}
 
 	return &ParamsSetFilterer{filterer: filterer, contract: _Params.contract}

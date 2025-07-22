@@ -34,8 +34,8 @@ func NewFilterer(contract *Contract, eventName string) *Filterer {
 	}
 }
 
-// AddCriteria adds event criteria to the filterer.
-func (f *Filterer) AddCriteria(criteria *EventCriteria) *Filterer {
+// Criteria adds event criteria to the filterer.
+func (f *Filterer) Criteria(criteria *EventCriteria) *Filterer {
 	if f.criteria == nil {
 		f.criteria = make([]*EventCriteria, 0)
 	}
@@ -68,8 +68,6 @@ func (f *Filterer) Execute() ([]*thorest.EventLog, error) {
 				Address: &f.contract.Address,
 				Topic0:  &event.ID,
 			}
-			tc.Address = &f.contract.Address
-			tc.Topic0 = &event.ID
 
 			// Process topic matchers
 			if c.Topic1 != nil {

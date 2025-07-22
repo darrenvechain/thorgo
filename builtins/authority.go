@@ -123,7 +123,7 @@ func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriter
 		if c.NodeMaster != nil {
 			eventCriteria.Topic1 = *c.NodeMaster
 		}
-		filterer.AddCriteria(eventCriteria)
+		filterer.Criteria(eventCriteria)
 	}
 
 	return &AuthorityCandidateFilterer{filterer: filterer, contract: _Authority.contract}

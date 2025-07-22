@@ -168,7 +168,7 @@ var (
 						}
 					{{- end }}
 				{{- end }}
-				filterer.AddCriteria(eventCriteria)
+				filterer.Criteria(eventCriteria)
 			}
 			{{ end }}
 			
