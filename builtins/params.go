@@ -98,7 +98,7 @@ func (_Params *Params) FilterSet(criteria []ParamsSetCriteria) *ParamsSetFiltere
 
 	// Add criteria to the filterer
 	for _, c := range criteria {
-		eventCriteria := contracts.EventCriteria{}
+		eventCriteria := &contracts.EventCriteria{}
 		if c.Key != nil {
 			eventCriteria.Topic1 = *c.Key
 		}

@@ -115,7 +115,7 @@ func TestContract_UnpackLog(t *testing.T) {
 	assert.False(t, receipt.Reverted)
 
 	// fetch events
-	criteria := contracts.EventCriteria{Topic2: receiver.Address()}
+	criteria := &contracts.EventCriteria{Topic2: receiver.Address()}
 	transfers, err := vthoRaw.Filter("Transfer").AddCriteria(criteria).Execute()
 	assert.NoError(t, err)
 	assert.Greater(t, len(transfers), 0)

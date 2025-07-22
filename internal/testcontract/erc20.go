@@ -180,7 +180,7 @@ func (_Erc20 *Erc20) FilterApproval(criteria []Erc20ApprovalCriteria) *Erc20Appr
 
 	// Add criteria to the filterer
 	for _, c := range criteria {
-		eventCriteria := contracts.EventCriteria{}
+		eventCriteria := &contracts.EventCriteria{}
 		if c.Owner != nil {
 			eventCriteria.Topic1 = *c.Owner
 		}
@@ -201,7 +201,7 @@ func (_Erc20 *Erc20) FilterTransfer(criteria []Erc20TransferCriteria) *Erc20Tran
 
 	// Add criteria to the filterer
 	for _, c := range criteria {
-		eventCriteria := contracts.EventCriteria{}
+		eventCriteria := &contracts.EventCriteria{}
 		if c.From != nil {
 			eventCriteria.Topic1 = *c.From
 		}

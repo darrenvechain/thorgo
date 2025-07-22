@@ -155,7 +155,7 @@ var (
 			{{ if gt $indexedArgCount 0 }}
 			// Add criteria to the filterer
 			for _, c := range criteria {
-				eventCriteria := contracts.EventCriteria{}
+				eventCriteria := &contracts.EventCriteria{}
 				{{- range $index, $element := .Normalized.Inputs }}
 					{{- if .Indexed }}
 						if c.{{capitalise .Name}} != nil {

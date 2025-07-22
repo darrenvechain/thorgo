@@ -119,7 +119,7 @@ func (_Staker *Staker) FilterDeposit(criteria []StakerDepositCriteria) *StakerDe
 
 	// Add criteria to the filterer
 	for _, c := range criteria {
-		eventCriteria := contracts.EventCriteria{}
+		eventCriteria := &contracts.EventCriteria{}
 		if c.From != nil {
 			eventCriteria.Topic1 = *c.From
 		}
@@ -137,7 +137,7 @@ func (_Staker *Staker) FilterWithdrawal(criteria []StakerWithdrawalCriteria) *St
 
 	// Add criteria to the filterer
 	for _, c := range criteria {
-		eventCriteria := contracts.EventCriteria{}
+		eventCriteria := &contracts.EventCriteria{}
 		if c.To != nil {
 			eventCriteria.Topic1 = *c.To
 		}

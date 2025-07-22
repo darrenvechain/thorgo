@@ -57,13 +57,13 @@ func (t *Thor) Transactor(clauses []*tx.Clause) *transactions.Transactor {
 }
 
 // Events sets up a query builder to fetch smart contract solidity events.
-func (t *Thor) Events() *logs.EventQuerier {
-	return logs.NewEventQuerier(t.client)
+func (t *Thor) Events() *logs.EventFilterer {
+	return logs.NewEventsFilterer(t.client)
 }
 
 // Transfers sets up a query builder to fetch VET transfers.
-func (t *Thor) Transfers() *logs.TransfersQuerier {
-	return logs.NewTransfersQuerier(t.client)
+func (t *Thor) Transfers() *logs.TransfersFilterer {
+	return logs.NewTransfersFilterer(t.client)
 }
 
 // Deployer makes it easier to deploy contracts.

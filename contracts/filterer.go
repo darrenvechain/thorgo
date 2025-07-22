@@ -22,7 +22,7 @@ type Filterer struct {
 	*logs.Options
 	contract  *Contract
 	eventName string
-	criteria  []EventCriteria
+	criteria  []*EventCriteria
 }
 
 // NewFilterer creates a new Filterer instance for the given contract.
@@ -35,9 +35,9 @@ func NewFilterer(contract *Contract, eventName string) *Filterer {
 }
 
 // AddCriteria adds event criteria to the filterer.
-func (f *Filterer) AddCriteria(criteria EventCriteria) *Filterer {
+func (f *Filterer) AddCriteria(criteria *EventCriteria) *Filterer {
 	if f.criteria == nil {
-		f.criteria = make([]EventCriteria, 0)
+		f.criteria = make([]*EventCriteria, 0)
 	}
 	f.criteria = append(f.criteria, criteria)
 	return f

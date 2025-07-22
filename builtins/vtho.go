@@ -154,7 +154,7 @@ func (_VTHO *VTHO) FilterApproval(criteria []VTHOApprovalCriteria) *VTHOApproval
 
 	// Add criteria to the filterer
 	for _, c := range criteria {
-		eventCriteria := contracts.EventCriteria{}
+		eventCriteria := &contracts.EventCriteria{}
 		if c.Owner != nil {
 			eventCriteria.Topic1 = *c.Owner
 		}
@@ -175,7 +175,7 @@ func (_VTHO *VTHO) FilterTransfer(criteria []VTHOTransferCriteria) *VTHOTransfer
 
 	// Add criteria to the filterer
 	for _, c := range criteria {
-		eventCriteria := contracts.EventCriteria{}
+		eventCriteria := &contracts.EventCriteria{}
 		if c.From != nil {
 			eventCriteria.Topic1 = *c.From
 		}

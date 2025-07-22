@@ -119,7 +119,7 @@ func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriter
 
 	// Add criteria to the filterer
 	for _, c := range criteria {
-		eventCriteria := contracts.EventCriteria{}
+		eventCriteria := &contracts.EventCriteria{}
 		if c.NodeMaster != nil {
 			eventCriteria.Topic1 = *c.NodeMaster
 		}

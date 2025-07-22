@@ -6,7 +6,6 @@ import (
 
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/solo"
-	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
 )
@@ -47,18 +46,14 @@ func TestGetAccount(t *testing.T) {
 }
 
 func TestTransfers(t *testing.T) {
-	criteria := make([]thorest.TransferCriteria, 0)
-
-	transfers, err := thor.Transfers().Execute(criteria)
+	transfers, err := thor.Transfers().Execute()
 
 	assert.NoError(t, err)
 	assert.NotNil(t, transfers)
 }
 
 func TestEvents(t *testing.T) {
-	criteria := make([]thorest.EventCriteria, 0)
-
-	events, err := thor.Events().Execute(criteria)
+	events, err := thor.Events().Execute()
 
 	assert.NoError(t, err)
 	assert.NotNil(t, events)

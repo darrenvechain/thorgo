@@ -154,7 +154,7 @@ func (_Executor *Executor) FilterApprover(criteria []ExecutorApproverCriteria) *
 
 	// Add criteria to the filterer
 	for _, c := range criteria {
-		eventCriteria := contracts.EventCriteria{}
+		eventCriteria := &contracts.EventCriteria{}
 		if c.Approver != nil {
 			eventCriteria.Topic1 = *c.Approver
 		}
@@ -172,7 +172,7 @@ func (_Executor *Executor) FilterProposal(criteria []ExecutorProposalCriteria) *
 
 	// Add criteria to the filterer
 	for _, c := range criteria {
-		eventCriteria := contracts.EventCriteria{}
+		eventCriteria := &contracts.EventCriteria{}
 		if c.ProposalID != nil {
 			eventCriteria.Topic1 = *c.ProposalID
 		}
@@ -190,7 +190,7 @@ func (_Executor *Executor) FilterVotingContract(criteria []ExecutorVotingContrac
 
 	// Add criteria to the filterer
 	for _, c := range criteria {
-		eventCriteria := contracts.EventCriteria{}
+		eventCriteria := &contracts.EventCriteria{}
 		if c.ContractAddr != nil {
 			eventCriteria.Topic1 = *c.ContractAddr
 		}
