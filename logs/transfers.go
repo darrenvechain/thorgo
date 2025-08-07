@@ -15,11 +15,11 @@ func NewTransfersFilterer(client *thorest.Client) *TransfersFilterer {
 	}
 }
 
-func (t *TransfersFilterer) Criteria(criteria ...thorest.TransferCriteria) *TransfersFilterer {
+func (t *TransfersFilterer) Criteria(criteria thorest.TransferCriteria) *TransfersFilterer {
 	if t.criteria == nil {
 		t.criteria = make([]thorest.TransferCriteria, 0)
 	}
-	t.criteria = append(t.criteria, criteria...)
+	t.criteria = append(t.criteria, criteria)
 	return t
 }
 
