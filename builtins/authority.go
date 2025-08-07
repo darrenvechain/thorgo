@@ -306,6 +306,12 @@ func (f *AuthorityCandidateFilterer) Unit(unit string) *AuthorityCandidateFilter
 	return f
 }
 
+// IncludeIndexes sets whether to include transaction and log indexes in the response.
+func (f *AuthorityCandidateFilterer) IncludeIndexes(include bool) *AuthorityCandidateFilterer {
+	f.filterer.IncludeIndexes(include)
+	return f
+}
+
 // Range sets the range for the filterer. It can be a block range or a time range.
 func (f *AuthorityCandidateFilterer) Range(from, to int64) *AuthorityCandidateFilterer {
 	f.filterer.Range(from, to)

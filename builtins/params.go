@@ -207,6 +207,12 @@ func (f *ParamsSetFilterer) Unit(unit string) *ParamsSetFilterer {
 	return f
 }
 
+// IncludeIndexes sets whether to include transaction and log indexes in the response.
+func (f *ParamsSetFilterer) IncludeIndexes(include bool) *ParamsSetFilterer {
+	f.filterer.IncludeIndexes(include)
+	return f
+}
+
 // Range sets the range for the filterer. It can be a block range or a time range.
 func (f *ParamsSetFilterer) Range(from, to int64) *ParamsSetFilterer {
 	f.filterer.Range(from, to)

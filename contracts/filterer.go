@@ -167,6 +167,11 @@ func (f *Filterer) ExecuteAndDecode() ([]Event, error) {
 	return decoded, nil
 }
 
+func (f *Filterer) IncludeIndexes(include bool) *Filterer {
+	f.opts.IncludeIndexes(include)
+	return f
+}
+
 func (f *Filterer) RangeUnit(unit string) *Filterer {
 	f.opts.RangeUnit(unit)
 	return f

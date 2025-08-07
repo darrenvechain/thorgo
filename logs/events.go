@@ -57,6 +57,14 @@ func (e *EventFilterer) To(to int64) *EventFilterer {
 	return e
 }
 
+func (e *EventFilterer) IncludeIndexes(include bool) *EventFilterer {
+	if e.opts.opts == nil {
+		e.opts.opts = &thorest.LogOptions{}
+	}
+	e.opts.opts.IncludeIndexes = &include
+	return e
+}
+
 // Offset sets the offset for the log filter.
 func (e *EventFilterer) Offset(offset int64) *EventFilterer {
 	e.opts.Offset(offset)

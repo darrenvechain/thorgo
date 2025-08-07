@@ -411,6 +411,12 @@ func (f *ExecutorApproverFilterer) Unit(unit string) *ExecutorApproverFilterer {
 	return f
 }
 
+// IncludeIndexes sets whether to include transaction and log indexes in the response.
+func (f *ExecutorApproverFilterer) IncludeIndexes(include bool) *ExecutorApproverFilterer {
+	f.filterer.IncludeIndexes(include)
+	return f
+}
+
 // Range sets the range for the filterer. It can be a block range or a time range.
 func (f *ExecutorApproverFilterer) Range(from, to int64) *ExecutorApproverFilterer {
 	f.filterer.Range(from, to)
@@ -479,6 +485,12 @@ func (f *ExecutorProposalFilterer) Unit(unit string) *ExecutorProposalFilterer {
 	return f
 }
 
+// IncludeIndexes sets whether to include transaction and log indexes in the response.
+func (f *ExecutorProposalFilterer) IncludeIndexes(include bool) *ExecutorProposalFilterer {
+	f.filterer.IncludeIndexes(include)
+	return f
+}
+
 // Range sets the range for the filterer. It can be a block range or a time range.
 func (f *ExecutorProposalFilterer) Range(from, to int64) *ExecutorProposalFilterer {
 	f.filterer.Range(from, to)
@@ -544,6 +556,12 @@ type ExecutorVotingContractFilterer struct {
 // Unit sets the range type for the filterer. It can be `block` or `time`
 func (f *ExecutorVotingContractFilterer) Unit(unit string) *ExecutorVotingContractFilterer {
 	f.filterer.RangeUnit(unit)
+	return f
+}
+
+// IncludeIndexes sets whether to include transaction and log indexes in the response.
+func (f *ExecutorVotingContractFilterer) IncludeIndexes(include bool) *ExecutorVotingContractFilterer {
+	f.filterer.IncludeIndexes(include)
 	return f
 }
 

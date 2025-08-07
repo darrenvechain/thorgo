@@ -229,6 +229,12 @@ func (f *StakerDepositFilterer) Unit(unit string) *StakerDepositFilterer {
 	return f
 }
 
+// IncludeIndexes sets whether to include transaction and log indexes in the response.
+func (f *StakerDepositFilterer) IncludeIndexes(include bool) *StakerDepositFilterer {
+	f.filterer.IncludeIndexes(include)
+	return f
+}
+
 // Range sets the range for the filterer. It can be a block range or a time range.
 func (f *StakerDepositFilterer) Range(from, to int64) *StakerDepositFilterer {
 	f.filterer.Range(from, to)
@@ -294,6 +300,12 @@ type StakerWithdrawalFilterer struct {
 // Unit sets the range type for the filterer. It can be `block` or `time`
 func (f *StakerWithdrawalFilterer) Unit(unit string) *StakerWithdrawalFilterer {
 	f.filterer.RangeUnit(unit)
+	return f
+}
+
+// IncludeIndexes sets whether to include transaction and log indexes in the response.
+func (f *StakerWithdrawalFilterer) IncludeIndexes(include bool) *StakerWithdrawalFilterer {
+	f.filterer.IncludeIndexes(include)
 	return f
 }
 

@@ -472,6 +472,12 @@ func (f *VTHOApprovalFilterer) Unit(unit string) *VTHOApprovalFilterer {
 	return f
 }
 
+// IncludeIndexes sets whether to include transaction and log indexes in the response.
+func (f *VTHOApprovalFilterer) IncludeIndexes(include bool) *VTHOApprovalFilterer {
+	f.filterer.IncludeIndexes(include)
+	return f
+}
+
 // Range sets the range for the filterer. It can be a block range or a time range.
 func (f *VTHOApprovalFilterer) Range(from, to int64) *VTHOApprovalFilterer {
 	f.filterer.Range(from, to)
@@ -537,6 +543,12 @@ type VTHOTransferFilterer struct {
 // Unit sets the range type for the filterer. It can be `block` or `time`
 func (f *VTHOTransferFilterer) Unit(unit string) *VTHOTransferFilterer {
 	f.filterer.RangeUnit(unit)
+	return f
+}
+
+// IncludeIndexes sets whether to include transaction and log indexes in the response.
+func (f *VTHOTransferFilterer) IncludeIndexes(include bool) *VTHOTransferFilterer {
+	f.filterer.IncludeIndexes(include)
 	return f
 }
 

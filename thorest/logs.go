@@ -10,6 +10,8 @@ type LogMeta struct {
 	TxID        common.Hash    `json:"txID"`
 	TxOrigin    common.Address `json:"txOrigin"`
 	ClauseIndex int64          `json:"clauseIndex"`
+	TxIndex     *int64         `json:"txIndex,omitempty"`  // TxIndex is the index of the transaction in the block
+	LogIndex    *int64         `json:"logIndex,omitempty"` // LogIndex is the index of the log in the transaction
 }
 
 type LogRange struct {
@@ -19,6 +21,7 @@ type LogRange struct {
 }
 
 type LogOptions struct {
-	Offset *int64 `json:"offset,omitempty"`
-	Limit  *int64 `json:"limit,omitempty"`
+	Offset         *int64 `json:"offset,omitempty"`
+	Limit          *int64 `json:"limit,omitempty"`
+	IncludeIndexes *bool  `json:"includeIndexes,omitempty"` // IncludeIndexes indicates whether to include transaction and log indexes in the response
 }

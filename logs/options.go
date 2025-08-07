@@ -8,6 +8,15 @@ type Options struct {
 	order *string
 }
 
+// IncludeIndexes sets whether to include indexes in the log filter.
+func (o *Options) IncludeIndexes(include bool) *Options {
+	if o.opts == nil {
+		o.opts = &thorest.LogOptions{}
+	}
+	o.opts.IncludeIndexes = &include
+	return o
+}
+
 // RangeUnit sets the range unit for the log filter.
 // The unit can be "block" or "time".
 func (o *Options) RangeUnit(unit string) *Options {

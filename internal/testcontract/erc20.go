@@ -464,6 +464,12 @@ func (f *Erc20ApprovalFilterer) Unit(unit string) *Erc20ApprovalFilterer {
 	return f
 }
 
+// IncludeIndexes sets whether to include transaction and log indexes in the response.
+func (f *Erc20ApprovalFilterer) IncludeIndexes(include bool) *Erc20ApprovalFilterer {
+	f.filterer.IncludeIndexes(include)
+	return f
+}
+
 // Range sets the range for the filterer. It can be a block range or a time range.
 func (f *Erc20ApprovalFilterer) Range(from, to int64) *Erc20ApprovalFilterer {
 	f.filterer.Range(from, to)
@@ -529,6 +535,12 @@ type Erc20TransferFilterer struct {
 // Unit sets the range type for the filterer. It can be `block` or `time`
 func (f *Erc20TransferFilterer) Unit(unit string) *Erc20TransferFilterer {
 	f.filterer.RangeUnit(unit)
+	return f
+}
+
+// IncludeIndexes sets whether to include transaction and log indexes in the response.
+func (f *Erc20TransferFilterer) IncludeIndexes(include bool) *Erc20TransferFilterer {
+	f.filterer.IncludeIndexes(include)
 	return f
 }
 

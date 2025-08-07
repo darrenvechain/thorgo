@@ -50,7 +50,6 @@ jobs:
       matrix:
         include:
           - image: ghcr.io/vechain/thor:release-hayabusa-latest
-          - image: vechain/thor:latest
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

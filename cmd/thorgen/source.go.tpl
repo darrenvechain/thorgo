@@ -287,6 +287,12 @@ var (
             return f
         }
 
+        // IncludeIndexes sets whether to include transaction and log indexes in the response.
+        func (f *{{$contract.Type}}{{.Normalized.Name}}Filterer) IncludeIndexes(include bool) *{{$contract.Type}}{{.Normalized.Name}}Filterer {
+            f.filterer.IncludeIndexes(include)
+            return f
+        }
+
         // Range sets the range for the filterer. It can be a block range or a time range.
 		func (f *{{$contract.Type}}{{.Normalized.Name}}Filterer) Range(from, to int64) *{{$contract.Type}}{{.Normalized.Name}}Filterer {
 			f.filterer.Range(from, to)

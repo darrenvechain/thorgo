@@ -32,6 +32,11 @@ func (t *TransfersFilterer) Execute() ([]*thorest.TransferLog, error) {
 	})
 }
 
+func (t *TransfersFilterer) IncludeIndexes(include bool) *TransfersFilterer {
+	t.opts.IncludeIndexes(include)
+	return t
+}
+
 // RangeUnit sets the range unit for the log filter.
 // The unit can be "block" or "time".
 func (t *TransfersFilterer) RangeUnit(unit string) *TransfersFilterer {

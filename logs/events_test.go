@@ -17,10 +17,7 @@ import (
 
 var (
 	thorClient     *thorest.Client
-	vthoContract   *builtins.VTHO
 	vthoRaw        *contracts.Contract
-	account1       *txmanager.PKManager
-	account2       *txmanager.PKManager
 	firstBlock     int64
 	lastBlock      int64
 	firstTimestamp int64
@@ -31,12 +28,13 @@ func TestMain(m *testing.M) {
 	var cancel func()
 	thorClient, cancel = testcontainer.NewSolo()
 	defer cancel()
-	vthoContract, _ = builtins.NewVTHO(thorClient)
+	vthoContract, _ := builtins.NewVTHO(thorClient)
 	abi, _ := builtins.VTHOMetaData.GetAbi()
 	vthoRaw = contracts.New(thorClient, vthoContract.Address(), abi)
-	account1 = txmanager.FromPK(solo.Keys()[0], thorClient)
-	account2 = txmanager.FromPK(solo.Keys()[1], thorClient)
+	account1 := txmanager.FromPK(solo.Keys()[0], thorClient)
+	account2 := txmanager.FromPK(solo.Keys()[1], thorClient)
 
+	receipts := make([]*thorest.TransactionReceipt, 0)
 	for i := range int64(5) {
 		receipt, err := vthoRaw.
 			Send("transfer", account2.Address(), big.NewInt(i*1000)).
@@ -44,16 +42,12 @@ func TestMain(m *testing.M) {
 		if err != nil {
 			panic(err)
 		}
-
-		if i == 0 {
-			firstBlock = receipt.Meta.BlockNumber
-			firstTimestamp = receipt.Meta.BlockTimestamp
-		}
-		if i == 4 {
-			lastBlock = receipt.Meta.BlockNumber
-			lastTimestamp = receipt.Meta.BlockTimestamp
-		}
+		receipts = append(receipts, receipt)
 	}
+	firstBlock = receipts[0].Meta.BlockNumber
+	lastBlock = receipts[len(receipts)-1].Meta.BlockNumber
+	firstTimestamp = receipts[0].Meta.BlockTimestamp
+	lastTimestamp = receipts[len(receipts)-1].Meta.BlockTimestamp
 
 	m.Run()
 }
@@ -115,6 +109,13 @@ func TestEventFilterer_Options(t *testing.T) {
 		Execute()
 	assert.NoError(t, err)
 	assert.Len(t, events, 2)
+
+	events, err = logs.NewEventsFilterer(thorClient).IncludeIndexes(true).Execute()
+	assert.NoError(t, err)
+	for _, event := range events {
+		assert.NotNil(t, event.Meta.LogIndex)
+		assert.NotNil(t, event.Meta.TxIndex)
+	}
 }
 
 func TestEventFilterer_Order(t *testing.T) {
