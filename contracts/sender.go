@@ -3,7 +3,6 @@ package contracts
 import (
 	"context"
 	"fmt"
-
 	"math/big"
 	"sync"
 	"sync/atomic"

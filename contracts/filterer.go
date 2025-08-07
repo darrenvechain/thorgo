@@ -19,7 +19,7 @@ type EventCriteria struct {
 
 // Filterer provides a convenient way to filter and retrieve contract events based on specific criteria.
 type Filterer struct {
-	*logs.Options
+	opts      *logs.Options
 	contract  *Contract
 	eventName string
 	criteria  []*EventCriteria
@@ -28,7 +28,7 @@ type Filterer struct {
 // NewFilterer creates a new Filterer instance for the given contract.
 func NewFilterer(contract *Contract, eventName string) *Filterer {
 	return &Filterer{
-		Options:   &logs.Options{},
+		opts:      &logs.Options{},
 		contract:  contract,
 		eventName: eventName,
 	}
@@ -103,7 +103,7 @@ func (f *Filterer) Execute() ([]*thorest.EventLog, error) {
 		}
 	}
 
-	rng, opts, order := f.Build()
+	rng, opts, order := f.opts.Build()
 
 	filter := &thorest.EventFilter{
 		Range:    rng,
@@ -165,6 +165,41 @@ func (f *Filterer) ExecuteAndDecode() ([]Event, error) {
 		})
 	}
 	return decoded, nil
+}
+
+func (f *Filterer) RangeUnit(unit string) *Filterer {
+	f.opts.RangeUnit(unit)
+	return f
+}
+
+func (f *Filterer) Range(from, to int64) *Filterer {
+	f.opts.Range(from, to)
+	return f
+}
+
+func (f *Filterer) From(from int64) *Filterer {
+	f.opts.From(from)
+	return f
+}
+
+func (f *Filterer) To(to int64) *Filterer {
+	f.opts.To(to)
+	return f
+}
+
+func (f *Filterer) Offset(offset int64) *Filterer {
+	f.opts.Offset(offset)
+	return f
+}
+
+func (f *Filterer) Limit(limit int64) *Filterer {
+	f.opts.Limit(limit)
+	return f
+}
+
+func (f *Filterer) Order(order string) *Filterer {
+	f.opts.Order(order)
+	return f
 }
 
 // makeTopicHash converts a matcher value to a topic hash

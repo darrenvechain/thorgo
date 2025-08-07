@@ -11,7 +11,7 @@ go_version_check:
 		echo "Go 1.24 or higher required"; \
 		exit 1; \
 	else \
-		if test $(MAJOR) -eq 1 -a $(MINOR) -lt 19; then \
+		if test $(MAJOR) -eq 1 -a $(MINOR) -lt 24; then \
 			echo "Go 1.24 or higher required"; \
 			exit 1; \
 		fi \
@@ -21,6 +21,10 @@ test:| go_version_check #@ Run the tests
 	@docker pull vechain/thor:latest
 	@docker pull ghcr.io/vechain/thor:release-galactica-latest
 	@go test -cover $(PACKAGES)
+
+generate:| go_version_check #@ Generate code
+	@go generate ./builtins
+	@go generate ./internal/testcontract
 
 test-coverage:| go_version_check #@ Run the tests with coverage
 	@go test -coverpkg=./... -race -coverprofile=coverage.out -covermode=atomic $(PACKAGES)

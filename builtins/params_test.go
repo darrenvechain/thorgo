@@ -56,5 +56,5 @@ func TestParams_MBP(t *testing.T) {
 
 	res, err := params.Get(mpbKey).Execute()
 	assert.NoError(t, err)
-	assert.Equal(t, int64(14), res.Int64())
+	assert.Equal(t, int64(16), res.Int64())
 }
