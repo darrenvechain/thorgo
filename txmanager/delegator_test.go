@@ -9,8 +9,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/builtins"
+	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/solo"
 	"github.com/darrenvechain/thorgo/transactions"
@@ -26,7 +26,7 @@ var (
 	// URLDelegator should implement Delegator
 	_ txmanager.Delegator = &txmanager.URLDelegator{}
 	// DelegatedManager should implement accounts.TxManager
-	_ accounts.TxManager = &txmanager.DelegatedManager{}
+	_ contracts.TxManager = &txmanager.DelegatedManager{}
 )
 
 func TestPKDelegator(t *testing.T) {
@@ -122,9 +122,9 @@ func TestNewDelegatedManager(t *testing.T) {
 	gasPayer := txmanager.FromPK(solo.Keys()[1], client)
 	manager := txmanager.NewDelegated(client, origin, gasPayer)
 
-	contract, _ := builtins.NewVTHOTransactor(client, manager)
+	contract, _ := builtins.NewVTHO(client)
 
-	receipt, err := contract.Transfer(common.Address{100}, big.NewInt(1000), &transactions.Options{}).Receipt(context.Background())
+	receipt, err := contract.Transfer(common.Address{100}, big.NewInt(1000)).Receipt(context.Background(), manager)
 	assert.NoError(t, err)
 	assert.False(t, receipt.Reverted)
 

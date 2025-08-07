@@ -5,7 +5,9 @@ import (
 
 	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/blocks"
+	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
+	"github.com/darrenvechain/thorgo/logs"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -55,16 +57,16 @@ func (t *Thor) Transactor(clauses []*tx.Clause) *transactions.Transactor {
 }
 
 // Events sets up a query builder to fetch smart contract solidity events.
-func (t *Thor) Events(criteria []thorest.EventCriteria, filters *thorest.LogFilters) ([]*thorest.EventLog, error) {
-	return t.client.FilterEvents(criteria, filters)
+func (t *Thor) Events() *logs.EventFilterer {
+	return logs.NewEventsFilterer(t.client)
 }
 
 // Transfers sets up a query builder to fetch VET transfers.
-func (t *Thor) Transfers(criteria []thorest.TransferCriteria, filters *thorest.LogFilters) ([]*thorest.TransferLog, error) {
-	return t.client.FilterTransfers(criteria, filters)
+func (t *Thor) Transfers() *logs.TransfersFilterer {
+	return logs.NewTransfersFilterer(t.client)
 }
 
 // Deployer makes it easier to deploy contracts.
-func (t *Thor) Deployer(bytecode []byte, abi *abi.ABI) *accounts.Deployer {
-	return accounts.NewDeployer(t.client, bytecode, abi)
+func (t *Thor) Deployer(bytecode []byte, abi *abi.ABI) *contracts.Deployer {
+	return contracts.NewDeployer(t.client, bytecode, abi)
 }

@@ -6,12 +6,13 @@ package builtins
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 	"strings"
 	"time"
 
-	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/blocks"
+	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
@@ -32,6 +33,8 @@ var (
 	_ = tx.NewClause
 	_ = blocks.New
 	_ = time.Sleep
+	_ = transactions.New
+	_ = fmt.Errorf
 )
 
 // AuthorityMetaData contains all meta data concerning the Authority contract.
@@ -41,15 +44,8 @@ var AuthorityMetaData = &bind.MetaData{
 
 // Authority is an auto generated Go binding around an Ethereum contract, allowing you to query and create clauses.
 type Authority struct {
-	thor     *thorest.Client    // Thor client connection to use
-	contract *accounts.Contract // Generic contract wrapper for the low level calls
-}
-
-// AuthorityTransactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
-type AuthorityTransactor struct {
-	*Authority
-	contract *accounts.ContractTransactor // Generic contract wrapper for the low level calls
-	manager  accounts.TxManager           // TxManager to use
+	thor     *thorest.Client     // Thor client connection to use
+	contract *contracts.Contract // Generic contract wrapper for the low level calls
 }
 
 // NewAuthority creates a new instance of Authority, bound to a specific deployed contract.
@@ -58,17 +54,8 @@ func NewAuthority(thor *thorest.Client) (*Authority, error) {
 	if err != nil {
 		return nil, err
 	}
-	contract := accounts.New(thor, common.HexToAddress("0x0000000000000000000000417574686f72697479")).Contract(parsed)
+	contract := contracts.New(thor, common.HexToAddress("0x0000000000000000000000417574686f72697479"), parsed)
 	return &Authority{thor: thor, contract: contract}, nil
-}
-
-// NewAuthorityTransactor creates a new instance of AuthorityTransactor, bound to a specific deployed contract.
-func NewAuthorityTransactor(thor *thorest.Client, manager accounts.TxManager) (*AuthorityTransactor, error) {
-	base, err := NewAuthority(thor)
-	if err != nil {
-		return nil, err
-	}
-	return &AuthorityTransactor{Authority: base, contract: base.contract.Transactor(manager), manager: manager}, nil
 }
 
 // Address returns the address of the contract.
@@ -76,130 +63,73 @@ func (_Authority *Authority) Address() common.Address {
 	return _Authority.contract.Address
 }
 
-// Transactor constructs a new transactor for the contract, which allows to send transactions.
-func (_Authority *Authority) Transactor(manager accounts.TxManager) *AuthorityTransactor {
-	return &AuthorityTransactor{Authority: _Authority, contract: _Authority.contract.Transactor(manager), manager: manager}
-}
-
-// Call invokes the (constant) contract method with params as input values and
-// sets the output to result. The result type might be a single field for simple
-// returns, a slice of interfaces for anonymous returns and a struct for named
-// returns.
-func (_Authority *Authority) Call(revision thorest.Revision, result *[]interface{}, method string, params ...interface{}) error {
-	return _Authority.contract.CallAt(revision, method, result, params...)
-}
-
-// Transact invokes the (paid) contract method with params as input values.
-func (_AuthorityTransactor *AuthorityTransactor) Transact(opts *transactions.Options, vet *big.Int, method string, params ...interface{}) *accounts.Sender {
-	return _AuthorityTransactor.contract.SendPayable(opts, vet, method, params...)
-}
+// ==================== View Functions ====================
 
 // Executor is a free data retrieval call binding the contract method 0xc34c08e5.
 //
 // Solidity: function executor() view returns(address)
-func (_Authority *Authority) Executor(revision thorest.Revision) (common.Address, error) {
-	var out []interface{}
-	err := _Authority.Call(revision, &out, "executor")
-
-	if err != nil {
-		return *new(common.Address), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
-
-	return out0, err
+func (_Authority *Authority) Executor() *AuthorityExecutorCaller {
+	return &AuthorityExecutorCaller{caller: _Authority.contract.Call("executor")}
 }
 
 // First is a free data retrieval call binding the contract method 0x3df4ddf4.
 //
 // Solidity: function first() view returns(address)
-func (_Authority *Authority) First(revision thorest.Revision) (common.Address, error) {
-	var out []interface{}
-	err := _Authority.Call(revision, &out, "first")
-
-	if err != nil {
-		return *new(common.Address), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
-
-	return out0, err
+func (_Authority *Authority) First() *AuthorityFirstCaller {
+	return &AuthorityFirstCaller{caller: _Authority.contract.Call("first")}
 }
 
 // Get is a free data retrieval call binding the contract method 0xc2bc2efc.
 //
 // Solidity: function get(address _nodeMaster) view returns(bool listed, address endorsor, bytes32 identity, bool active)
-func (_Authority *Authority) Get(_nodeMaster common.Address, revision thorest.Revision) (struct {
-	Listed   bool
-	Endorsor common.Address
-	Identity [32]byte
-	Active   bool
-}, error) {
-	var out []interface{}
-	err := _Authority.Call(revision, &out, "get", _nodeMaster)
-
-	outstruct := new(struct {
-		Listed   bool
-		Endorsor common.Address
-		Identity [32]byte
-		Active   bool
-	})
-	if err != nil {
-		return *outstruct, err
-	}
-
-	outstruct.Listed = *abi.ConvertType(out[0], new(bool)).(*bool)
-	outstruct.Endorsor = *abi.ConvertType(out[1], new(common.Address)).(*common.Address)
-	outstruct.Identity = *abi.ConvertType(out[2], new([32]byte)).(*[32]byte)
-	outstruct.Active = *abi.ConvertType(out[3], new(bool)).(*bool)
-
-	return *outstruct, err
-
+func (_Authority *Authority) Get(_nodeMaster common.Address) *AuthorityGetCaller {
+	return &AuthorityGetCaller{caller: _Authority.contract.Call("get", _nodeMaster)}
 }
 
 // Next is a free data retrieval call binding the contract method 0xab73e316.
 //
 // Solidity: function next(address _nodeMaster) view returns(address)
-func (_Authority *Authority) Next(_nodeMaster common.Address, revision thorest.Revision) (common.Address, error) {
-	var out []interface{}
-	err := _Authority.Call(revision, &out, "next", _nodeMaster)
-
-	if err != nil {
-		return *new(common.Address), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
-
-	return out0, err
+func (_Authority *Authority) Next(_nodeMaster common.Address) *AuthorityNextCaller {
+	return &AuthorityNextCaller{caller: _Authority.contract.Call("next", _nodeMaster)}
 }
+
+// ==================== Transaction Functions ====================
 
 // Add is a paid mutator transaction binding the contract method 0xdc0094b8.
 //
 // Solidity: function add(address _nodeMaster, address _endorsor, bytes32 _identity) returns()
-func (_AuthorityTransactor *AuthorityTransactor) Add(_nodeMaster common.Address, _endorsor common.Address, _identity [32]byte, opts *transactions.Options) *accounts.Sender {
-	return _AuthorityTransactor.Transact(opts, big.NewInt(0), "add", _nodeMaster, _endorsor, _identity)
-}
-
-// AddAsClause is a transaction clause generator 0xdc0094b8.
-//
-// Solidity: function add(address _nodeMaster, address _endorsor, bytes32 _identity) returns()
-func (_Authority *Authority) AddAsClause(_nodeMaster common.Address, _endorsor common.Address, _identity [32]byte) (*tx.Clause, error) {
-	return _Authority.contract.AsClause("add", _nodeMaster, _endorsor, _identity)
+func (_Authority *Authority) Add(_nodeMaster common.Address, _endorsor common.Address, _identity [32]byte) *contracts.Sender {
+	return contracts.NewSender(_Authority.contract, "add", _nodeMaster, _endorsor, _identity)
 }
 
 // Revoke is a paid mutator transaction binding the contract method 0x74a8f103.
 //
 // Solidity: function revoke(address _nodeMaster) returns()
-func (_AuthorityTransactor *AuthorityTransactor) Revoke(_nodeMaster common.Address, opts *transactions.Options) *accounts.Sender {
-	return _AuthorityTransactor.Transact(opts, big.NewInt(0), "revoke", _nodeMaster)
+func (_Authority *Authority) Revoke(_nodeMaster common.Address) *contracts.Sender {
+	return contracts.NewSender(_Authority.contract, "revoke", _nodeMaster)
 }
 
-// RevokeAsClause is a transaction clause generator 0x74a8f103.
+// ==================== Event Functions ====================
+
+// FilterCandidate is a free log retrieval operation binding the contract event 0xe9e2ad484aeae75ba75479c19d2cbb784b98b2fe4b24dc80a4c8cf142d4c9294.
 //
-// Solidity: function revoke(address _nodeMaster) returns()
-func (_Authority *Authority) RevokeAsClause(_nodeMaster common.Address) (*tx.Clause, error) {
-	return _Authority.contract.AsClause("revoke", _nodeMaster)
+// Solidity: event Candidate(address indexed nodeMaster, bytes32 action)
+func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriteria) *AuthorityCandidateFilterer {
+	filterer := _Authority.contract.Filter("Candidate")
+
+	// Add criteria to the filterer
+	for _, c := range criteria {
+		eventCriteria := &contracts.EventCriteria{}
+		if c.NodeMaster != nil {
+			eventCriteria.Topic1 = *c.NodeMaster
+		}
+		filterer.Criteria(eventCriteria)
+	}
+
+	return &AuthorityCandidateFilterer{filterer: filterer, contract: _Authority.contract}
 }
+
+// ==================== Event Types and Criteria ====================
 
 // AuthorityCandidate represents a Candidate event raised by the Authority contract.
 type AuthorityCandidate struct {
@@ -209,41 +139,218 @@ type AuthorityCandidate struct {
 }
 
 type AuthorityCandidateCriteria struct {
-	NodeMaster *common.Address `abi:"nodeMaster"`
+	NodeMaster *common.Address
 }
 
-// FilterCandidate is a free log retrieval operation binding the contract event 0xe9e2ad484aeae75ba75479c19d2cbb784b98b2fe4b24dc80a4c8cf142d4c9294.
+// ==================== Call Result Types ====================
+
+// AuthorityGetResult is a free data retrieval call binding the contract method 0xc2bc2efc.
 //
-// Solidity: event Candidate(address indexed nodeMaster, bytes32 action)
-func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriteria, filters *thorest.LogFilters) ([]AuthorityCandidate, error) {
-	topicHash := _Authority.contract.ABI.Events["Candidate"].ID
+// Solidity: function get(address _nodeMaster) view returns(bool listed, address endorsor, bytes32 identity, bool active)
+type AuthorityGetResult struct {
+	Listed   bool
+	Endorsor common.Address
+	Identity [32]byte
+	Active   bool
+}
 
-	criteriaSet := make([]thorest.EventCriteria, len(criteria))
-	for i, c := range criteria {
-		crteria := thorest.EventCriteria{
-			Address: &_Authority.contract.Address,
-			Topic0:  &topicHash,
-		}
-		if c.NodeMaster != nil {
-			matcher := *c.NodeMaster
-			topics, err := abi.MakeTopics([]interface{}{matcher})
-			if err != nil {
-				return nil, err
-			}
-			crteria.Topic1 = &topics[0][0]
-		}
+// ==================== Caller Types and Methods ====================
 
-		criteriaSet[i] = crteria
+// AuthorityExecutorCaller provides typed access to the Executor method
+type AuthorityExecutorCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0xc34c08e5.
+func (c *AuthorityExecutorCaller) WithRevision(rev thorest.Revision) *AuthorityExecutorCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0xc34c08e5.
+func (c *AuthorityExecutorCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0xc34c08e5 and returns the result.
+func (c *AuthorityExecutorCaller) Execute() (common.Address, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero common.Address
+		return zero, err
 	}
-
-	if len(criteriaSet) == 0 {
-		criteriaSet = append(criteriaSet, thorest.EventCriteria{
-			Address: &_Authority.contract.Address,
-			Topic0:  &topicHash,
-		})
+	if len(data) != 1 {
+		var zero common.Address
+		return zero, errors.New("expected single return value")
 	}
+	if result, ok := data[0].(common.Address); ok {
+		return result, nil
+	}
+	var zero common.Address
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
 
-	logs, err := _Authority.thor.FilterEvents(criteriaSet, filters)
+// AuthorityFirstCaller provides typed access to the First method
+type AuthorityFirstCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x3df4ddf4.
+func (c *AuthorityFirstCaller) WithRevision(rev thorest.Revision) *AuthorityFirstCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x3df4ddf4.
+func (c *AuthorityFirstCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x3df4ddf4 and returns the result.
+func (c *AuthorityFirstCaller) Execute() (common.Address, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero common.Address
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero common.Address
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(common.Address); ok {
+		return result, nil
+	}
+	var zero common.Address
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// AuthorityGetCaller provides typed access to the Get method
+type AuthorityGetCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0xc2bc2efc.
+func (c *AuthorityGetCaller) WithRevision(rev thorest.Revision) *AuthorityGetCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0xc2bc2efc.
+func (c *AuthorityGetCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0xc2bc2efc and returns the result.
+func (c *AuthorityGetCaller) Execute() (*AuthorityGetResult, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		return nil, err
+	}
+	if len(data) != 4 {
+		return nil, errors.New("invalid number of return values")
+	}
+	out := new(AuthorityGetResult)
+	out.Listed = *abi.ConvertType(data[0], new(bool)).(*bool)
+	out.Endorsor = *abi.ConvertType(data[1], new(common.Address)).(*common.Address)
+	out.Identity = *abi.ConvertType(data[2], new([32]byte)).(*[32]byte)
+	out.Active = *abi.ConvertType(data[3], new(bool)).(*bool)
+
+	return out, nil
+}
+
+// AuthorityNextCaller provides typed access to the Next method
+type AuthorityNextCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0xab73e316.
+func (c *AuthorityNextCaller) WithRevision(rev thorest.Revision) *AuthorityNextCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0xab73e316.
+func (c *AuthorityNextCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0xab73e316 and returns the result.
+func (c *AuthorityNextCaller) Execute() (common.Address, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero common.Address
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero common.Address
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(common.Address); ok {
+		return result, nil
+	}
+	var zero common.Address
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// ==================== Event Filterer Types and Methods ====================
+
+// AuthorityCandidateFilterer provides typed access to filtering Candidate events
+type AuthorityCandidateFilterer struct {
+	filterer *contracts.Filterer
+	contract *contracts.Contract
+}
+
+// Unit sets the range type for the filterer. It can be `block` or `time`
+func (f *AuthorityCandidateFilterer) Unit(unit string) *AuthorityCandidateFilterer {
+	f.filterer.RangeUnit(unit)
+	return f
+}
+
+// IncludeIndexes sets whether to include transaction and log indexes in the response.
+func (f *AuthorityCandidateFilterer) IncludeIndexes(include bool) *AuthorityCandidateFilterer {
+	f.filterer.IncludeIndexes(include)
+	return f
+}
+
+// Range sets the range for the filterer. It can be a block range or a time range.
+func (f *AuthorityCandidateFilterer) Range(from, to int64) *AuthorityCandidateFilterer {
+	f.filterer.Range(from, to)
+	return f
+}
+
+// From sets the start time or block number for the filterer.
+func (f *AuthorityCandidateFilterer) From(from int64) *AuthorityCandidateFilterer {
+	f.filterer.From(from)
+	return f
+}
+
+// To sets the end time or block number for the filterer.
+func (f *AuthorityCandidateFilterer) To(to int64) *AuthorityCandidateFilterer {
+	f.filterer.To(to)
+	return f
+}
+
+// Offset sets the offset for the filterer, allowing you to skip a number of events.
+func (f *AuthorityCandidateFilterer) Offset(offset int64) *AuthorityCandidateFilterer {
+	f.filterer.Offset(offset)
+	return f
+}
+
+// Limit sets the maximum number of events to return.
+func (f *AuthorityCandidateFilterer) Limit(limit int64) *AuthorityCandidateFilterer {
+	f.filterer.Limit(limit)
+	return f
+}
+
+// Order sets the order of the events returned by the filterer. It can be `asc` or `desc`.
+func (f *AuthorityCandidateFilterer) Order(order string) *AuthorityCandidateFilterer {
+	f.filterer.Order(order)
+	return f
+}
+
+// Execute the query and return the events matching the filter criteria.
+func (f *AuthorityCandidateFilterer) Execute() ([]AuthorityCandidate, error) {
+	logs, err := f.filterer.Execute()
 	if err != nil {
 		return nil, err
 	}
@@ -251,7 +358,7 @@ func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriter
 	events := make([]AuthorityCandidate, len(logs))
 	for i, log := range logs {
 		event := new(AuthorityCandidate)
-		if err := _Authority.contract.UnpackLog(event, "Candidate", log); err != nil {
+		if err := f.contract.UnpackLog(event, "Candidate", log); err != nil {
 			return nil, err
 		}
 		event.Log = log
@@ -259,71 +366,4 @@ func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriter
 	}
 
 	return events, nil
-}
-
-// WatchCandidate listens for on chain events binding the contract event 0xe9e2ad484aeae75ba75479c19d2cbb784b98b2fe4b24dc80a4c8cf142d4c9294.
-//
-// Solidity: event Candidate(address indexed nodeMaster, bytes32 action)
-func (_Authority *Authority) WatchCandidate(criteria []AuthorityCandidateCriteria, ctx context.Context, bufferSize int64) (chan *AuthorityCandidate, error) {
-	topicHash := _Authority.contract.ABI.Events["Candidate"].ID
-	criteriaSet := make([]thorest.EventCriteria, len(criteria))
-
-	for i, c := range criteria {
-		crteria := thorest.EventCriteria{
-			Address: &_Authority.contract.Address,
-			Topic0:  &topicHash,
-		}
-		if c.NodeMaster != nil {
-			matcher := *c.NodeMaster
-			topics, err := abi.MakeTopics([]interface{}{matcher})
-			if err != nil {
-				return nil, err
-			}
-			crteria.Topic1 = &topics[0][0]
-		}
-
-		criteriaSet[i] = crteria
-	}
-
-	eventChan := make(chan *AuthorityCandidate, bufferSize)
-	blocks := blocks.New(ctx, _Authority.thor)
-	ticker := blocks.Ticker()
-	best, err := blocks.Best()
-	if err != nil {
-		return nil, err
-	}
-
-	go func(current int64) {
-		defer close(eventChan)
-
-		for {
-			select {
-			case <-ticker.C():
-				for { // loop until the current block is not found
-					block, err := blocks.Expanded(thorest.RevisionNumber(current))
-					if errors.Is(thorest.ErrNotFound, err) {
-						break
-					}
-					if err != nil {
-						time.Sleep(250 * time.Millisecond)
-						continue
-					}
-					current++
-
-					for _, log := range block.FilteredEvents(criteriaSet) {
-						ev := new(AuthorityCandidate)
-						if err := _Authority.contract.UnpackLog(ev, "Candidate", log); err != nil {
-							continue
-						}
-						ev.Log = log
-						eventChan <- ev
-					}
-				}
-			case <-ctx.Done():
-				return
-			}
-		}
-	}(best.Number + 1)
-
-	return eventChan, nil
 }

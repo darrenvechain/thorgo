@@ -9,7 +9,6 @@ import (
 
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/solo"
-	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/darrenvechain/thorgo/txmanager"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
@@ -26,10 +25,10 @@ func TestParams_Set(t *testing.T) {
 
 	// init contract
 	solo1 := txmanager.FromPK(solo.Keys()[0], client)
-	params, err := NewParamsTransactor(client, solo1)
+	params, err := NewParams(client)
 	assert.NoError(t, err)
 
-	res, err := params.Get(KeyExecutorAddress, thorest.RevisionBest())
+	res, err := params.Get(KeyExecutorAddress).Execute()
 	assert.NoError(t, err)
 
 	// check that solo 1 is the current executor
@@ -39,11 +38,11 @@ func TestParams_Set(t *testing.T) {
 	solo2 := txmanager.FromPK(solo.Keys()[1], client)
 	// TODO: Not sure why the value is a big.Int here
 	value := new(big.Int).SetBytes(solo2.Address().Bytes())
-	_, err = params.Set(KeyExecutorAddress, value, &transactions.Options{}).Receipt(context.Background())
+	_, err = params.Set(KeyExecutorAddress, value).Receipt(context.Background(), solo1)
 	assert.NoError(t, err)
 
 	// check that solo 2 is the updated executor
-	res, err = params.Get(KeyExecutorAddress, thorest.RevisionBest())
+	res, err = params.Get(KeyExecutorAddress).Execute()
 	assert.NoError(t, err)
 	assert.Equal(t, solo2.Address(), common.BytesToAddress(res.Bytes()))
 }
@@ -55,7 +54,7 @@ func TestParams_MBP(t *testing.T) {
 
 	mpbKey := common.BytesToHash([]byte("max-block-proposers"))
 
-	res, err := params.Get(mpbKey, thorest.RevisionBest())
+	res, err := params.Get(mpbKey).Execute()
 	assert.NoError(t, err)
-	assert.Equal(t, int64(14), res.Int64())
+	assert.Equal(t, int64(16), res.Int64())
 }

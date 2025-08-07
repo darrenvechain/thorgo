@@ -6,12 +6,13 @@ package builtins
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 	"strings"
 	"time"
 
-	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/blocks"
+	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
@@ -32,6 +33,8 @@ var (
 	_ = tx.NewClause
 	_ = blocks.New
 	_ = time.Sleep
+	_ = transactions.New
+	_ = fmt.Errorf
 )
 
 // PrototypeMetaData contains all meta data concerning the Prototype contract.
@@ -41,15 +44,8 @@ var PrototypeMetaData = &bind.MetaData{
 
 // Prototype is an auto generated Go binding around an Ethereum contract, allowing you to query and create clauses.
 type Prototype struct {
-	thor     *thorest.Client    // Thor client connection to use
-	contract *accounts.Contract // Generic contract wrapper for the low level calls
-}
-
-// PrototypeTransactor is an auto generated Go binding around an Ethereum, allowing you to transact with the contract.
-type PrototypeTransactor struct {
-	*Prototype
-	contract *accounts.ContractTransactor // Generic contract wrapper for the low level calls
-	manager  accounts.TxManager           // TxManager to use
+	thor     *thorest.Client     // Thor client connection to use
+	contract *contracts.Contract // Generic contract wrapper for the low level calls
 }
 
 // NewPrototype creates a new instance of Prototype, bound to a specific deployed contract.
@@ -58,17 +54,8 @@ func NewPrototype(thor *thorest.Client) (*Prototype, error) {
 	if err != nil {
 		return nil, err
 	}
-	contract := accounts.New(thor, common.HexToAddress("0x000000000000000000000050726f746f74797065")).Contract(parsed)
+	contract := contracts.New(thor, common.HexToAddress("0x000000000000000000000050726f746f74797065"), parsed)
 	return &Prototype{thor: thor, contract: contract}, nil
-}
-
-// NewPrototypeTransactor creates a new instance of PrototypeTransactor, bound to a specific deployed contract.
-func NewPrototypeTransactor(thor *thorest.Client, manager accounts.TxManager) (*PrototypeTransactor, error) {
-	base, err := NewPrototype(thor)
-	if err != nil {
-		return nil, err
-	}
-	return &PrototypeTransactor{Prototype: base, contract: base.contract.Transactor(manager), manager: manager}, nil
 }
 
 // Address returns the address of the contract.
@@ -76,287 +63,481 @@ func (_Prototype *Prototype) Address() common.Address {
 	return _Prototype.contract.Address
 }
 
-// Transactor constructs a new transactor for the contract, which allows to send transactions.
-func (_Prototype *Prototype) Transactor(manager accounts.TxManager) *PrototypeTransactor {
-	return &PrototypeTransactor{Prototype: _Prototype, contract: _Prototype.contract.Transactor(manager), manager: manager}
-}
-
-// Call invokes the (constant) contract method with params as input values and
-// sets the output to result. The result type might be a single field for simple
-// returns, a slice of interfaces for anonymous returns and a struct for named
-// returns.
-func (_Prototype *Prototype) Call(revision thorest.Revision, result *[]interface{}, method string, params ...interface{}) error {
-	return _Prototype.contract.CallAt(revision, method, result, params...)
-}
-
-// Transact invokes the (paid) contract method with params as input values.
-func (_PrototypeTransactor *PrototypeTransactor) Transact(opts *transactions.Options, vet *big.Int, method string, params ...interface{}) *accounts.Sender {
-	return _PrototypeTransactor.contract.SendPayable(opts, vet, method, params...)
-}
+// ==================== View Functions ====================
 
 // Balance is a free data retrieval call binding the contract method 0x6d8c859a.
 //
 // Solidity: function balance(address _self, uint256 _blockNumber) view returns(uint256)
-func (_Prototype *Prototype) Balance(_self common.Address, _blockNumber *big.Int, revision thorest.Revision) (*big.Int, error) {
-	var out []interface{}
-	err := _Prototype.Call(revision, &out, "balance", _self, _blockNumber)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
+func (_Prototype *Prototype) Balance(_self common.Address, _blockNumber *big.Int) *PrototypeBalanceCaller {
+	return &PrototypeBalanceCaller{caller: _Prototype.contract.Call("balance", _self, _blockNumber)}
 }
 
 // CreditPlan is a free data retrieval call binding the contract method 0x80df45b4.
 //
 // Solidity: function creditPlan(address _self) view returns(uint256 credit, uint256 recoveryRate)
-func (_Prototype *Prototype) CreditPlan(_self common.Address, revision thorest.Revision) (struct {
-	Credit       *big.Int
-	RecoveryRate *big.Int
-}, error) {
-	var out []interface{}
-	err := _Prototype.Call(revision, &out, "creditPlan", _self)
-
-	outstruct := new(struct {
-		Credit       *big.Int
-		RecoveryRate *big.Int
-	})
-	if err != nil {
-		return *outstruct, err
-	}
-
-	outstruct.Credit = *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-	outstruct.RecoveryRate = *abi.ConvertType(out[1], new(*big.Int)).(**big.Int)
-
-	return *outstruct, err
-
+func (_Prototype *Prototype) CreditPlan(_self common.Address) *PrototypeCreditPlanCaller {
+	return &PrototypeCreditPlanCaller{caller: _Prototype.contract.Call("creditPlan", _self)}
 }
 
 // CurrentSponsor is a free data retrieval call binding the contract method 0x23d8c7db.
 //
 // Solidity: function currentSponsor(address _self) view returns(address)
-func (_Prototype *Prototype) CurrentSponsor(_self common.Address, revision thorest.Revision) (common.Address, error) {
-	var out []interface{}
-	err := _Prototype.Call(revision, &out, "currentSponsor", _self)
-
-	if err != nil {
-		return *new(common.Address), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
-
-	return out0, err
+func (_Prototype *Prototype) CurrentSponsor(_self common.Address) *PrototypeCurrentSponsorCaller {
+	return &PrototypeCurrentSponsorCaller{caller: _Prototype.contract.Call("currentSponsor", _self)}
 }
 
 // Energy is a free data retrieval call binding the contract method 0x1e95be45.
 //
 // Solidity: function energy(address _self, uint256 _blockNumber) view returns(uint256)
-func (_Prototype *Prototype) Energy(_self common.Address, _blockNumber *big.Int, revision thorest.Revision) (*big.Int, error) {
-	var out []interface{}
-	err := _Prototype.Call(revision, &out, "energy", _self, _blockNumber)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
+func (_Prototype *Prototype) Energy(_self common.Address, _blockNumber *big.Int) *PrototypeEnergyCaller {
+	return &PrototypeEnergyCaller{caller: _Prototype.contract.Call("energy", _self, _blockNumber)}
 }
 
 // HasCode is a free data retrieval call binding the contract method 0x9538c4b3.
 //
 // Solidity: function hasCode(address _self) view returns(bool)
-func (_Prototype *Prototype) HasCode(_self common.Address, revision thorest.Revision) (bool, error) {
-	var out []interface{}
-	err := _Prototype.Call(revision, &out, "hasCode", _self)
-
-	if err != nil {
-		return *new(bool), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
-
-	return out0, err
+func (_Prototype *Prototype) HasCode(_self common.Address) *PrototypeHasCodeCaller {
+	return &PrototypeHasCodeCaller{caller: _Prototype.contract.Call("hasCode", _self)}
 }
 
 // IsSponsor is a free data retrieval call binding the contract method 0xd87333ac.
 //
 // Solidity: function isSponsor(address _self, address _sponsor) view returns(bool)
-func (_Prototype *Prototype) IsSponsor(_self common.Address, _sponsor common.Address, revision thorest.Revision) (bool, error) {
-	var out []interface{}
-	err := _Prototype.Call(revision, &out, "isSponsor", _self, _sponsor)
-
-	if err != nil {
-		return *new(bool), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
-
-	return out0, err
+func (_Prototype *Prototype) IsSponsor(_self common.Address, _sponsor common.Address) *PrototypeIsSponsorCaller {
+	return &PrototypeIsSponsorCaller{caller: _Prototype.contract.Call("isSponsor", _self, _sponsor)}
 }
 
 // IsUser is a free data retrieval call binding the contract method 0x02d43dc8.
 //
 // Solidity: function isUser(address _self, address _user) view returns(bool)
-func (_Prototype *Prototype) IsUser(_self common.Address, _user common.Address, revision thorest.Revision) (bool, error) {
-	var out []interface{}
-	err := _Prototype.Call(revision, &out, "isUser", _self, _user)
-
-	if err != nil {
-		return *new(bool), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
-
-	return out0, err
+func (_Prototype *Prototype) IsUser(_self common.Address, _user common.Address) *PrototypeIsUserCaller {
+	return &PrototypeIsUserCaller{caller: _Prototype.contract.Call("isUser", _self, _user)}
 }
 
 // Master is a free data retrieval call binding the contract method 0x9ed153c0.
 //
 // Solidity: function master(address _self) view returns(address)
-func (_Prototype *Prototype) Master(_self common.Address, revision thorest.Revision) (common.Address, error) {
-	var out []interface{}
-	err := _Prototype.Call(revision, &out, "master", _self)
-
-	if err != nil {
-		return *new(common.Address), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
-
-	return out0, err
+func (_Prototype *Prototype) Master(_self common.Address) *PrototypeMasterCaller {
+	return &PrototypeMasterCaller{caller: _Prototype.contract.Call("master", _self)}
 }
 
 // StorageFor is a free data retrieval call binding the contract method 0x04e7a457.
 //
 // Solidity: function storageFor(address _self, bytes32 _key) view returns(bytes32)
-func (_Prototype *Prototype) StorageFor(_self common.Address, _key [32]byte, revision thorest.Revision) ([32]byte, error) {
-	var out []interface{}
-	err := _Prototype.Call(revision, &out, "storageFor", _self, _key)
-
-	if err != nil {
-		return *new([32]byte), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
-
-	return out0, err
+func (_Prototype *Prototype) StorageFor(_self common.Address, _key [32]byte) *PrototypeStorageForCaller {
+	return &PrototypeStorageForCaller{caller: _Prototype.contract.Call("storageFor", _self, _key)}
 }
 
 // UserCredit is a free data retrieval call binding the contract method 0xc9c4fc41.
 //
 // Solidity: function userCredit(address _self, address _user) view returns(uint256)
-func (_Prototype *Prototype) UserCredit(_self common.Address, _user common.Address, revision thorest.Revision) (*big.Int, error) {
-	var out []interface{}
-	err := _Prototype.Call(revision, &out, "userCredit", _self, _user)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
+func (_Prototype *Prototype) UserCredit(_self common.Address, _user common.Address) *PrototypeUserCreditCaller {
+	return &PrototypeUserCreditCaller{caller: _Prototype.contract.Call("userCredit", _self, _user)}
 }
+
+// ==================== Transaction Functions ====================
 
 // AddUser is a paid mutator transaction binding the contract method 0x8ca3b448.
 //
 // Solidity: function addUser(address _self, address _user) returns()
-func (_PrototypeTransactor *PrototypeTransactor) AddUser(_self common.Address, _user common.Address, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "addUser", _self, _user)
-}
-
-// AddUserAsClause is a transaction clause generator 0x8ca3b448.
-//
-// Solidity: function addUser(address _self, address _user) returns()
-func (_Prototype *Prototype) AddUserAsClause(_self common.Address, _user common.Address) (*tx.Clause, error) {
-	return _Prototype.contract.AsClause("addUser", _self, _user)
+func (_Prototype *Prototype) AddUser(_self common.Address, _user common.Address) *contracts.Sender {
+	return contracts.NewSender(_Prototype.contract, "addUser", _self, _user)
 }
 
 // RemoveUser is a paid mutator transaction binding the contract method 0x22928d6b.
 //
 // Solidity: function removeUser(address _self, address _user) returns()
-func (_PrototypeTransactor *PrototypeTransactor) RemoveUser(_self common.Address, _user common.Address, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "removeUser", _self, _user)
-}
-
-// RemoveUserAsClause is a transaction clause generator 0x22928d6b.
-//
-// Solidity: function removeUser(address _self, address _user) returns()
-func (_Prototype *Prototype) RemoveUserAsClause(_self common.Address, _user common.Address) (*tx.Clause, error) {
-	return _Prototype.contract.AsClause("removeUser", _self, _user)
+func (_Prototype *Prototype) RemoveUser(_self common.Address, _user common.Address) *contracts.Sender {
+	return contracts.NewSender(_Prototype.contract, "removeUser", _self, _user)
 }
 
 // SelectSponsor is a paid mutator transaction binding the contract method 0x3871a9fb.
 //
 // Solidity: function selectSponsor(address _self, address _sponsor) returns()
-func (_PrototypeTransactor *PrototypeTransactor) SelectSponsor(_self common.Address, _sponsor common.Address, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "selectSponsor", _self, _sponsor)
-}
-
-// SelectSponsorAsClause is a transaction clause generator 0x3871a9fb.
-//
-// Solidity: function selectSponsor(address _self, address _sponsor) returns()
-func (_Prototype *Prototype) SelectSponsorAsClause(_self common.Address, _sponsor common.Address) (*tx.Clause, error) {
-	return _Prototype.contract.AsClause("selectSponsor", _self, _sponsor)
+func (_Prototype *Prototype) SelectSponsor(_self common.Address, _sponsor common.Address) *contracts.Sender {
+	return contracts.NewSender(_Prototype.contract, "selectSponsor", _self, _sponsor)
 }
 
 // SetCreditPlan is a paid mutator transaction binding the contract method 0x3659f8ed.
 //
 // Solidity: function setCreditPlan(address _self, uint256 _credit, uint256 _recoveryRate) returns()
-func (_PrototypeTransactor *PrototypeTransactor) SetCreditPlan(_self common.Address, _credit *big.Int, _recoveryRate *big.Int, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "setCreditPlan", _self, _credit, _recoveryRate)
-}
-
-// SetCreditPlanAsClause is a transaction clause generator 0x3659f8ed.
-//
-// Solidity: function setCreditPlan(address _self, uint256 _credit, uint256 _recoveryRate) returns()
-func (_Prototype *Prototype) SetCreditPlanAsClause(_self common.Address, _credit *big.Int, _recoveryRate *big.Int) (*tx.Clause, error) {
-	return _Prototype.contract.AsClause("setCreditPlan", _self, _credit, _recoveryRate)
+func (_Prototype *Prototype) SetCreditPlan(_self common.Address, _credit *big.Int, _recoveryRate *big.Int) *contracts.Sender {
+	return contracts.NewSender(_Prototype.contract, "setCreditPlan", _self, _credit, _recoveryRate)
 }
 
 // SetMaster is a paid mutator transaction binding the contract method 0x01378b58.
 //
 // Solidity: function setMaster(address _self, address _newMaster) returns()
-func (_PrototypeTransactor *PrototypeTransactor) SetMaster(_self common.Address, _newMaster common.Address, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "setMaster", _self, _newMaster)
-}
-
-// SetMasterAsClause is a transaction clause generator 0x01378b58.
-//
-// Solidity: function setMaster(address _self, address _newMaster) returns()
-func (_Prototype *Prototype) SetMasterAsClause(_self common.Address, _newMaster common.Address) (*tx.Clause, error) {
-	return _Prototype.contract.AsClause("setMaster", _self, _newMaster)
+func (_Prototype *Prototype) SetMaster(_self common.Address, _newMaster common.Address) *contracts.Sender {
+	return contracts.NewSender(_Prototype.contract, "setMaster", _self, _newMaster)
 }
 
 // Sponsor is a paid mutator transaction binding the contract method 0x766c4f37.
 //
 // Solidity: function sponsor(address _self) returns()
-func (_PrototypeTransactor *PrototypeTransactor) Sponsor(_self common.Address, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "sponsor", _self)
-}
-
-// SponsorAsClause is a transaction clause generator 0x766c4f37.
-//
-// Solidity: function sponsor(address _self) returns()
-func (_Prototype *Prototype) SponsorAsClause(_self common.Address) (*tx.Clause, error) {
-	return _Prototype.contract.AsClause("sponsor", _self)
+func (_Prototype *Prototype) Sponsor(_self common.Address) *contracts.Sender {
+	return contracts.NewSender(_Prototype.contract, "sponsor", _self)
 }
 
 // Unsponsor is a paid mutator transaction binding the contract method 0xcdd2a99f.
 //
 // Solidity: function unsponsor(address _self) returns()
-func (_PrototypeTransactor *PrototypeTransactor) Unsponsor(_self common.Address, opts *transactions.Options) *accounts.Sender {
-	return _PrototypeTransactor.Transact(opts, big.NewInt(0), "unsponsor", _self)
+func (_Prototype *Prototype) Unsponsor(_self common.Address) *contracts.Sender {
+	return contracts.NewSender(_Prototype.contract, "unsponsor", _self)
 }
 
-// UnsponsorAsClause is a transaction clause generator 0xcdd2a99f.
+// ==================== Event Functions ====================
+
+// ==================== Event Types and Criteria ====================
+
+// ==================== Call Result Types ====================
+
+// PrototypeCreditPlanResult is a free data retrieval call binding the contract method 0x80df45b4.
 //
-// Solidity: function unsponsor(address _self) returns()
-func (_Prototype *Prototype) UnsponsorAsClause(_self common.Address) (*tx.Clause, error) {
-	return _Prototype.contract.AsClause("unsponsor", _self)
+// Solidity: function creditPlan(address _self) view returns(uint256 credit, uint256 recoveryRate)
+type PrototypeCreditPlanResult struct {
+	Credit       *big.Int
+	RecoveryRate *big.Int
 }
+
+// ==================== Caller Types and Methods ====================
+
+// PrototypeBalanceCaller provides typed access to the Balance method
+type PrototypeBalanceCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x6d8c859a.
+func (c *PrototypeBalanceCaller) WithRevision(rev thorest.Revision) *PrototypeBalanceCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x6d8c859a.
+func (c *PrototypeBalanceCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x6d8c859a and returns the result.
+func (c *PrototypeBalanceCaller) Execute() (*big.Int, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero *big.Int
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero *big.Int
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(*big.Int); ok {
+		return result, nil
+	}
+	var zero *big.Int
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// PrototypeCreditPlanCaller provides typed access to the CreditPlan method
+type PrototypeCreditPlanCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x80df45b4.
+func (c *PrototypeCreditPlanCaller) WithRevision(rev thorest.Revision) *PrototypeCreditPlanCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x80df45b4.
+func (c *PrototypeCreditPlanCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x80df45b4 and returns the result.
+func (c *PrototypeCreditPlanCaller) Execute() (*PrototypeCreditPlanResult, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		return nil, err
+	}
+	if len(data) != 2 {
+		return nil, errors.New("invalid number of return values")
+	}
+	out := new(PrototypeCreditPlanResult)
+	out.Credit = *abi.ConvertType(data[0], new(*big.Int)).(**big.Int)
+	out.RecoveryRate = *abi.ConvertType(data[1], new(*big.Int)).(**big.Int)
+
+	return out, nil
+}
+
+// PrototypeCurrentSponsorCaller provides typed access to the CurrentSponsor method
+type PrototypeCurrentSponsorCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x23d8c7db.
+func (c *PrototypeCurrentSponsorCaller) WithRevision(rev thorest.Revision) *PrototypeCurrentSponsorCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x23d8c7db.
+func (c *PrototypeCurrentSponsorCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x23d8c7db and returns the result.
+func (c *PrototypeCurrentSponsorCaller) Execute() (common.Address, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero common.Address
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero common.Address
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(common.Address); ok {
+		return result, nil
+	}
+	var zero common.Address
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// PrototypeEnergyCaller provides typed access to the Energy method
+type PrototypeEnergyCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x1e95be45.
+func (c *PrototypeEnergyCaller) WithRevision(rev thorest.Revision) *PrototypeEnergyCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x1e95be45.
+func (c *PrototypeEnergyCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x1e95be45 and returns the result.
+func (c *PrototypeEnergyCaller) Execute() (*big.Int, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero *big.Int
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero *big.Int
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(*big.Int); ok {
+		return result, nil
+	}
+	var zero *big.Int
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// PrototypeHasCodeCaller provides typed access to the HasCode method
+type PrototypeHasCodeCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x9538c4b3.
+func (c *PrototypeHasCodeCaller) WithRevision(rev thorest.Revision) *PrototypeHasCodeCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x9538c4b3.
+func (c *PrototypeHasCodeCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x9538c4b3 and returns the result.
+func (c *PrototypeHasCodeCaller) Execute() (bool, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero bool
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero bool
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(bool); ok {
+		return result, nil
+	}
+	var zero bool
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// PrototypeIsSponsorCaller provides typed access to the IsSponsor method
+type PrototypeIsSponsorCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0xd87333ac.
+func (c *PrototypeIsSponsorCaller) WithRevision(rev thorest.Revision) *PrototypeIsSponsorCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0xd87333ac.
+func (c *PrototypeIsSponsorCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0xd87333ac and returns the result.
+func (c *PrototypeIsSponsorCaller) Execute() (bool, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero bool
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero bool
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(bool); ok {
+		return result, nil
+	}
+	var zero bool
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// PrototypeIsUserCaller provides typed access to the IsUser method
+type PrototypeIsUserCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x02d43dc8.
+func (c *PrototypeIsUserCaller) WithRevision(rev thorest.Revision) *PrototypeIsUserCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x02d43dc8.
+func (c *PrototypeIsUserCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x02d43dc8 and returns the result.
+func (c *PrototypeIsUserCaller) Execute() (bool, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero bool
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero bool
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(bool); ok {
+		return result, nil
+	}
+	var zero bool
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// PrototypeMasterCaller provides typed access to the Master method
+type PrototypeMasterCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x9ed153c0.
+func (c *PrototypeMasterCaller) WithRevision(rev thorest.Revision) *PrototypeMasterCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x9ed153c0.
+func (c *PrototypeMasterCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x9ed153c0 and returns the result.
+func (c *PrototypeMasterCaller) Execute() (common.Address, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero common.Address
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero common.Address
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(common.Address); ok {
+		return result, nil
+	}
+	var zero common.Address
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// PrototypeStorageForCaller provides typed access to the StorageFor method
+type PrototypeStorageForCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0x04e7a457.
+func (c *PrototypeStorageForCaller) WithRevision(rev thorest.Revision) *PrototypeStorageForCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0x04e7a457.
+func (c *PrototypeStorageForCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0x04e7a457 and returns the result.
+func (c *PrototypeStorageForCaller) Execute() ([32]byte, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero [32]byte
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero [32]byte
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].([32]byte); ok {
+		return result, nil
+	}
+	var zero [32]byte
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// PrototypeUserCreditCaller provides typed access to the UserCredit method
+type PrototypeUserCreditCaller struct {
+	caller *contracts.Caller
+}
+
+// WithRevision sets the revision for the call to the contract method 0xc9c4fc41.
+func (c *PrototypeUserCreditCaller) WithRevision(rev thorest.Revision) *PrototypeUserCreditCaller {
+	c.caller.WithRevision(rev)
+	return c
+}
+
+// Call executes the raw call to the contract method 0xc9c4fc41.
+func (c *PrototypeUserCreditCaller) Call() (*thorest.InspectResponse, error) {
+	return c.caller.Call()
+}
+
+// Execute executes the contract method 0xc9c4fc41 and returns the result.
+func (c *PrototypeUserCreditCaller) Execute() (*big.Int, error) {
+	data, err := c.caller.Execute()
+	if err != nil {
+		var zero *big.Int
+		return zero, err
+	}
+	if len(data) != 1 {
+		var zero *big.Int
+		return zero, errors.New("expected single return value")
+	}
+	if result, ok := data[0].(*big.Int); ok {
+		return result, nil
+	}
+	var zero *big.Int
+	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
+}
+
+// ==================== Event Filterer Types and Methods ====================

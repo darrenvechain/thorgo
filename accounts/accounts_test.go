@@ -6,6 +6,7 @@ import (
 
 	"github.com/darrenvechain/thorgo/accounts"
 	"github.com/darrenvechain/thorgo/builtins"
+	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/solo"
 	"github.com/darrenvechain/thorgo/thorest"
@@ -17,7 +18,7 @@ import (
 var (
 	thorClient   *thorest.Client
 	vthoContract *builtins.VTHO
-	vthoRaw      *accounts.Contract
+	vthoRaw      *contracts.Contract
 	account1     *txmanager.PKManager
 )
 
@@ -27,7 +28,7 @@ func TestMain(m *testing.M) {
 	defer cancel()
 	vthoContract, _ = builtins.NewVTHO(thorClient)
 	abi, _ := builtins.VTHOMetaData.GetAbi()
-	vthoRaw = accounts.NewContract(thorClient, vthoContract.Address(), abi)
+	vthoRaw = contracts.New(thorClient, vthoContract.Address(), abi)
 	account1 = txmanager.FromPK(solo.Keys()[0], thorClient)
 	m.Run()
 }
@@ -98,7 +99,7 @@ func TestVisitor_Storage_At(t *testing.T) {
 }
 
 func TestVisitor_Call(t *testing.T) {
-	clause, err := vthoRaw.AsClause("balanceOf", account1.Address())
+	clause, err := vthoRaw.Call("balanceOf", account1.Address()).Clause()
 	assert.NoError(t, err)
 
 	res, err := accounts.New(thorClient, vthoContract.Address()).Call(clause.Data())
@@ -108,7 +109,7 @@ func TestVisitor_Call(t *testing.T) {
 }
 
 func TestVisitor_Call_At(t *testing.T) {
-	clause, err := vthoRaw.AsClause("balanceOf", account1.Address())
+	clause, err := vthoRaw.Call("balanceOf", account1.Address()).Clause()
 	assert.NoError(t, err)
 
 	res, err := accounts.New(thorClient, vthoContract.Address()).

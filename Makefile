@@ -8,19 +8,23 @@ help:
 
 go_version_check:
 	@if test $(MAJOR) -lt 1; then \
-		echo "Go 1.22 or higher required"; \
+		echo "Go 1.24 or higher required"; \
 		exit 1; \
 	else \
-		if test $(MAJOR) -eq 1 -a $(MINOR) -lt 19; then \
-			echo "Go 1.22 or higher required"; \
+		if test $(MAJOR) -eq 1 -a $(MINOR) -lt 24; then \
+			echo "Go 1.24 or higher required"; \
 			exit 1; \
 		fi \
 	fi
 
 test:| go_version_check #@ Run the tests
 	@docker pull vechain/thor:latest
-	@docker pull ghcr.io/vechain/thor:release-galactica-latest
+	@docker pull ghcr.io/vechain/thor:release-hayabusa-latest
 	@go test -cover $(PACKAGES)
+
+generate:| go_version_check #@ Generate code
+	@go generate ./builtins
+	@go generate ./internal/testcontract
 
 test-coverage:| go_version_check #@ Run the tests with coverage
 	@go test -coverpkg=./... -race -coverprofile=coverage.out -covermode=atomic $(PACKAGES)
