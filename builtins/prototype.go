@@ -63,6 +63,11 @@ func (_Prototype *Prototype) Address() common.Address {
 	return _Prototype.contract.Address
 }
 
+// Raw returns the underlying contract.
+func (_Prototype *Prototype) Raw() *contracts.Contract {
+	return _Prototype.contract
+}
+
 // ==================== View Functions ====================
 
 // Balance is a free data retrieval call binding the contract method 0x6d8c859a.

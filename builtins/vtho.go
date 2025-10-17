@@ -63,6 +63,11 @@ func (_VTHO *VTHO) Address() common.Address {
 	return _VTHO.contract.Address
 }
 
+// Raw returns the underlying contract.
+func (_VTHO *VTHO) Raw() *contracts.Contract {
+	return _VTHO.contract
+}
+
 // ==================== View Functions ====================
 
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
@@ -523,12 +528,12 @@ func (f *VTHOApprovalFilterer) Execute() ([]VTHOApproval, error) {
 
 	events := make([]VTHOApproval, len(logs))
 	for i, log := range logs {
-		event := new(VTHOApproval)
-		if err := f.contract.UnpackLog(event, "Approval", log); err != nil {
+		event := VTHOApproval{}
+		if err := f.contract.UnpackLog(&event, "Approval", log); err != nil {
 			return nil, err
 		}
 		event.Log = log
-		events[i] = *event
+		events[i] = event
 	}
 
 	return events, nil
@@ -597,12 +602,12 @@ func (f *VTHOTransferFilterer) Execute() ([]VTHOTransfer, error) {
 
 	events := make([]VTHOTransfer, len(logs))
 	for i, log := range logs {
-		event := new(VTHOTransfer)
-		if err := f.contract.UnpackLog(event, "Transfer", log); err != nil {
+		event := VTHOTransfer{}
+		if err := f.contract.UnpackLog(&event, "Transfer", log); err != nil {
 			return nil, err
 		}
 		event.Log = log
-		events[i] = *event
+		events[i] = event
 	}
 
 	return events, nil

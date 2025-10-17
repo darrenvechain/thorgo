@@ -2,3 +2,5 @@ vendor
 .idea
 coverage.out
 cmd/test
+builtins/contracts
+builtins/compiled

@@ -41,8 +41,7 @@ var (
 {{range $structs}}
 	// {{.Name}} is an auto generated low-level Go binding around a user-defined struct.
 	type {{.Name}} struct {
-		{{range $field := .Fields}}
-		{{$field.Name}} {{$field.Type}}
+		{{range $field := .Fields}}{{$field.Name}} {{$field.Type}}
 		{{end}}
 	}
 {{end}}
@@ -104,6 +103,11 @@ var (
 	// Address returns the address of the contract.
 	func (_{{$contract.Type}} *{{$contract.Type}}) Address() common.Address {
         return _{{$contract.Type}}.contract.Address
+    }
+
+    // Raw returns the underlying contract.
+    func (_{{$contract.Type}} *{{$contract.Type}}) Raw() *contracts.Contract {
+        return _{{$contract.Type}}.contract
     }
 
 	// ==================== View Functions ====================
@@ -338,12 +342,12 @@ var (
 
 			events := make([]{{$contract.Type}}{{.Normalized.Name}}, len(logs))
 			for i, log := range logs {
-				event := new({{$contract.Type}}{{.Normalized.Name}})
-				if err := f.contract.UnpackLog(event, "{{.Normalized.Name}}", log); err != nil {
+				event := {{$contract.Type}}{{.Normalized.Name}}{}
+				if err := f.contract.UnpackLog(&event, "{{.Normalized.Name}}", log); err != nil {
 					return nil, err
 				}
 				event.Log = log
-				events[i] = *event
+				events[i] = event
 			}
 
 			return events, nil

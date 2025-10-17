@@ -63,6 +63,11 @@ func (_Executor *Executor) Address() common.Address {
 	return _Executor.contract.Address
 }
 
+// Raw returns the underlying contract.
+func (_Executor *Executor) Raw() *contracts.Contract {
+	return _Executor.contract
+}
+
 // ==================== View Functions ====================
 
 // ApproverCount is a free data retrieval call binding the contract method 0x128e9be6.
@@ -462,12 +467,12 @@ func (f *ExecutorApproverFilterer) Execute() ([]ExecutorApprover, error) {
 
 	events := make([]ExecutorApprover, len(logs))
 	for i, log := range logs {
-		event := new(ExecutorApprover)
-		if err := f.contract.UnpackLog(event, "Approver", log); err != nil {
+		event := ExecutorApprover{}
+		if err := f.contract.UnpackLog(&event, "Approver", log); err != nil {
 			return nil, err
 		}
 		event.Log = log
-		events[i] = *event
+		events[i] = event
 	}
 
 	return events, nil
@@ -536,12 +541,12 @@ func (f *ExecutorProposalFilterer) Execute() ([]ExecutorProposal, error) {
 
 	events := make([]ExecutorProposal, len(logs))
 	for i, log := range logs {
-		event := new(ExecutorProposal)
-		if err := f.contract.UnpackLog(event, "Proposal", log); err != nil {
+		event := ExecutorProposal{}
+		if err := f.contract.UnpackLog(&event, "Proposal", log); err != nil {
 			return nil, err
 		}
 		event.Log = log
-		events[i] = *event
+		events[i] = event
 	}
 
 	return events, nil
@@ -610,12 +615,12 @@ func (f *ExecutorVotingContractFilterer) Execute() ([]ExecutorVotingContract, er
 
 	events := make([]ExecutorVotingContract, len(logs))
 	for i, log := range logs {
-		event := new(ExecutorVotingContract)
-		if err := f.contract.UnpackLog(event, "VotingContract", log); err != nil {
+		event := ExecutorVotingContract{}
+		if err := f.contract.UnpackLog(&event, "VotingContract", log); err != nil {
 			return nil, err
 		}
 		event.Log = log
-		events[i] = *event
+		events[i] = event
 	}
 
 	return events, nil

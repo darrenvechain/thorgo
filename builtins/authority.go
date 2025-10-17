@@ -63,6 +63,11 @@ func (_Authority *Authority) Address() common.Address {
 	return _Authority.contract.Address
 }
 
+// Raw returns the underlying contract.
+func (_Authority *Authority) Raw() *contracts.Contract {
+	return _Authority.contract
+}
+
 // ==================== View Functions ====================
 
 // Executor is a free data retrieval call binding the contract method 0xc34c08e5.
@@ -357,12 +362,12 @@ func (f *AuthorityCandidateFilterer) Execute() ([]AuthorityCandidate, error) {
 
 	events := make([]AuthorityCandidate, len(logs))
 	for i, log := range logs {
-		event := new(AuthorityCandidate)
-		if err := f.contract.UnpackLog(event, "Candidate", log); err != nil {
+		event := AuthorityCandidate{}
+		if err := f.contract.UnpackLog(&event, "Candidate", log); err != nil {
 			return nil, err
 		}
 		event.Log = log
-		events[i] = *event
+		events[i] = event
 	}
 
 	return events, nil

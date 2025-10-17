@@ -63,6 +63,11 @@ func (_Params *Params) Address() common.Address {
 	return _Params.contract.Address
 }
 
+// Raw returns the underlying contract.
+func (_Params *Params) Raw() *contracts.Contract {
+	return _Params.contract
+}
+
 // ==================== View Functions ====================
 
 // Executor is a free data retrieval call binding the contract method 0xc34c08e5.
@@ -258,12 +263,12 @@ func (f *ParamsSetFilterer) Execute() ([]ParamsSet, error) {
 
 	events := make([]ParamsSet, len(logs))
 	for i, log := range logs {
-		event := new(ParamsSet)
-		if err := f.contract.UnpackLog(event, "Set", log); err != nil {
+		event := ParamsSet{}
+		if err := f.contract.UnpackLog(&event, "Set", log); err != nil {
 			return nil, err
 		}
 		event.Log = log
-		events[i] = *event
+		events[i] = event
 	}
 
 	return events, nil
