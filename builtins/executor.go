@@ -151,6 +151,48 @@ func (_Executor *Executor) RevokeApprover(_approver common.Address) *contracts.S
 
 // ==================== Event Functions ====================
 
+// UnpackApproverLogs unpacks existing logs into typed Approver events.
+func (_Executor *Executor) UnpackApproverLogs(logs []*thorest.EventLog) ([]ExecutorApprover, error) {
+	events := make([]ExecutorApprover, len(logs))
+	for i, log := range logs {
+		event := ExecutorApprover{}
+		if err := _Executor.contract.UnpackLog(&event, "Approver", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = event
+	}
+	return events, nil
+}
+
+// UnpackProposalLogs unpacks existing logs into typed Proposal events.
+func (_Executor *Executor) UnpackProposalLogs(logs []*thorest.EventLog) ([]ExecutorProposal, error) {
+	events := make([]ExecutorProposal, len(logs))
+	for i, log := range logs {
+		event := ExecutorProposal{}
+		if err := _Executor.contract.UnpackLog(&event, "Proposal", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = event
+	}
+	return events, nil
+}
+
+// UnpackVotingContractLogs unpacks existing logs into typed VotingContract events.
+func (_Executor *Executor) UnpackVotingContractLogs(logs []*thorest.EventLog) ([]ExecutorVotingContract, error) {
+	events := make([]ExecutorVotingContract, len(logs))
+	for i, log := range logs {
+		event := ExecutorVotingContract{}
+		if err := _Executor.contract.UnpackLog(&event, "VotingContract", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = event
+	}
+	return events, nil
+}
+
 // FilterApprover is a free log retrieval operation binding the contract event 0x770115cde75e60f17b265d7e0c5e39c57abf243bc316c7e5c2f8d851771da6ac.
 //
 // Solidity: event Approver(address indexed approver, bytes32 action)
@@ -204,6 +246,20 @@ func (_Executor *Executor) FilterVotingContract(criteria []ExecutorVotingContrac
 
 	return &ExecutorVotingContractFilterer{filterer: filterer, contract: _Executor.contract}
 }
+
+// ==================== Event IDs ====================
+
+// ExecutorApproverEventID is the event ID for Approver
+// Solidity: event Approver(address indexed approver, bytes32 action)
+var ExecutorApproverEventID = common.HexToHash("0x770115cde75e60f17b265d7e0c5e39c57abf243bc316c7e5c2f8d851771da6ac")
+
+// ExecutorProposalEventID is the event ID for Proposal
+// Solidity: event Proposal(bytes32 indexed proposalID, bytes32 action)
+var ExecutorProposalEventID = common.HexToHash("0x7d9bcf5c6cdade398a64a03053a982851ccea20dc827dbc130754b9e78c7c31a")
+
+// ExecutorVotingContractEventID is the event ID for VotingContract
+// Solidity: event VotingContract(address indexed contractAddr, bytes32 action)
+var ExecutorVotingContractEventID = common.HexToHash("0xf4cb5443be666f872bc8a75293e99e2204a6573e5eb3d2d485d866f2e13c7ea4")
 
 // ==================== Event Types and Criteria ====================
 
@@ -464,18 +520,7 @@ func (f *ExecutorApproverFilterer) Execute() ([]ExecutorApprover, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	events := make([]ExecutorApprover, len(logs))
-	for i, log := range logs {
-		event := ExecutorApprover{}
-		if err := f.contract.UnpackLog(&event, "Approver", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = event
-	}
-
-	return events, nil
+	return (&Executor{contract: f.contract}).UnpackApproverLogs(logs)
 }
 
 // ExecutorProposalFilterer provides typed access to filtering Proposal events
@@ -538,18 +583,7 @@ func (f *ExecutorProposalFilterer) Execute() ([]ExecutorProposal, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	events := make([]ExecutorProposal, len(logs))
-	for i, log := range logs {
-		event := ExecutorProposal{}
-		if err := f.contract.UnpackLog(&event, "Proposal", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = event
-	}
-
-	return events, nil
+	return (&Executor{contract: f.contract}).UnpackProposalLogs(logs)
 }
 
 // ExecutorVotingContractFilterer provides typed access to filtering VotingContract events
@@ -612,16 +646,5 @@ func (f *ExecutorVotingContractFilterer) Execute() ([]ExecutorVotingContract, er
 	if err != nil {
 		return nil, err
 	}
-
-	events := make([]ExecutorVotingContract, len(logs))
-	for i, log := range logs {
-		event := ExecutorVotingContract{}
-		if err := f.contract.UnpackLog(&event, "VotingContract", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = event
-	}
-
-	return events, nil
+	return (&Executor{contract: f.contract}).UnpackVotingContractLogs(logs)
 }

@@ -140,7 +140,24 @@ var (
 		}
 	{{end}}
 
+	{{if .Events}}
 	// ==================== Event Functions ====================
+
+	{{range .Events}}
+		// Unpack{{.Normalized.Name}}Logs unpacks existing logs into typed {{.Normalized.Name}} events.
+		func (_{{$contract.Type}} *{{$contract.Type}}) Unpack{{.Normalized.Name}}Logs(logs []*thorest.EventLog) ([]{{$contract.Type}}{{.Normalized.Name}}, error) {
+			events := make([]{{$contract.Type}}{{.Normalized.Name}}, len(logs))
+			for i, log := range logs {
+				event := {{$contract.Type}}{{.Normalized.Name}}{}
+				if err := _{{$contract.Type}}.contract.UnpackLog(&event, "{{.Normalized.Name}}", log); err != nil {
+					return nil, err
+				}
+				event.Log = log
+				events[i] = event
+			}
+			return events, nil
+		}
+	{{end}}
 
 	{{range .Events}}
 		{{ $indexedArgCount := 0 }}
@@ -179,7 +196,19 @@ var (
 			return &{{$contract.Type}}{{.Normalized.Name}}Filterer{filterer: filterer, contract: _{{$contract.Type}}.contract}
 		}
 	{{end}}
+	{{end}}
 
+	{{if .Events}}
+	// ==================== Event IDs ====================
+
+	{{range .Events}}
+		// {{$contract.Type}}{{.Normalized.Name}}EventID is the event ID for {{.Normalized.Name}}
+		// Solidity: {{.Original.String}}
+		var {{$contract.Type}}{{.Normalized.Name}}EventID = common.HexToHash("0x{{printf "%x" .Original.ID}}")
+	{{end}}
+	{{end}}
+
+	{{if .Events}}
 	// ==================== Event Types and Criteria ====================
 
 	{{range .Events}}
@@ -205,6 +234,7 @@ var (
                     {{- end }}{{- end }}
             }
         {{ end }}
+	{{end}}
 	{{end}}
 
 	// ==================== Call Result Types ====================
@@ -276,6 +306,7 @@ var (
 		{{end}}
 	{{end}}
 
+	{{if .Events}}
 	// ==================== Event Filterer Types and Methods ====================
 
 	{{range .Events}}
@@ -339,18 +370,8 @@ var (
 			if err != nil {
 				return nil, err
 			}
-
-			events := make([]{{$contract.Type}}{{.Normalized.Name}}, len(logs))
-			for i, log := range logs {
-				event := {{$contract.Type}}{{.Normalized.Name}}{}
-				if err := f.contract.UnpackLog(&event, "{{.Normalized.Name}}", log); err != nil {
-					return nil, err
-				}
-				event.Log = log
-				events[i] = event
-			}
-
-			return events, nil
+			return (&{{$contract.Type}}{contract: f.contract}).Unpack{{.Normalized.Name}}Logs(logs)
 		}
+	{{end}}
 	{{end}}
 {{end}}

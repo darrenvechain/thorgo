@@ -116,6 +116,20 @@ func (_Authority *Authority) Revoke(_nodeMaster common.Address) *contracts.Sende
 
 // ==================== Event Functions ====================
 
+// UnpackCandidateLogs unpacks existing logs into typed Candidate events.
+func (_Authority *Authority) UnpackCandidateLogs(logs []*thorest.EventLog) ([]AuthorityCandidate, error) {
+	events := make([]AuthorityCandidate, len(logs))
+	for i, log := range logs {
+		event := AuthorityCandidate{}
+		if err := _Authority.contract.UnpackLog(&event, "Candidate", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = event
+	}
+	return events, nil
+}
+
 // FilterCandidate is a free log retrieval operation binding the contract event 0xe9e2ad484aeae75ba75479c19d2cbb784b98b2fe4b24dc80a4c8cf142d4c9294.
 //
 // Solidity: event Candidate(address indexed nodeMaster, bytes32 action)
@@ -133,6 +147,12 @@ func (_Authority *Authority) FilterCandidate(criteria []AuthorityCandidateCriter
 
 	return &AuthorityCandidateFilterer{filterer: filterer, contract: _Authority.contract}
 }
+
+// ==================== Event IDs ====================
+
+// AuthorityCandidateEventID is the event ID for Candidate
+// Solidity: event Candidate(address indexed nodeMaster, bytes32 action)
+var AuthorityCandidateEventID = common.HexToHash("0xe9e2ad484aeae75ba75479c19d2cbb784b98b2fe4b24dc80a4c8cf142d4c9294")
 
 // ==================== Event Types and Criteria ====================
 
@@ -359,16 +379,5 @@ func (f *AuthorityCandidateFilterer) Execute() ([]AuthorityCandidate, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	events := make([]AuthorityCandidate, len(logs))
-	for i, log := range logs {
-		event := AuthorityCandidate{}
-		if err := f.contract.UnpackLog(&event, "Candidate", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = event
-	}
-
-	return events, nil
+	return (&Authority{contract: f.contract}).UnpackCandidateLogs(logs)
 }

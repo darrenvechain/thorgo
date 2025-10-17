@@ -241,6 +241,132 @@ func (_Staker *Staker) WithdrawStake(validator common.Address) *contracts.Sender
 
 // ==================== Event Functions ====================
 
+// UnpackBeneficiarySetLogs unpacks existing logs into typed BeneficiarySet events.
+func (_Staker *Staker) UnpackBeneficiarySetLogs(logs []*thorest.EventLog) ([]StakerBeneficiarySet, error) {
+	events := make([]StakerBeneficiarySet, len(logs))
+	for i, log := range logs {
+		event := StakerBeneficiarySet{}
+		if err := _Staker.contract.UnpackLog(&event, "BeneficiarySet", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = event
+	}
+	return events, nil
+}
+
+// UnpackDelegationAddedLogs unpacks existing logs into typed DelegationAdded events.
+func (_Staker *Staker) UnpackDelegationAddedLogs(logs []*thorest.EventLog) ([]StakerDelegationAdded, error) {
+	events := make([]StakerDelegationAdded, len(logs))
+	for i, log := range logs {
+		event := StakerDelegationAdded{}
+		if err := _Staker.contract.UnpackLog(&event, "DelegationAdded", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = event
+	}
+	return events, nil
+}
+
+// UnpackDelegationSignaledExitLogs unpacks existing logs into typed DelegationSignaledExit events.
+func (_Staker *Staker) UnpackDelegationSignaledExitLogs(logs []*thorest.EventLog) ([]StakerDelegationSignaledExit, error) {
+	events := make([]StakerDelegationSignaledExit, len(logs))
+	for i, log := range logs {
+		event := StakerDelegationSignaledExit{}
+		if err := _Staker.contract.UnpackLog(&event, "DelegationSignaledExit", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = event
+	}
+	return events, nil
+}
+
+// UnpackDelegationWithdrawnLogs unpacks existing logs into typed DelegationWithdrawn events.
+func (_Staker *Staker) UnpackDelegationWithdrawnLogs(logs []*thorest.EventLog) ([]StakerDelegationWithdrawn, error) {
+	events := make([]StakerDelegationWithdrawn, len(logs))
+	for i, log := range logs {
+		event := StakerDelegationWithdrawn{}
+		if err := _Staker.contract.UnpackLog(&event, "DelegationWithdrawn", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = event
+	}
+	return events, nil
+}
+
+// UnpackStakeDecreasedLogs unpacks existing logs into typed StakeDecreased events.
+func (_Staker *Staker) UnpackStakeDecreasedLogs(logs []*thorest.EventLog) ([]StakerStakeDecreased, error) {
+	events := make([]StakerStakeDecreased, len(logs))
+	for i, log := range logs {
+		event := StakerStakeDecreased{}
+		if err := _Staker.contract.UnpackLog(&event, "StakeDecreased", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = event
+	}
+	return events, nil
+}
+
+// UnpackStakeIncreasedLogs unpacks existing logs into typed StakeIncreased events.
+func (_Staker *Staker) UnpackStakeIncreasedLogs(logs []*thorest.EventLog) ([]StakerStakeIncreased, error) {
+	events := make([]StakerStakeIncreased, len(logs))
+	for i, log := range logs {
+		event := StakerStakeIncreased{}
+		if err := _Staker.contract.UnpackLog(&event, "StakeIncreased", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = event
+	}
+	return events, nil
+}
+
+// UnpackValidationQueuedLogs unpacks existing logs into typed ValidationQueued events.
+func (_Staker *Staker) UnpackValidationQueuedLogs(logs []*thorest.EventLog) ([]StakerValidationQueued, error) {
+	events := make([]StakerValidationQueued, len(logs))
+	for i, log := range logs {
+		event := StakerValidationQueued{}
+		if err := _Staker.contract.UnpackLog(&event, "ValidationQueued", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = event
+	}
+	return events, nil
+}
+
+// UnpackValidationSignaledExitLogs unpacks existing logs into typed ValidationSignaledExit events.
+func (_Staker *Staker) UnpackValidationSignaledExitLogs(logs []*thorest.EventLog) ([]StakerValidationSignaledExit, error) {
+	events := make([]StakerValidationSignaledExit, len(logs))
+	for i, log := range logs {
+		event := StakerValidationSignaledExit{}
+		if err := _Staker.contract.UnpackLog(&event, "ValidationSignaledExit", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = event
+	}
+	return events, nil
+}
+
+// UnpackValidationWithdrawnLogs unpacks existing logs into typed ValidationWithdrawn events.
+func (_Staker *Staker) UnpackValidationWithdrawnLogs(logs []*thorest.EventLog) ([]StakerValidationWithdrawn, error) {
+	events := make([]StakerValidationWithdrawn, len(logs))
+	for i, log := range logs {
+		event := StakerValidationWithdrawn{}
+		if err := _Staker.contract.UnpackLog(&event, "ValidationWithdrawn", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = event
+	}
+	return events, nil
+}
+
 // FilterBeneficiarySet is a free log retrieval operation binding the contract event 0x2906d223dc4163733bb374af8641c7e9ae256e2bae53c90e0c9a2be2e611ae44.
 //
 // Solidity: event BeneficiarySet(address indexed validator, address beneficiary)
@@ -408,6 +534,44 @@ func (_Staker *Staker) FilterValidationWithdrawn(criteria []StakerValidationWith
 
 	return &StakerValidationWithdrawnFilterer{filterer: filterer, contract: _Staker.contract}
 }
+
+// ==================== Event IDs ====================
+
+// StakerBeneficiarySetEventID is the event ID for BeneficiarySet
+// Solidity: event BeneficiarySet(address indexed validator, address beneficiary)
+var StakerBeneficiarySetEventID = common.HexToHash("0x2906d223dc4163733bb374af8641c7e9ae256e2bae53c90e0c9a2be2e611ae44")
+
+// StakerDelegationAddedEventID is the event ID for DelegationAdded
+// Solidity: event DelegationAdded(address indexed validator, uint256 indexed delegationID, uint256 stake, uint8 multiplier)
+var StakerDelegationAddedEventID = common.HexToHash("0xe2eec2bad00ad70d7deab3014f1f737b6a5f8f1c948ef017b70ec34025fb4be5")
+
+// StakerDelegationSignaledExitEventID is the event ID for DelegationSignaledExit
+// Solidity: event DelegationSignaledExit(uint256 indexed delegationID)
+var StakerDelegationSignaledExitEventID = common.HexToHash("0xd5188446f0faca180c03ed7a73869f965c4e99eb4730b54c02544229ad45feb3")
+
+// StakerDelegationWithdrawnEventID is the event ID for DelegationWithdrawn
+// Solidity: event DelegationWithdrawn(uint256 indexed delegationID, uint256 stake)
+var StakerDelegationWithdrawnEventID = common.HexToHash("0x0841064fa7f404b1ce2629504bda6d18463bb267aafc387ef9146f5bd0376dfc")
+
+// StakerStakeDecreasedEventID is the event ID for StakeDecreased
+// Solidity: event StakeDecreased(address indexed validator, uint256 removed)
+var StakerStakeDecreasedEventID = common.HexToHash("0x700865370ffb2a65a2b0242e6a64b21ac907ed5ecd46c9cffc729c177b2b1c69")
+
+// StakerStakeIncreasedEventID is the event ID for StakeIncreased
+// Solidity: event StakeIncreased(address indexed validator, uint256 added)
+var StakerStakeIncreasedEventID = common.HexToHash("0x8b0ed825817a2e696c9a931715af4609fc60e1701f09c89ee7645130e937eb2d")
+
+// StakerValidationQueuedEventID is the event ID for ValidationQueued
+// Solidity: event ValidationQueued(address indexed validator, address indexed endorser, uint32 period, uint256 stake)
+var StakerValidationQueuedEventID = common.HexToHash("0x24082cc07dcc5c94fa94ab9cf2415cc4d8879a961b3d08f086d413fcde8d058c")
+
+// StakerValidationSignaledExitEventID is the event ID for ValidationSignaledExit
+// Solidity: event ValidationSignaledExit(address indexed validator)
+var StakerValidationSignaledExitEventID = common.HexToHash("0xc42bb85f7e889d54497752aca8a1b93fb0a75d4664f4e463024c69ff6df56b4f")
+
+// StakerValidationWithdrawnEventID is the event ID for ValidationWithdrawn
+// Solidity: event ValidationWithdrawn(address indexed validator, uint256 stake)
+var StakerValidationWithdrawnEventID = common.HexToHash("0x8e0a6cffaa8510e8eac358ca73120eb97d99b0eadf08e4d965b717c71b6334ff")
 
 // ==================== Event Types and Criteria ====================
 
@@ -1120,18 +1284,7 @@ func (f *StakerBeneficiarySetFilterer) Execute() ([]StakerBeneficiarySet, error)
 	if err != nil {
 		return nil, err
 	}
-
-	events := make([]StakerBeneficiarySet, len(logs))
-	for i, log := range logs {
-		event := StakerBeneficiarySet{}
-		if err := f.contract.UnpackLog(&event, "BeneficiarySet", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = event
-	}
-
-	return events, nil
+	return (&Staker{contract: f.contract}).UnpackBeneficiarySetLogs(logs)
 }
 
 // StakerDelegationAddedFilterer provides typed access to filtering DelegationAdded events
@@ -1194,18 +1347,7 @@ func (f *StakerDelegationAddedFilterer) Execute() ([]StakerDelegationAdded, erro
 	if err != nil {
 		return nil, err
 	}
-
-	events := make([]StakerDelegationAdded, len(logs))
-	for i, log := range logs {
-		event := StakerDelegationAdded{}
-		if err := f.contract.UnpackLog(&event, "DelegationAdded", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = event
-	}
-
-	return events, nil
+	return (&Staker{contract: f.contract}).UnpackDelegationAddedLogs(logs)
 }
 
 // StakerDelegationSignaledExitFilterer provides typed access to filtering DelegationSignaledExit events
@@ -1268,18 +1410,7 @@ func (f *StakerDelegationSignaledExitFilterer) Execute() ([]StakerDelegationSign
 	if err != nil {
 		return nil, err
 	}
-
-	events := make([]StakerDelegationSignaledExit, len(logs))
-	for i, log := range logs {
-		event := StakerDelegationSignaledExit{}
-		if err := f.contract.UnpackLog(&event, "DelegationSignaledExit", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = event
-	}
-
-	return events, nil
+	return (&Staker{contract: f.contract}).UnpackDelegationSignaledExitLogs(logs)
 }
 
 // StakerDelegationWithdrawnFilterer provides typed access to filtering DelegationWithdrawn events
@@ -1342,18 +1473,7 @@ func (f *StakerDelegationWithdrawnFilterer) Execute() ([]StakerDelegationWithdra
 	if err != nil {
 		return nil, err
 	}
-
-	events := make([]StakerDelegationWithdrawn, len(logs))
-	for i, log := range logs {
-		event := StakerDelegationWithdrawn{}
-		if err := f.contract.UnpackLog(&event, "DelegationWithdrawn", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = event
-	}
-
-	return events, nil
+	return (&Staker{contract: f.contract}).UnpackDelegationWithdrawnLogs(logs)
 }
 
 // StakerStakeDecreasedFilterer provides typed access to filtering StakeDecreased events
@@ -1416,18 +1536,7 @@ func (f *StakerStakeDecreasedFilterer) Execute() ([]StakerStakeDecreased, error)
 	if err != nil {
 		return nil, err
 	}
-
-	events := make([]StakerStakeDecreased, len(logs))
-	for i, log := range logs {
-		event := StakerStakeDecreased{}
-		if err := f.contract.UnpackLog(&event, "StakeDecreased", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = event
-	}
-
-	return events, nil
+	return (&Staker{contract: f.contract}).UnpackStakeDecreasedLogs(logs)
 }
 
 // StakerStakeIncreasedFilterer provides typed access to filtering StakeIncreased events
@@ -1490,18 +1599,7 @@ func (f *StakerStakeIncreasedFilterer) Execute() ([]StakerStakeIncreased, error)
 	if err != nil {
 		return nil, err
 	}
-
-	events := make([]StakerStakeIncreased, len(logs))
-	for i, log := range logs {
-		event := StakerStakeIncreased{}
-		if err := f.contract.UnpackLog(&event, "StakeIncreased", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = event
-	}
-
-	return events, nil
+	return (&Staker{contract: f.contract}).UnpackStakeIncreasedLogs(logs)
 }
 
 // StakerValidationQueuedFilterer provides typed access to filtering ValidationQueued events
@@ -1564,18 +1662,7 @@ func (f *StakerValidationQueuedFilterer) Execute() ([]StakerValidationQueued, er
 	if err != nil {
 		return nil, err
 	}
-
-	events := make([]StakerValidationQueued, len(logs))
-	for i, log := range logs {
-		event := StakerValidationQueued{}
-		if err := f.contract.UnpackLog(&event, "ValidationQueued", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = event
-	}
-
-	return events, nil
+	return (&Staker{contract: f.contract}).UnpackValidationQueuedLogs(logs)
 }
 
 // StakerValidationSignaledExitFilterer provides typed access to filtering ValidationSignaledExit events
@@ -1638,18 +1725,7 @@ func (f *StakerValidationSignaledExitFilterer) Execute() ([]StakerValidationSign
 	if err != nil {
 		return nil, err
 	}
-
-	events := make([]StakerValidationSignaledExit, len(logs))
-	for i, log := range logs {
-		event := StakerValidationSignaledExit{}
-		if err := f.contract.UnpackLog(&event, "ValidationSignaledExit", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = event
-	}
-
-	return events, nil
+	return (&Staker{contract: f.contract}).UnpackValidationSignaledExitLogs(logs)
 }
 
 // StakerValidationWithdrawnFilterer provides typed access to filtering ValidationWithdrawn events
@@ -1712,16 +1788,5 @@ func (f *StakerValidationWithdrawnFilterer) Execute() ([]StakerValidationWithdra
 	if err != nil {
 		return nil, err
 	}
-
-	events := make([]StakerValidationWithdrawn, len(logs))
-	for i, log := range logs {
-		event := StakerValidationWithdrawn{}
-		if err := f.contract.UnpackLog(&event, "ValidationWithdrawn", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = event
-	}
-
-	return events, nil
+	return (&Staker{contract: f.contract}).UnpackValidationWithdrawnLogs(logs)
 }

@@ -95,6 +95,20 @@ func (_Params *Params) Set(_key [32]byte, _value *big.Int) *contracts.Sender {
 
 // ==================== Event Functions ====================
 
+// UnpackSetLogs unpacks existing logs into typed Set events.
+func (_Params *Params) UnpackSetLogs(logs []*thorest.EventLog) ([]ParamsSet, error) {
+	events := make([]ParamsSet, len(logs))
+	for i, log := range logs {
+		event := ParamsSet{}
+		if err := _Params.contract.UnpackLog(&event, "Set", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = event
+	}
+	return events, nil
+}
+
 // FilterSet is a free log retrieval operation binding the contract event 0x28e3246f80515f5c1ed987b133ef2f193439b25acba6a5e69f219e896fc9d179.
 //
 // Solidity: event Set(bytes32 indexed key, uint256 value)
@@ -112,6 +126,12 @@ func (_Params *Params) FilterSet(criteria []ParamsSetCriteria) *ParamsSetFiltere
 
 	return &ParamsSetFilterer{filterer: filterer, contract: _Params.contract}
 }
+
+// ==================== Event IDs ====================
+
+// ParamsSetEventID is the event ID for Set
+// Solidity: event Set(bytes32 indexed key, uint256 value)
+var ParamsSetEventID = common.HexToHash("0x28e3246f80515f5c1ed987b133ef2f193439b25acba6a5e69f219e896fc9d179")
 
 // ==================== Event Types and Criteria ====================
 
@@ -260,16 +280,5 @@ func (f *ParamsSetFilterer) Execute() ([]ParamsSet, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	events := make([]ParamsSet, len(logs))
-	for i, log := range logs {
-		event := ParamsSet{}
-		if err := f.contract.UnpackLog(&event, "Set", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = event
-	}
-
-	return events, nil
+	return (&Params{contract: f.contract}).UnpackSetLogs(logs)
 }

@@ -151,6 +151,34 @@ func (_VTHO *VTHO) TransferFrom(_from common.Address, _to common.Address, _amoun
 
 // ==================== Event Functions ====================
 
+// UnpackApprovalLogs unpacks existing logs into typed Approval events.
+func (_VTHO *VTHO) UnpackApprovalLogs(logs []*thorest.EventLog) ([]VTHOApproval, error) {
+	events := make([]VTHOApproval, len(logs))
+	for i, log := range logs {
+		event := VTHOApproval{}
+		if err := _VTHO.contract.UnpackLog(&event, "Approval", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = event
+	}
+	return events, nil
+}
+
+// UnpackTransferLogs unpacks existing logs into typed Transfer events.
+func (_VTHO *VTHO) UnpackTransferLogs(logs []*thorest.EventLog) ([]VTHOTransfer, error) {
+	events := make([]VTHOTransfer, len(logs))
+	for i, log := range logs {
+		event := VTHOTransfer{}
+		if err := _VTHO.contract.UnpackLog(&event, "Transfer", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = event
+	}
+	return events, nil
+}
+
 // FilterApproval is a free log retrieval operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
 //
 // Solidity: event Approval(address indexed _owner, address indexed _spender, uint256 _value)
@@ -192,6 +220,16 @@ func (_VTHO *VTHO) FilterTransfer(criteria []VTHOTransferCriteria) *VTHOTransfer
 
 	return &VTHOTransferFilterer{filterer: filterer, contract: _VTHO.contract}
 }
+
+// ==================== Event IDs ====================
+
+// VTHOApprovalEventID is the event ID for Approval
+// Solidity: event Approval(address indexed _owner, address indexed _spender, uint256 _value)
+var VTHOApprovalEventID = common.HexToHash("0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925")
+
+// VTHOTransferEventID is the event ID for Transfer
+// Solidity: event Transfer(address indexed _from, address indexed _to, uint256 _value)
+var VTHOTransferEventID = common.HexToHash("0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef")
 
 // ==================== Event Types and Criteria ====================
 
@@ -525,18 +563,7 @@ func (f *VTHOApprovalFilterer) Execute() ([]VTHOApproval, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	events := make([]VTHOApproval, len(logs))
-	for i, log := range logs {
-		event := VTHOApproval{}
-		if err := f.contract.UnpackLog(&event, "Approval", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = event
-	}
-
-	return events, nil
+	return (&VTHO{contract: f.contract}).UnpackApprovalLogs(logs)
 }
 
 // VTHOTransferFilterer provides typed access to filtering Transfer events
@@ -599,16 +626,5 @@ func (f *VTHOTransferFilterer) Execute() ([]VTHOTransfer, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	events := make([]VTHOTransfer, len(logs))
-	for i, log := range logs {
-		event := VTHOTransfer{}
-		if err := f.contract.UnpackLog(&event, "Transfer", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = event
-	}
-
-	return events, nil
+	return (&VTHO{contract: f.contract}).UnpackTransferLogs(logs)
 }

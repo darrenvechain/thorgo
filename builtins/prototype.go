@@ -191,10 +191,6 @@ func (_Prototype *Prototype) Unsponsor(_self common.Address) *contracts.Sender {
 	return contracts.NewSender(_Prototype.contract, "unsponsor", _self)
 }
 
-// ==================== Event Functions ====================
-
-// ==================== Event Types and Criteria ====================
-
 // ==================== Call Result Types ====================
 
 // PrototypeCreditPlanResult is a free data retrieval call binding the contract method 0x80df45b4.
@@ -544,5 +540,3 @@ func (c *PrototypeUserCreditCaller) Execute() (*big.Int, error) {
 	var zero *big.Int
 	return zero, fmt.Errorf("unexpected type returned: %T", data[0])
 }
-
-// ==================== Event Filterer Types and Methods ====================
