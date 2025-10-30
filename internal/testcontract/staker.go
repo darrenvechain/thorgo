@@ -82,6 +82,11 @@ func (_Staker *Staker) Address() common.Address {
 	return _Staker.contract.Address
 }
 
+// Raw returns the underlying contract.
+func (_Staker *Staker) Raw() *contracts.Contract {
+	return _Staker.contract
+}
+
 // ==================== View Functions ====================
 
 // Deposits is a free data retrieval call binding the contract method 0xfc7e286d.
@@ -110,6 +115,34 @@ func (_Staker *Staker) Withdraw() *contracts.Sender {
 }
 
 // ==================== Event Functions ====================
+
+// UnpackDepositLogs unpacks existing logs into typed Deposit events.
+func (_Staker *Staker) UnpackDepositLogs(logs []*thorest.EventLog) ([]StakerDeposit, error) {
+	events := make([]StakerDeposit, len(logs))
+	for i, log := range logs {
+		event := StakerDeposit{}
+		if err := _Staker.contract.UnpackLog(&event, "Deposit", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = event
+	}
+	return events, nil
+}
+
+// UnpackWithdrawalLogs unpacks existing logs into typed Withdrawal events.
+func (_Staker *Staker) UnpackWithdrawalLogs(logs []*thorest.EventLog) ([]StakerWithdrawal, error) {
+	events := make([]StakerWithdrawal, len(logs))
+	for i, log := range logs {
+		event := StakerWithdrawal{}
+		if err := _Staker.contract.UnpackLog(&event, "Withdrawal", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = event
+	}
+	return events, nil
+}
 
 // FilterDeposit is a free log retrieval operation binding the contract event 0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c.
 //
@@ -146,6 +179,16 @@ func (_Staker *Staker) FilterWithdrawal(criteria []StakerWithdrawalCriteria) *St
 
 	return &StakerWithdrawalFilterer{filterer: filterer, contract: _Staker.contract}
 }
+
+// ==================== Event IDs ====================
+
+// StakerDepositEventID is the event ID for Deposit
+// Solidity: event Deposit(address indexed _from, uint256 _value)
+var StakerDepositEventID = common.HexToHash("0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c")
+
+// StakerWithdrawalEventID is the event ID for Withdrawal
+// Solidity: event Withdrawal(address indexed _to, uint256 _value)
+var StakerWithdrawalEventID = common.HexToHash("0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65")
 
 // ==================== Event Types and Criteria ====================
 
@@ -277,18 +320,7 @@ func (f *StakerDepositFilterer) Execute() ([]StakerDeposit, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	events := make([]StakerDeposit, len(logs))
-	for i, log := range logs {
-		event := new(StakerDeposit)
-		if err := f.contract.UnpackLog(event, "Deposit", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = *event
-	}
-
-	return events, nil
+	return (&Staker{contract: f.contract}).UnpackDepositLogs(logs)
 }
 
 // StakerWithdrawalFilterer provides typed access to filtering Withdrawal events
@@ -351,16 +383,5 @@ func (f *StakerWithdrawalFilterer) Execute() ([]StakerWithdrawal, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	events := make([]StakerWithdrawal, len(logs))
-	for i, log := range logs {
-		event := new(StakerWithdrawal)
-		if err := f.contract.UnpackLog(event, "Withdrawal", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = *event
-	}
-
-	return events, nil
+	return (&Staker{contract: f.contract}).UnpackWithdrawalLogs(logs)
 }

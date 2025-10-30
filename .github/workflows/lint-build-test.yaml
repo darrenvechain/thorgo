@@ -49,7 +49,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: ghcr.io/vechain/thor:release-hayabusa-latest
+          - image: ghcr.io/vechain/thor:master-latest # latest nightly version
+          - image: vechain/thor:latest # latest stable version
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

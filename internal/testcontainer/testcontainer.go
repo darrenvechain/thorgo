@@ -16,7 +16,7 @@ func NewSolo() (*thorest.Client, func()) {
 
 	imageEnv, ok := os.LookupEnv("SOLO_IMAGE")
 	if !ok {
-		imageEnv = "ghcr.io/vechain/thor:release-hayabusa-latest"
+		imageEnv = "ghcr.io/vechain/thor:master-latest"
 	}
 
 	req := testcontainers.ContainerRequest{

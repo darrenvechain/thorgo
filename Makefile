@@ -19,7 +19,7 @@ go_version_check:
 
 test:| go_version_check #@ Run the tests
 	@docker pull vechain/thor:latest
-	@docker pull ghcr.io/vechain/thor:release-hayabusa-latest
+	@docker pull ghcr.io/vechain/thor:master-latest
 	@go test -cover $(PACKAGES)
 
 generate:| go_version_check #@ Generate code

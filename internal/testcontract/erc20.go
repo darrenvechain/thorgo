@@ -82,6 +82,11 @@ func (_Erc20 *Erc20) Address() common.Address {
 	return _Erc20.contract.Address
 }
 
+// Raw returns the underlying contract.
+func (_Erc20 *Erc20) Raw() *contracts.Contract {
+	return _Erc20.contract
+}
+
 // ==================== View Functions ====================
 
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
@@ -172,6 +177,34 @@ func (_Erc20 *Erc20) TransferFrom(from common.Address, to common.Address, value 
 
 // ==================== Event Functions ====================
 
+// UnpackApprovalLogs unpacks existing logs into typed Approval events.
+func (_Erc20 *Erc20) UnpackApprovalLogs(logs []*thorest.EventLog) ([]Erc20Approval, error) {
+	events := make([]Erc20Approval, len(logs))
+	for i, log := range logs {
+		event := Erc20Approval{}
+		if err := _Erc20.contract.UnpackLog(&event, "Approval", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = event
+	}
+	return events, nil
+}
+
+// UnpackTransferLogs unpacks existing logs into typed Transfer events.
+func (_Erc20 *Erc20) UnpackTransferLogs(logs []*thorest.EventLog) ([]Erc20Transfer, error) {
+	events := make([]Erc20Transfer, len(logs))
+	for i, log := range logs {
+		event := Erc20Transfer{}
+		if err := _Erc20.contract.UnpackLog(&event, "Transfer", log); err != nil {
+			return nil, err
+		}
+		event.Log = log
+		events[i] = event
+	}
+	return events, nil
+}
+
 // FilterApproval is a free log retrieval operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
 //
 // Solidity: event Approval(address indexed owner, address indexed spender, uint256 value)
@@ -213,6 +246,16 @@ func (_Erc20 *Erc20) FilterTransfer(criteria []Erc20TransferCriteria) *Erc20Tran
 
 	return &Erc20TransferFilterer{filterer: filterer, contract: _Erc20.contract}
 }
+
+// ==================== Event IDs ====================
+
+// Erc20ApprovalEventID is the event ID for Approval
+// Solidity: event Approval(address indexed owner, address indexed spender, uint256 value)
+var Erc20ApprovalEventID = common.HexToHash("0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925")
+
+// Erc20TransferEventID is the event ID for Transfer
+// Solidity: event Transfer(address indexed from, address indexed to, uint256 value)
+var Erc20TransferEventID = common.HexToHash("0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef")
 
 // ==================== Event Types and Criteria ====================
 
@@ -512,18 +555,7 @@ func (f *Erc20ApprovalFilterer) Execute() ([]Erc20Approval, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	events := make([]Erc20Approval, len(logs))
-	for i, log := range logs {
-		event := new(Erc20Approval)
-		if err := f.contract.UnpackLog(event, "Approval", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = *event
-	}
-
-	return events, nil
+	return (&Erc20{contract: f.contract}).UnpackApprovalLogs(logs)
 }
 
 // Erc20TransferFilterer provides typed access to filtering Transfer events
@@ -586,16 +618,5 @@ func (f *Erc20TransferFilterer) Execute() ([]Erc20Transfer, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	events := make([]Erc20Transfer, len(logs))
-	for i, log := range logs {
-		event := new(Erc20Transfer)
-		if err := f.contract.UnpackLog(event, "Transfer", log); err != nil {
-			return nil, err
-		}
-		event.Log = log
-		events[i] = *event
-	}
-
-	return events, nil
+	return (&Erc20{contract: f.contract}).UnpackTransferLogs(logs)
 }
