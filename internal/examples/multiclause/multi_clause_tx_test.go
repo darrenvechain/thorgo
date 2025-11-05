@@ -31,7 +31,8 @@ func Test_MultiClause_Transaction(t *testing.T) {
 		to := datagen.RandAddress()
 		amount := big.NewInt(int64(i + 1))
 		clauses[i], err = vtho.Transfer(to, amount).Clause() // VTHO transfer
-		clauses[i+50] = tx.NewClause(&to).WithValue(amount)  // VET transfer
+		require.NoError(t, err)
+		clauses[i+50] = tx.NewClause(&to).WithValue(amount) // VET transfer
 	}
 
 	// Send the multi-clause transaction
