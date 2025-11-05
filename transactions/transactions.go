@@ -69,8 +69,9 @@ func (v *Visitor) Wait(ctx context.Context) (*thorest.TransactionReceipt, error)
 		return receipt, nil
 	}
 
-	blks := blocks.New(ctx, v.client)
-	ticker := blks.Ticker()
+	blockChan := make(chan *thorest.ExpandedBlock, 10)
+	ticker := blocks.New(ctx, v.client).Subscribe(blockChan)
+	defer ticker.Unsubscribe()
 
 	for {
 		select {
@@ -80,7 +81,7 @@ func (v *Visitor) Wait(ctx context.Context) (*thorest.TransactionReceipt, error)
 				return nil, fmt.Errorf("context cancelled while waiting for transaction %s, it is still pending", v.hash.Hex())
 			}
 			return nil, fmt.Errorf("context cancelled while waiting for transaction")
-		case <-ticker.C():
+		case <-blockChan:
 			receipt, err = v.client.TransactionReceipt(v.hash)
 			if err == nil {
 				return receipt, nil

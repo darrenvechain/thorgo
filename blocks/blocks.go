@@ -8,28 +8,39 @@ import (
 
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/event"
 )
 
 // Blocks provides utility functions to fetch or wait for blocks.
 type Blocks struct {
 	client *thorest.Client
 	best   atomic.Value
-	signal Signal
+	subs   event.SubscriptionScope
+	feed   event.Feed
+	done   chan struct{}
 }
 
 // New creates a new Blocks instance and starts polling for the best block.
 func New(ctx context.Context, c *thorest.Client) *Blocks {
-	b := &Blocks{client: c}
+	b := &Blocks{client: c, done: make(chan struct{})}
 	go b.poll(ctx)
 	return b
 }
 
-// poll sends the expanded block to all active subscribers.
+// Close stops the block polling.
+func (b *Blocks) Close() {
+	close(b.done)
+}
+
+// poll sends the expanded block to all active subscribers when a new best block is detected.
 func (b *Blocks) poll(ctx context.Context) {
 	var previous *thorest.ExpandedBlock
+	defer b.subs.Close()
 
 	for {
 		select {
+		case <-b.done:
+			return
 		case <-ctx.Done():
 			return
 		default:
@@ -48,7 +59,7 @@ func (b *Blocks) poll(ctx context.Context) {
 			}
 			previous = next
 			b.best.Store(next)
-			b.signal.Broadcast()
+			b.feed.Send(next)
 
 			nextBlockTime := time.Unix(previous.Timestamp, 0).Add(6 * time.Second)
 			now := time.Now().UTC()
@@ -59,9 +70,9 @@ func (b *Blocks) poll(ctx context.Context) {
 	}
 }
 
-// Ticker creates a signal Waiter to receive an event that the best block changed.
-func (b *Blocks) Ticker() Waiter {
-	return b.signal.NewWaiter()
+// Subscribe to new blocks. When the best block ID changes, the new expanded block will be sent to the given channel.
+func (b *Blocks) Subscribe(blockChan chan *thorest.ExpandedBlock) event.Subscription {
+	return b.subs.Track(b.feed.Subscribe(blockChan))
 }
 
 // ByID returns the block by the given ID.

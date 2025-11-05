@@ -55,14 +55,18 @@ func TestBlocks_Expanded(t *testing.T) {
 }
 
 // TestWaitForNextBlock waits for the next block to be produced
-func TestBlocks_Ticker(t *testing.T) {
-	ticker := blocks.Ticker()
+func TestBlocks_Subscribe(t *testing.T) {
+	blockChan := make(chan *thorest.ExpandedBlock, 1)
+	sub := blocks.Subscribe(blockChan)
+	defer sub.Unsubscribe()
 	timeout := time.NewTimer(12 * time.Second)
 
 	select {
 	case <-timeout.C:
 		t.Fatal("timed out waiting for the next block")
-	case <-ticker.C():
-		return
+	case err := <-sub.Err():
+		t.Fatal("subscription error while waiting for the next block", err)
+	case blk := <-blockChan:
+		t.Logf("received new block, num=%d", blk.Number)
 	}
 }

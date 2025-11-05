@@ -86,130 +86,21 @@ type TxManager interface {
 
 ## Examples
 
-### 1: Creating a New Client
+### 1) Contract Generation with `thorgen` CLI
 
-```golang
-package main
+- See [gen.go](./internal/examples/contractgen/gen.go) for an example of generating a smart contract wrapper using the `thorgen` CLI.
+- Run `go generate` in the `internal/examples/contractgen` directory to generate the contract wrapper.
+- See the usage at [echo_test.go](./internal/examples/contractgen/echo_test.go).
 
-import (
-  "context"
-  "fmt"
+### 2) Delegated Transaction
 
-  "github.com/darrenvechain/thorgo"
-  "github.com/darrenvechain/thorgo/solo"
-  "github.com/ethereum/go-ethereum/common"
-)
+- See [delegated_tx.go](./internal/examples/delegatedtx/delegated_tx_test.go) for an example of sending a delegated transaction using the `txmanager` package.
 
-func main() {
-  thor := thorgo.New(context.Background(), solo.URL)
+### 3) Multi Clause Transaction
 
-  // Get an accounts balance
-  acc, _ := thor.Account(common.HexToAddress("0x0000000000000000000000000000456e6570")).Get()
-  fmt.Println(acc.Balance)
-}
+- See [multi_clause_tx.go](./internal/examples/multiclause/multi_clause_tx_test.go) for an example of sending a multi-clause transaction.
 
-```
+### 4) Hardhat Integration
 
-### 2: Interacting with a contract + Delegated Transaction
-
-- It is recommended to create your smart contract wrapper using the `thorgen` CLI. This provides a more idiomatic way to
-  interact with the contract.
-
-<details>
-  <summary>Expand</summary>
-
-```golang
-package main
-
-import (
-  "context"
-  "log/slog"
-  "math/big"
-
-  "github.com/darrenvechain/thorgo"
-  "github.com/darrenvechain/thorgo/builtins"
-  "github.com/darrenvechain/thorgo/solo"
-  "github.com/darrenvechain/thorgo/txmanager"
-)
-
-func main() {
-  thor := thorgo.New(context.Background(), "http://localhost:8669")
-
-  // Create a delegated transaction manager
-  origin := txmanager.FromPK(solo.Keys()[0], thor.Client())
-  gasPayer := txmanager.FromPK(solo.Keys()[1], thor.Client())
-  txSender := txmanager.NewDelegated(thor.Client(), origin, gasPayer)
-
-  // Use the `thorgen` CLI to build your own smart contract wrapper
-  vtho, _ := builtins.NewVTHO(thor.Client())
-
-  // Create a new account to receive the tokens
-  recipient, _ := txmanager.GeneratePK(thor.Client())
-
-  // Call the balanceOf function
-  balance, err := vtho.BalanceOf(recipient.Address()).Execute()
-  slog.Info("recipient balance before", "balance", balance, "error", err)
-
-  receipt, err := vtho.Transfer(recipient.Address(), big.NewInt(1000000000000000000)).Receipt(context.Background(), txSender)
-  if err != nil {
-    slog.Error("transfer error", "error", err)
-    return
-  }
-  slog.Info("transfer receipt", "error", receipt.Reverted)
-
-  balance, err = vtho.BalanceOf(recipient.Address()).Execute()
-  slog.Info("recipient balance after", "balance", balance, "error", err)
-}
-
-```
-
-</details>
-
-### 3: Multi Clause Transaction
-
-<details>
-  <summary>Expand</summary>
-
-```golang
-package main
-
-import (
-  "context"
-  "log/slog"
-  "math/big"
-
-  "github.com/darrenvechain/thorgo"
-  "github.com/darrenvechain/thorgo/builtins"
-  "github.com/darrenvechain/thorgo/crypto/tx"
-  "github.com/darrenvechain/thorgo/solo"
-  "github.com/darrenvechain/thorgo/transactions"
-  "github.com/darrenvechain/thorgo/txmanager"
-)
-
-func main() {
-  thor := thorgo.New(context.Background(), "http://localhost:8669")
-
-  // Create a delegated transaction manager
-  origin := txmanager.FromPK(solo.Keys()[0], thor.Client())
-  recipient1, _ := txmanager.GeneratePK(thor.Client())
-  recipient2, _ := txmanager.GeneratePK(thor.Client())
-
-  vtho, _ := builtins.NewVTHO(thor.Client())
-
-  clause1, _ := vtho.Transfer(recipient1.Address(), big.NewInt(1000)).Clause()
-  clause2, _ := vtho.Transfer(recipient2.Address(), big.NewInt(9999)).Clause()
-
-  tx, _ := origin.SendClauses([]*tx.Clause{clause1, clause2}, &transactions.Options{})
-  slog.Info("transaction sent", "id", tx.ID())
-  trx, _ := tx.Wait(context.Background())
-  slog.Info("transaction mined", "reverted", trx.Reverted)
-
-  balance1, _ := vtho.BalanceOf(recipient1.Address()).Execute()
-  balance2, _ := vtho.BalanceOf(recipient2.Address()).Execute()
-
-  slog.Info("recipient1", "balance", balance1)
-  slog.Info("recipient2", "balance", balance2)
-}
-
-```
-</details>
+- `thorgen` can natively generate contract bindings for smart contract artifacts produced by [Hardhat](https://hardhat.org/).
+- See [gen.go](./internal/examples/hardhat/gen.go) and [counter.go](./internal/examples/hardhat/counter.go) for an example of generating a smart contract wrapper using Hardhat artifacts.

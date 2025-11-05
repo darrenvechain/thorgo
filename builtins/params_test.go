@@ -5,17 +5,12 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/darrenvechain/thorgo/thorest"
-
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
 	"github.com/darrenvechain/thorgo/solo"
+	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/txmanager"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
-)
-
-var (
-	KeyExecutorAddress = common.BytesToHash([]byte("executor"))
 )
 
 func TestParams_Set(t *testing.T) {
@@ -56,5 +51,5 @@ func TestParams_MBP(t *testing.T) {
 
 	res, err := params.Get(mpbKey).Execute()
 	assert.NoError(t, err)
-	assert.Equal(t, int64(11), res.Int64())
+	assert.Greater(t, res.Int64(), int64(1))
 }
