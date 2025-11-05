@@ -33,6 +33,9 @@ func NewDelegated(thor *thorest.Client, origin Signer, gasPayer Delegator) *Dele
 // SignTransaction signs the transaction with both the origin and the delegator
 // Returns the combined signature of the origin and the delegator
 func (d *DelegatedManager) SignTransaction(tx *tx.Transaction) ([]byte, error) {
+	if !tx.Features().IsDelegated() {
+		return nil, errors.New("delegation feature not enabled in the transaction")
+	}
 	signature, err := d.origin.SignTransaction(tx)
 	if err != nil {
 		return nil, err

@@ -92,9 +92,12 @@ func (t *Transactor) Build(caller common.Address, options *Options) (*tx.Transac
 		return nil, err
 	}
 
-	txType := tx.TypeLegacy
-	if best.BaseFee != nil {
+	txType := tx.TypeLegacy  // default to legacy tx
+	if best.BaseFee != nil { // use dynamic fee tx if base fee is present
 		txType = tx.TypeDynamicFee
+	}
+	if options.GasPriceCoef != nil { // force legacy tx if GasPriceCoef is set
+		txType = tx.TypeLegacy
 	}
 
 	builder := tx.NewBuilder(txType)

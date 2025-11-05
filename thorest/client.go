@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/darrenvechain/thorgo/crypto/tx"
@@ -19,7 +20,7 @@ import (
 type Client struct {
 	client       *http.Client
 	url          string
-	genesisBlock *Block
+	genesisBlock atomic.Pointer[Block]
 }
 
 // NewClient creates a new Client instance with the given URL and HTTP client.
@@ -119,14 +120,14 @@ func (c *Client) BestBlock() (*Block, error) {
 
 // GenesisBlock returns the genesis block.
 func (c *Client) GenesisBlock() (*Block, error) {
-	if c.genesisBlock == nil {
+	if c.genesisBlock.Load() == nil {
 		block, err := c.Block(RevisionNumber(0))
 		if err != nil {
 			return nil, err
 		}
-		c.genesisBlock = block
+		c.genesisBlock.Store(block)
 	}
-	return c.genesisBlock, nil
+	return c.genesisBlock.Load(), nil
 }
 
 // ExpandedBlock fetches the block at the given revision with all the transactions expanded.

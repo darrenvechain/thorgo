@@ -25,6 +25,30 @@ To install the Thor GO SDK, run the following command:
 go get github.com/darrenvechain/thorgo
 ``` 
 
+## Quick Start
+
+```go
+package main
+
+import (
+	"context"
+
+	"github.com/darrenvechain/thorgo"
+	"github.com/darrenvechain/thorgo/thorest"
+)
+
+func main() {
+	thor := thorgo.New(context.Background(), "https://mainnet.vechain.org")
+
+	blockChan := make(chan *thorest.ExpandedBlock)
+	sub := thor.Blocks().Subscribe(blockChan)
+	defer sub.Unsubscribe()
+
+	for block := range blockChan {
+		println("new block: ", block.Number)
+	}
+}
+```
 
 ## CLIs
 
@@ -104,3 +128,7 @@ type TxManager interface {
 
 - `thorgen` can natively generate contract bindings for smart contract artifacts produced by [Hardhat](https://hardhat.org/).
 - See [gen.go](./internal/examples/hardhat/gen.go) and [counter.go](./internal/examples/hardhat/counter.go) for an example of generating a smart contract wrapper using Hardhat artifacts.
+
+### 5) Custom Transaction Building
+
+- See [custom_tx.go](./internal/examples/txbuilding/tx_building_test.go) to see how to build, simulate and send transactions with custom options.
