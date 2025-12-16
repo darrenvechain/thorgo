@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/big"
 	"sync"
-	"sync/atomic"
 
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
@@ -25,7 +24,7 @@ type Sender struct {
 	vet      *big.Int
 	opts     *transactions.Options
 	mu       sync.Mutex
-	visitor  atomic.Pointer[transactions.Visitor]
+	visitor  *transactions.Visitor
 }
 
 func NewSender(contract *Contract, method string, args ...any) *Sender {
@@ -94,9 +93,8 @@ func (s *Sender) Send(manager TxManager) (*transactions.Visitor, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	visitor := s.visitor.Load()
-	if visitor != nil {
-		return visitor, nil
+	if s.visitor != nil {
+		return s.visitor, nil
 	}
 	if s.opts == nil {
 		s.opts = &transactions.Options{}
@@ -109,7 +107,7 @@ func (s *Sender) Send(manager TxManager) (*transactions.Visitor, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to send transaction: %w", err)
 	}
-	s.visitor.Store(res)
+	s.visitor = res
 	return res, nil
 }
 

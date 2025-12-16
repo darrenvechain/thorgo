@@ -19,7 +19,7 @@ var PathETH = accounts.DefaultRootDerivationPath
 // Wallet is the underlying wallet struct.
 type Wallet struct {
 	masterKey *hdkeychain.ExtendedKey
-	seed      []byte
+	//seed      []byte
 	path      accounts.DerivationPath
 	publicKey *ecdsa.PublicKey
 }
@@ -38,7 +38,6 @@ func FromSeedAt(seed []byte, path accounts.DerivationPath) (*Wallet, error) {
 
 	w := &Wallet{
 		masterKey: masterKey,
-		seed:      seed,
 		path:      path,
 	}
 
@@ -64,7 +63,6 @@ func FromMnemonicAt(mnemonic string, path accounts.DerivationPath) (*Wallet, err
 
 	w := &Wallet{
 		masterKey: masterKey,
-		seed:      seed,
 		path:      path,
 	}
 
@@ -86,7 +84,6 @@ func (w *Wallet) Derive(path accounts.DerivationPath) (*Wallet, error) {
 
 	return &Wallet{
 		masterKey: w.masterKey,
-		seed:      w.seed,
 		path:      path,
 		publicKey: publicKeyECDSA,
 	}, nil
@@ -94,7 +91,9 @@ func (w *Wallet) Derive(path accounts.DerivationPath) (*Wallet, error) {
 
 // Child returns a child of the current wallet at the given index.
 func (w *Wallet) Child(index uint32) (*Wallet, error) {
-	path := append(w.path, index)
+	path := make(accounts.DerivationPath, len(w.path)+1)
+	copy(path, w.path)
+	path[len(w.path)] = index
 	return w.Derive(path)
 }
 

@@ -32,6 +32,9 @@ var (
 )
 
 func (e *HttpError) Error() string {
+	if e.Message == "" {
+		return e.Status
+	}
 	return e.Message
 }
 
@@ -42,12 +45,12 @@ func (e *HttpError) String() string {
 	return fmt.Sprintf("HTTP %s: %s", e.Status, e.Message)
 }
 
+// newHttpError creates an HttpError from a response.
+// Note: The caller is responsible for closing resp.Body.
 func newHttpError(resp *http.Response) *HttpError {
 	message := resp.Status
 
 	if resp.Body != nil {
-		defer resp.Body.Close()
-
 		body, err := io.ReadAll(resp.Body)
 		if err == nil {
 			message = string(body)

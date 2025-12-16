@@ -69,8 +69,10 @@ func (v *Visitor) Wait(ctx context.Context) (*thorest.TransactionReceipt, error)
 		return receipt, nil
 	}
 
-	blockChan := make(chan *thorest.ExpandedBlock, 10)
-	ticker := blocks.New(ctx, v.client).Subscribe(blockChan)
+	blockChan := make(chan *thorest.ExpandedBlock, 1)
+	blocksTracker := blocks.New(ctx, v.client)
+	defer blocksTracker.Close()
+	ticker := blocksTracker.Subscribe(blockChan)
 	defer ticker.Unsubscribe()
 
 	for {

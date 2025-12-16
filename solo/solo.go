@@ -4,7 +4,6 @@ import (
 	"crypto/ecdsa"
 
 	"github.com/darrenvechain/thorgo/crypto/hdwallet"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
@@ -12,8 +11,7 @@ import (
 const URL = "http://localhost:8669"
 
 var (
-	keys      = [10]*ecdsa.PrivateKey{}
-	genesisId = common.HexToHash("0x00000000c05a20fbca2bf6ae3affba6af4a74b800b585bf7a4988aba7aea69f6")
+	keys = [10]*ecdsa.PrivateKey{}
 )
 
 func init() {
@@ -38,16 +36,6 @@ func init() {
 // Keys returns the private keys for the solo node.
 func Keys() [10]*ecdsa.PrivateKey {
 	return keys
-}
-
-// GenesisID returns the genesis block ID.
-func GenesisID() common.Hash {
-	return genesisId
-}
-
-// ChainTag returns the chain tag for the solo node.
-func ChainTag() byte {
-	return genesisId[len(genesisId)-1]
 }
 
 // Mnemonic returns the default mnemonic for the solo node.

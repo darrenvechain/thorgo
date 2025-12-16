@@ -131,10 +131,6 @@ func (f *Filterer) ExecuteAndDecode() ([]Event, error) {
 
 	var decoded []Event
 	for _, log := range logs {
-		if len(log.Topics) < 2 {
-			continue
-		}
-
 		eventABI, err := f.contract.ABI.EventByID(log.Topics[0])
 		if err != nil {
 			continue

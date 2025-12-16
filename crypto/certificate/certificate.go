@@ -1,6 +1,7 @@
 package certificate
 
 import (
+	"crypto/ecdsa"
 	"encoding/json"
 	"fmt"
 
@@ -31,10 +32,6 @@ func FromBytes(data []byte) (*Certificate, error) {
 	cert := &Certificate{}
 	if err := json.Unmarshal(data, cert); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal certificate: %w", err)
-	}
-	if cert.Signature != nil {
-		sig := *cert.Signature
-		cert.Signature = &sig
 	}
 	return cert, nil
 }
@@ -70,4 +67,19 @@ func (c *Certificate) Verify() bool {
 		return false
 	}
 	return crypto.PubkeyToAddress(*pubkey) == common.HexToAddress(c.Signer)
+}
+
+// Sign signs the certificate with the given private key and sets the Signature field.
+func (c *Certificate) Sign(privateKey *ecdsa.PrivateKey) error {
+	signingHash, err := c.SigningHash()
+	if err != nil {
+		return fmt.Errorf("failed to compute signing hash: %w", err)
+	}
+	sig, err := crypto.Sign(signingHash.Bytes(), privateKey)
+	if err != nil {
+		return fmt.Errorf("failed to sign certificate: %w", err)
+	}
+	signature := hexutil.Bytes(sig)
+	c.Signature = &signature
+	return nil
 }

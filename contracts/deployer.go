@@ -45,12 +45,14 @@ func (d *Deployer) Deploy(ctx context.Context, sender TxManager, opts *transacti
 		return nil, txID, fmt.Errorf("failed to wait for contract deployment: %w", err)
 	}
 	if receipt.Reverted {
-		return nil, txID, errors.New("contract deployment reverted")
+		return nil, trx.ID(), errors.New("contract deployment reverted")
 	}
 
-	address := receipt.Outputs[0].ContractAddress
+	if len(receipt.Outputs) == 0 || receipt.Outputs[0].ContractAddress == nil {
+		return nil, trx.ID(), errors.New("no contract address in deployment receipt")
+	}
 
-	return New(d.client, *address, d.abi), trx.ID(), nil
+	return New(d.client, *receipt.Outputs[0].ContractAddress, d.abi), trx.ID(), nil
 }
 
 // AsClause returns the contract deployment clause.
@@ -59,7 +61,9 @@ func (d *Deployer) AsClause(args ...any) (*tx.Clause, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to pack contract arguments: %w", err)
 	}
-	bytecode := append(d.bytecode, contractArgs...)
+	bytecode := make([]byte, len(d.bytecode)+len(contractArgs))
+	copy(bytecode, d.bytecode)
+	copy(bytecode[len(d.bytecode):], contractArgs)
 	clause := tx.NewClause(nil).WithData(bytecode).WithValue(d.value)
 	return clause, nil
 }

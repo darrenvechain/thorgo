@@ -89,6 +89,16 @@ func TestCertificate_Verify(t *testing.T) {
 	assert.True(t, cert.Verify())
 }
 
+func TestCertificate_Sign(t *testing.T) {
+	cert := newCert(nil)
+	assert.Nil(t, cert.Signature)
+
+	err := cert.Sign(privKey)
+	assert.NoError(t, err)
+	assert.NotNil(t, cert.Signature)
+	assert.True(t, cert.Verify())
+}
+
 func TestCertificate_Unmarshal(t *testing.T) {
 	sig := hexutil.Encode(signature)
 	testCases := []struct {

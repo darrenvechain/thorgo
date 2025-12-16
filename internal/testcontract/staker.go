@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
@@ -31,7 +30,6 @@ var (
 	_ = hexutil.Decode
 	_ = context.Background
 	_ = tx.NewClause
-	_ = blocks.New
 	_ = time.Sleep
 	_ = transactions.New
 	_ = fmt.Errorf
@@ -233,8 +231,7 @@ type StakerDepositsCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0xfc7e286d.
 func (c *StakerDepositsCaller) WithRevision(rev thorest.Revision) *StakerDepositsCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &StakerDepositsCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0xfc7e286d.

@@ -16,9 +16,6 @@ func NewEventsFilterer(client *thorest.Client) *EventFilterer {
 }
 
 func (e *EventFilterer) Criteria(criteria thorest.EventCriteria) *EventFilterer {
-	if e.criteria == nil {
-		e.criteria = make([]thorest.EventCriteria, 0)
-	}
 	e.criteria = append(e.criteria, criteria)
 	return e
 }

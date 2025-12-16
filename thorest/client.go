@@ -2,10 +2,12 @@ package thorest
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -16,10 +18,31 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
+// buildURL constructs a URL path with optional query parameters.
+// Parameters with empty values are omitted.
+func buildURL(path string, params map[string]string) string {
+	if len(params) == 0 {
+		return path
+	}
+
+	query := url.Values{}
+	for k, v := range params {
+		if v != "" {
+			query.Set(k, v)
+		}
+	}
+
+	if len(query) == 0 {
+		return path
+	}
+	return path + "?" + query.Encode()
+}
+
 // Client is a struct that provides methods to interact with the VeChainThor API.
 type Client struct {
 	client       *http.Client
 	url          string
+	ctx          context.Context
 	genesisBlock atomic.Pointer[Block]
 }
 
@@ -39,6 +62,18 @@ func newClient(url string, client *http.Client) *Client {
 	return &Client{
 		client: client,
 		url:    url,
+		ctx:    context.Background(),
+	}
+}
+
+// WithContext returns a shallow copy of the Client with the given context.
+// The context will be used for all HTTP requests made by the returned client.
+func (c *Client) WithContext(ctx context.Context) *Client {
+	return &Client{
+		client:       c.client,
+		url:          c.url,
+		ctx:          ctx,
+		genesisBlock: c.genesisBlock,
 	}
 }
 
@@ -50,7 +85,7 @@ func (c *Client) Account(addr common.Address) (*Account, error) {
 
 // AccountAt fetches the account information for an address at the given revision.
 func (c *Client) AccountAt(addr common.Address, revision Revision) (*Account, error) {
-	path := "/accounts/" + addr.Hex() + "?revision=" + revision.value
+	path := buildURL("/accounts/"+addr.Hex(), map[string]string{"revision": revision.value})
 	return httpGet(c, path, &Account{})
 }
 
@@ -70,7 +105,7 @@ func (c *Client) Inspect(body InspectRequest) ([]InspectResponse, error) {
 
 // InspectAt will send an array of clauses to the node to simulate the execution of the clauses at the given revision.
 func (c *Client) InspectAt(body InspectRequest, revision Revision) ([]InspectResponse, error) {
-	path := "/accounts/*?revision=" + revision.value
+	path := buildURL("/accounts/*", map[string]string{"revision": revision.value})
 	response := make([]InspectResponse, 0)
 	_, err := httpPost(c, path, body, &response)
 	if err != nil {
@@ -87,7 +122,7 @@ func (c *Client) AccountCode(addr common.Address) (*AccountCode, error) {
 
 // AccountCodeAt fetches the code for the account at the given address and revision.
 func (c *Client) AccountCodeAt(addr common.Address, revision Revision) (*AccountCode, error) {
-	path := "/accounts/" + addr.Hex() + "/code?revision=" + revision.value
+	path := buildURL("/accounts/"+addr.Hex()+"/code", map[string]string{"revision": revision.value})
 	return httpGet(c, path, &AccountCode{})
 }
 
@@ -103,7 +138,7 @@ func (c *Client) AccountStorageAt(
 	key common.Hash,
 	revision Revision,
 ) (*AccountStorage, error) {
-	path := "/accounts/" + addr.Hex() + "/storage/" + key.Hex() + "?revision=" + revision.value
+	path := buildURL("/accounts/"+addr.Hex()+"/storage/"+key.Hex(), map[string]string{"revision": revision.value})
 	return httpGet(c, path, &AccountStorage{})
 }
 
@@ -271,7 +306,7 @@ func (c *Client) FeesPriority() (*FeesPriority, error) {
 }
 
 func httpGet[T any](c *Client, endpoint string, v *T) (*T, error) {
-	req, err := http.NewRequest(http.MethodGet, c.url+endpoint, nil)
+	req, err := http.NewRequestWithContext(c.ctx, http.MethodGet, c.url+endpoint, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -283,7 +318,7 @@ func httpPost[T any](c *Client, path string, body any, v *T) (*T, error) {
 	if err != nil {
 		return nil, err
 	}
-	request, err := http.NewRequest(http.MethodPost, c.url+path, bytes.NewReader(reqBody))
+	request, err := http.NewRequestWithContext(c.ctx, http.MethodPost, c.url+path, bytes.NewReader(reqBody))
 	if err != nil {
 		return nil, err
 	}
@@ -296,11 +331,11 @@ func httpDo[T any](c *Client, req *http.Request, v *T) (*T, error) {
 	if err != nil {
 		return nil, err
 	}
-	statusOK := response.StatusCode >= 200 && response.StatusCode < 300
-	if !statusOK {
+	defer response.Body.Close()
+
+	if statusOK := response.StatusCode >= 200 && response.StatusCode < 300; !statusOK {
 		return nil, newHttpError(response)
 	}
-	defer response.Body.Close()
 
 	// Read the entire body into a buffer
 	responseBody, err := io.ReadAll(response.Body)

@@ -1,6 +1,7 @@
 package transactions
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"math/big"
@@ -41,6 +42,9 @@ func (t *Transactor) Simulate(caller common.Address, options *Options) (*Simulat
 	response, err := t.client.Inspect(request)
 	if err != nil {
 		return nil, err
+	}
+	if len(response) == 0 {
+		return nil, errors.New("empty response from inspection")
 	}
 
 	lastResult := response[len(response)-1]

@@ -12,7 +12,6 @@ import (
 	"fmt"
 
 	"github.com/darrenvechain/thorgo/contracts"
-	"github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/darrenvechain/thorgo/transactions"
 	"github.com/darrenvechain/thorgo/crypto/tx"
@@ -31,7 +30,6 @@ var (
 	_ = hexutil.Decode
 	_ = context.Background
 	_ = tx.NewClause
-	_ = blocks.New
 	_ = time.Sleep
 	_ = transactions.New
 	_ = fmt.Errorf
@@ -69,8 +67,11 @@ var (
                 return common.Hash{}, nil, err
             }
             {{range $pattern, $name := .Libraries}}
-                {{decapitalise $name}}Addr, _, _, _ := Deploy{{capitalise $name}}(auth, backend)
-                {{$contract.Type}}MetaData.Bin = strings.ReplaceAll({{$contract.Type}}Bin, "__${{$pattern}}$__", {{decapitalise $name}}Addr.String()[2:])
+                _, {{decapitalise $name}}, err := Deploy{{capitalise $name}}(ctx, thor, sender, opts)
+                if err != nil {
+                    return common.Hash{}, nil, fmt.Errorf("failed to deploy library {{capitalise $name}}: %w", err)
+                }
+                {{$contract.Type}}MetaData.Bin = strings.ReplaceAll({{$contract.Type}}MetaData.Bin, "__${{$pattern}}$__", {{decapitalise $name}}.Address().String()[2:])
             {{end}}
             bytes, err := hexutil.Decode({{.Type}}MetaData.Bin)
             if err != nil {
@@ -261,8 +262,7 @@ var (
 
         // WithRevision sets the revision for the call to the contract method 0x{{printf "%x" .Original.ID}}.
 		func (c *{{$contract.Type}}{{.Normalized.Name}}Caller) WithRevision(rev thorest.Revision) *{{$contract.Type}}{{.Normalized.Name}}Caller {
-			c.caller.WithRevision(rev)
-			return c
+			return &{{$contract.Type}}{{.Normalized.Name}}Caller{caller: c.caller.WithRevision(rev)}
 		}
 
         // Call executes the raw call to the contract method 0x{{printf "%x" .Original.ID}}.

@@ -20,6 +20,7 @@ var (
 	vthoContract *builtins.VTHO
 	vthoRaw      *contracts.Contract
 	account1     *txmanager.PKManager
+	genesisID    common.Hash
 )
 
 func TestMain(m *testing.M) {
@@ -30,6 +31,11 @@ func TestMain(m *testing.M) {
 	abi, _ := builtins.VTHOMetaData.GetAbi()
 	vthoRaw = contracts.New(thorClient, vthoContract.Address(), abi)
 	account1 = txmanager.FromPK(solo.Keys()[0], thorClient)
+	genesis, err := thorClient.Block(thorest.RevisionNumber(0))
+	if err != nil {
+		panic(err)
+	}
+	genesisID = genesis.ID
 	m.Run()
 }
 
@@ -48,7 +54,7 @@ func TestVisitor_Get(t *testing.T) {
 // TestGetAccountForRevision fetches a thor solo account for the genesis block
 // and checks if the balance and energy are greater than 0
 func TestVisitor_Get_At(t *testing.T) {
-	acc, err := accounts.New(thorClient, account1.Address()).Revision(thorest.RevisionID(solo.GenesisID())).Get()
+	acc, err := accounts.New(thorClient, account1.Address()).Revision(thorest.RevisionID(genesisID)).Get()
 
 	assert.NoError(t, err, "Account.httpGet should not return an error")
 	assert.NotNil(t, acc, "Account.httpGet should return an account")
@@ -70,7 +76,7 @@ func TestVisitor_Code(t *testing.T) {
 // TestGetCodeForRevision fetches the code of the VTHO contract for the genesis block
 func TestVisitor_Code_At(t *testing.T) {
 	vtho, err := accounts.New(thorClient, vthoContract.Address()).
-		Revision(thorest.RevisionID(solo.GenesisID())).
+		Revision(thorest.RevisionID(genesisID)).
 		Code()
 
 	assert.NoError(t, err, "Account.Code should not return an error")
@@ -90,7 +96,7 @@ func TestVisitor_Storage(t *testing.T) {
 // TestGetStorageForRevision fetches a storage position of the VTHO contract for the genesis block
 func TestVisitor_Storage_At(t *testing.T) {
 	storage, err := accounts.New(thorClient, vthoContract.Address()).
-		Revision(thorest.RevisionID(solo.GenesisID())).
+		Revision(thorest.RevisionID(genesisID)).
 		Storage(common.Hash{})
 
 	assert.NoError(t, err, "Account.Storage should not return an error")
@@ -113,7 +119,7 @@ func TestVisitor_Call_At(t *testing.T) {
 	assert.NoError(t, err)
 
 	res, err := accounts.New(thorClient, vthoContract.Address()).
-		Revision(thorest.RevisionID(solo.GenesisID())).
+		Revision(thorest.RevisionID(genesisID)).
 		Call(clause.Data())
 	assert.NoError(t, err)
 	balance := new(big.Int).SetBytes(res.Data)

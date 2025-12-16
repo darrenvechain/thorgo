@@ -110,12 +110,11 @@ func (p *URLDelegator) Delegate(tx *tx.Transaction, origin common.Address) ([]by
 	if err != nil {
 		return nil, err
 	}
+	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		return nil, errors.New("200 OK expected")
+		return nil, fmt.Errorf("expected 200 OK, got %d", res.StatusCode)
 	}
-
-	defer res.Body.Close()
 	var response DelegateResponse
 	if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
 		return nil, err

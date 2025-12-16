@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
@@ -31,7 +30,6 @@ var (
 	_ = hexutil.Decode
 	_ = context.Background
 	_ = tx.NewClause
-	_ = blocks.New
 	_ = time.Sleep
 	_ = transactions.New
 	_ = fmt.Errorf
@@ -296,8 +294,7 @@ type Erc20AllowanceCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0xdd62ed3e.
 func (c *Erc20AllowanceCaller) WithRevision(rev thorest.Revision) *Erc20AllowanceCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &Erc20AllowanceCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0xdd62ed3e.
@@ -330,8 +327,7 @@ type Erc20BalanceOfCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x70a08231.
 func (c *Erc20BalanceOfCaller) WithRevision(rev thorest.Revision) *Erc20BalanceOfCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &Erc20BalanceOfCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x70a08231.
@@ -364,8 +360,7 @@ type Erc20DecimalsCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x313ce567.
 func (c *Erc20DecimalsCaller) WithRevision(rev thorest.Revision) *Erc20DecimalsCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &Erc20DecimalsCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x313ce567.
@@ -398,8 +393,7 @@ type Erc20NameCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x06fdde03.
 func (c *Erc20NameCaller) WithRevision(rev thorest.Revision) *Erc20NameCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &Erc20NameCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x06fdde03.
@@ -432,8 +426,7 @@ type Erc20SymbolCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x95d89b41.
 func (c *Erc20SymbolCaller) WithRevision(rev thorest.Revision) *Erc20SymbolCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &Erc20SymbolCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x95d89b41.
@@ -466,8 +459,7 @@ type Erc20TotalSupplyCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x18160ddd.
 func (c *Erc20TotalSupplyCaller) WithRevision(rev thorest.Revision) *Erc20TotalSupplyCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &Erc20TotalSupplyCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x18160ddd.

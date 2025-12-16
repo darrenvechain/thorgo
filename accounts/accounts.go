@@ -1,6 +1,7 @@
 package accounts
 
 import (
+	"errors"
 	"math/big"
 
 	"github.com/darrenvechain/thorgo/contracts"
@@ -23,10 +24,9 @@ func New(c *thorest.Client, account common.Address) *Visitor {
 	return &Visitor{client: c, account: account}
 }
 
-// Revision sets the optional revision for the API calls.
+// Revision returns a new Visitor with the given revision set for API calls.
 func (a *Visitor) Revision(revision thorest.Revision) *Visitor {
-	a.revision = &revision
-	return a
+	return &Visitor{client: a.client, account: a.account, revision: &revision}
 }
 
 // Get fetches the account information for the given address.
@@ -72,6 +72,10 @@ func (a *Visitor) Call(calldata []byte) (*thorest.InspectResponse, error) {
 
 	if err != nil {
 		return nil, err
+	}
+
+	if len(inspection) == 0 {
+		return nil, errors.New("no inspection results returned")
 	}
 
 	return &inspection[0], nil

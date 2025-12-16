@@ -79,7 +79,11 @@ func (c *Contract) UnpackLog(out any, event string, log *thorest.EventLog) error
 	if len(log.Topics) == 0 {
 		return errors.New("anonymous events are not supported")
 	}
-	if log.Topics[0] != c.ABI.Events[event].ID {
+	ev, ok := c.ABI.Events[event]
+	if !ok {
+		return errors.New("event not found in ABI")
+	}
+	if log.Topics[0] != ev.ID {
 		return errors.New("event signature mismatch")
 	}
 	if len(log.Data) > 0 {
@@ -88,7 +92,7 @@ func (c *Contract) UnpackLog(out any, event string, log *thorest.EventLog) error
 		}
 	}
 	var indexed abi.Arguments
-	for _, arg := range c.ABI.Events[event].Inputs {
+	for _, arg := range ev.Inputs {
 		if arg.Indexed {
 			indexed = append(indexed, arg)
 		}

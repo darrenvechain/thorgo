@@ -3,6 +3,7 @@ package blocks
 import (
 	"context"
 	"errors"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -13,29 +14,38 @@ import (
 
 // Blocks provides utility functions to fetch or wait for blocks.
 type Blocks struct {
-	client *thorest.Client
-	best   atomic.Value
-	subs   event.SubscriptionScope
-	feed   event.Feed
-	done   chan struct{}
+	ctx     context.Context
+	client  *thorest.Client
+	best    atomic.Value
+	subs    event.SubscriptionScope
+	feed    event.Feed
+	done    chan struct{}
+	mu      sync.Mutex
+	polling bool
 }
 
 // New creates a new Blocks instance and starts polling for the best block.
 func New(ctx context.Context, c *thorest.Client) *Blocks {
-	b := &Blocks{client: c, done: make(chan struct{})}
-	go b.poll(ctx)
-	return b
+	return &Blocks{client: c, done: make(chan struct{}), ctx: ctx}
 }
 
-// Close stops the block polling.
+// Close stops the block polling and closes all active subscriptions.
 func (b *Blocks) Close() {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	if !b.polling {
+		return
+	}
+
 	close(b.done)
+	b.subs.Close()
+	b.polling = false
 }
 
 // poll sends the expanded block to all active subscribers when a new best block is detected.
 func (b *Blocks) poll(ctx context.Context) {
 	var previous *thorest.ExpandedBlock
-	defer b.subs.Close()
 
 	for {
 		select {
@@ -71,7 +81,19 @@ func (b *Blocks) poll(ctx context.Context) {
 }
 
 // Subscribe to new blocks. When the best block ID changes, the new expanded block will be sent to the given channel.
+// If the polling is not already started, it will be started.
 func (b *Blocks) Subscribe(blockChan chan *thorest.ExpandedBlock) event.Subscription {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	if !b.polling {
+		b.polling = true
+		b.done = make(chan struct{})
+		b.subs = event.SubscriptionScope{}
+		b.feed = event.Feed{}
+		go b.poll(b.ctx)
+	}
+
 	return b.subs.Track(b.feed.Subscribe(blockChan))
 }
 
@@ -86,7 +108,7 @@ func (b *Blocks) Best() (block *thorest.ExpandedBlock, err error) {
 	if best, ok := b.best.Load().(*thorest.ExpandedBlock); ok {
 		// Convert the timestamp to UTC time.
 		bestTime := time.Unix(best.Timestamp, 0).UTC()
-		if time.Since(bestTime) < 10*time.Second {
+		if time.Since(bestTime) < 6*time.Second {
 			return best, nil
 		}
 	}

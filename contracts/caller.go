@@ -9,8 +9,6 @@ import (
 	"github.com/darrenvechain/thorgo/thorest"
 )
 
-type ParserFunc[T any] func(data []any) (T, error)
-
 type Caller struct {
 	contract *Contract
 	method   string
@@ -28,20 +26,32 @@ func NewCaller(contract *Contract, method string, args ...any) *Caller {
 	}
 }
 
+// WithRevision returns a new Caller with the given revision set.
 func (c *Caller) WithRevision(rev thorest.Revision) *Caller {
-	c.rev = rev
-	return c
+	return &Caller{
+		contract: c.contract,
+		method:   c.method,
+		args:     c.args,
+		rev:      rev,
+		value:    c.value,
+	}
 }
 
+// WithValue returns a new Caller with the given value set.
 func (c *Caller) WithValue(value *big.Int) *Caller {
-	c.value = value
-	return c
+	return &Caller{
+		contract: c.contract,
+		method:   c.method,
+		args:     c.args,
+		rev:      c.rev,
+		value:    value,
+	}
 }
 
 func (c *Caller) Clause() (*tx.Clause, error) {
 	packed, err := c.contract.ABI.Pack(c.method, c.args...)
 	if err != nil {
-		return nil, errors.New("failed to pack method: " + err.Error())
+		return nil, fmt.Errorf("failed to pack method: %w", err)
 	}
 	clause := tx.NewClause(&c.contract.Address).WithData(packed)
 	if c.value != nil {

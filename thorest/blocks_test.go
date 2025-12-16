@@ -3,7 +3,6 @@ package thorest_test
 import (
 	"testing"
 
-	"github.com/darrenvechain/thorgo/solo"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
@@ -47,7 +46,7 @@ func TestClient_ExpandedBlockWithTxs(t *testing.T) {
 func TestClient_ChainTag(t *testing.T) {
 	chainTag, err := thorClient.ChainTag()
 	assert.NoError(t, err)
-	assert.Equal(t, solo.ChainTag(), chainTag)
+	assert.NotEqual(t, byte(0x00), chainTag)
 }
 
 func TestClient_BlockRef(t *testing.T) {

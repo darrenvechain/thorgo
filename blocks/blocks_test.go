@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/darrenvechain/thorgo/internal/testcontainer"
-	"github.com/darrenvechain/thorgo/solo"
 	"github.com/darrenvechain/thorgo/thorest"
 	"github.com/stretchr/testify/assert"
 )
@@ -34,7 +33,9 @@ func TestBlocks_ByNumber(t *testing.T) {
 
 // TestGetBlockByID fetches a block by its ID
 func TestBlocks_ByID(t *testing.T) {
-	block, err := blocks.ByID(solo.GenesisID())
+	block, err := blocks.ByNumber(0)
+	assert.NoError(t, err)
+	block, err = blocks.ByID(block.ID)
 	assert.NoError(t, err)
 	assert.NotNil(t, block)
 }
@@ -49,7 +50,7 @@ func TestBlocks_Finalized(t *testing.T) {
 // TestGetExpandedBlock fetches a block where all the transactions are expanded
 // It accepts a revision, which can be a block ID, block number, "best" or "finalized"
 func TestBlocks_Expanded(t *testing.T) {
-	block, err := blocks.Expanded(thorest.RevisionID(solo.GenesisID()))
+	block, err := blocks.Expanded(thorest.RevisionNumber(0))
 	assert.NoError(t, err)
 	assert.NotNil(t, block)
 }
