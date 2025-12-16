@@ -73,7 +73,7 @@ func (c *Client) WithContext(ctx context.Context) *Client {
 		client:       c.client,
 		url:          c.url,
 		ctx:          ctx,
-		genesisBlock: c.genesisBlock,
+		genesisBlock: atomic.Pointer[Block]{},
 	}
 }
 
