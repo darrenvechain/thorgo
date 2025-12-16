@@ -1,7 +1,7 @@
 package builtins
 
 //go:generate mkdir -p contracts
-//go:generate curl -o ./contracts/staker.sol https://raw.githubusercontent.com/vechain/thor/refs/heads/release/hayabusa/builtin/gen/staker.sol
+//go:generate curl -o ./contracts/staker.sol https://raw.githubusercontent.com/vechain/thor/refs/heads/master/builtin/gen/staker.sol
 //go:generate rm -rf ./compiled/
 //go:generate docker run -v ./:/sources ethereum/solc:0.8.20 --evm-version paris --via-ir --optimize --optimize-runs 200 --overwrite -o /sources/compiled --abi --bin /sources/contracts/staker.sol
 //go:generate go run ../cmd/thorgen --abi https://raw.githubusercontent.com/vechain/b32/refs/heads/master/ABIs/authority.json --pkg builtins --out authority.go --type Authority

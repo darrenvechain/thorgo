@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
@@ -31,7 +30,6 @@ var (
 	_ = hexutil.Decode
 	_ = context.Background
 	_ = tx.NewClause
-	_ = blocks.New
 	_ = time.Sleep
 	_ = transactions.New
 	_ = fmt.Errorf
@@ -270,8 +268,7 @@ type VTHOAllowanceCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0xdd62ed3e.
 func (c *VTHOAllowanceCaller) WithRevision(rev thorest.Revision) *VTHOAllowanceCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &VTHOAllowanceCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0xdd62ed3e.
@@ -304,8 +301,7 @@ type VTHOBalanceOfCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x70a08231.
 func (c *VTHOBalanceOfCaller) WithRevision(rev thorest.Revision) *VTHOBalanceOfCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &VTHOBalanceOfCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x70a08231.
@@ -338,8 +334,7 @@ type VTHODecimalsCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x313ce567.
 func (c *VTHODecimalsCaller) WithRevision(rev thorest.Revision) *VTHODecimalsCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &VTHODecimalsCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x313ce567.
@@ -372,8 +367,7 @@ type VTHONameCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x06fdde03.
 func (c *VTHONameCaller) WithRevision(rev thorest.Revision) *VTHONameCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &VTHONameCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x06fdde03.
@@ -406,8 +400,7 @@ type VTHOSymbolCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x95d89b41.
 func (c *VTHOSymbolCaller) WithRevision(rev thorest.Revision) *VTHOSymbolCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &VTHOSymbolCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x95d89b41.
@@ -440,8 +433,7 @@ type VTHOTotalBurnedCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0xd89135cd.
 func (c *VTHOTotalBurnedCaller) WithRevision(rev thorest.Revision) *VTHOTotalBurnedCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &VTHOTotalBurnedCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0xd89135cd.
@@ -474,8 +466,7 @@ type VTHOTotalSupplyCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x18160ddd.
 func (c *VTHOTotalSupplyCaller) WithRevision(rev thorest.Revision) *VTHOTotalSupplyCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &VTHOTotalSupplyCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x18160ddd.

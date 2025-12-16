@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
@@ -31,7 +30,6 @@ var (
 	_ = hexutil.Decode
 	_ = context.Background
 	_ = tx.NewClause
-	_ = blocks.New
 	_ = time.Sleep
 	_ = transactions.New
 	_ = fmt.Errorf
@@ -157,8 +155,7 @@ type ParamsExecutorCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0xc34c08e5.
 func (c *ParamsExecutorCaller) WithRevision(rev thorest.Revision) *ParamsExecutorCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &ParamsExecutorCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0xc34c08e5.
@@ -191,8 +188,7 @@ type ParamsGetCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x8eaa6ac0.
 func (c *ParamsGetCaller) WithRevision(rev thorest.Revision) *ParamsGetCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &ParamsGetCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x8eaa6ac0.

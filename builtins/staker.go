@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
@@ -31,7 +30,6 @@ var (
 	_ = hexutil.Decode
 	_ = context.Background
 	_ = tx.NewClause
-	_ = blocks.New
 	_ = time.Sleep
 	_ = transactions.New
 	_ = fmt.Errorf
@@ -756,8 +754,7 @@ type StakerFirstActiveCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0xd719835c.
 func (c *StakerFirstActiveCaller) WithRevision(rev thorest.Revision) *StakerFirstActiveCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &StakerFirstActiveCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0xd719835c.
@@ -790,8 +787,7 @@ type StakerFirstQueuedCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0xebe3a069.
 func (c *StakerFirstQueuedCaller) WithRevision(rev thorest.Revision) *StakerFirstQueuedCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &StakerFirstQueuedCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0xebe3a069.
@@ -824,8 +820,7 @@ type StakerGetDelegationCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x0dd35701.
 func (c *StakerGetDelegationCaller) WithRevision(rev thorest.Revision) *StakerGetDelegationCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &StakerGetDelegationCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x0dd35701.
@@ -858,8 +853,7 @@ type StakerGetDelegationPeriodDetailsCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x0f4b6c66.
 func (c *StakerGetDelegationPeriodDetailsCaller) WithRevision(rev thorest.Revision) *StakerGetDelegationPeriodDetailsCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &StakerGetDelegationPeriodDetailsCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x0f4b6c66.
@@ -890,8 +884,7 @@ type StakerGetDelegatorsRewardsCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0xfddff039.
 func (c *StakerGetDelegatorsRewardsCaller) WithRevision(rev thorest.Revision) *StakerGetDelegatorsRewardsCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &StakerGetDelegatorsRewardsCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0xfddff039.
@@ -924,8 +917,7 @@ type StakerGetValidationCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x27cd4de1.
 func (c *StakerGetValidationCaller) WithRevision(rev thorest.Revision) *StakerGetValidationCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &StakerGetValidationCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x27cd4de1.
@@ -960,8 +952,7 @@ type StakerGetValidationPeriodDetailsCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x1a9e215a.
 func (c *StakerGetValidationPeriodDetailsCaller) WithRevision(rev thorest.Revision) *StakerGetValidationPeriodDetailsCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &StakerGetValidationPeriodDetailsCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x1a9e215a.
@@ -994,8 +985,7 @@ type StakerGetValidationTotalsCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x37d07860.
 func (c *StakerGetValidationTotalsCaller) WithRevision(rev thorest.Revision) *StakerGetValidationTotalsCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &StakerGetValidationTotalsCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x37d07860.
@@ -1029,8 +1019,7 @@ type StakerGetValidationsNumCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0xaf8fef4e.
 func (c *StakerGetValidationsNumCaller) WithRevision(rev thorest.Revision) *StakerGetValidationsNumCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &StakerGetValidationsNumCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0xaf8fef4e.
@@ -1061,8 +1050,7 @@ type StakerGetWithdrawableCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x32cc6ae6.
 func (c *StakerGetWithdrawableCaller) WithRevision(rev thorest.Revision) *StakerGetWithdrawableCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &StakerGetWithdrawableCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x32cc6ae6.
@@ -1095,8 +1083,7 @@ type StakerIssuanceCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x863623bb.
 func (c *StakerIssuanceCaller) WithRevision(rev thorest.Revision) *StakerIssuanceCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &StakerIssuanceCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x863623bb.
@@ -1129,8 +1116,7 @@ type StakerNextCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0xab73e316.
 func (c *StakerNextCaller) WithRevision(rev thorest.Revision) *StakerNextCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &StakerNextCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0xab73e316.
@@ -1163,8 +1149,7 @@ type StakerQueuedStakeCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0xe8e1a8b8.
 func (c *StakerQueuedStakeCaller) WithRevision(rev thorest.Revision) *StakerQueuedStakeCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &StakerQueuedStakeCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0xe8e1a8b8.
@@ -1197,8 +1182,7 @@ type StakerTotalStakeCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x8b0e9f3f.
 func (c *StakerTotalStakeCaller) WithRevision(rev thorest.Revision) *StakerTotalStakeCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &StakerTotalStakeCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x8b0e9f3f.

@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
@@ -31,7 +30,6 @@ var (
 	_ = hexutil.Decode
 	_ = context.Background
 	_ = tx.NewClause
-	_ = blocks.New
 	_ = time.Sleep
 	_ = transactions.New
 	_ = fmt.Errorf
@@ -328,8 +326,7 @@ type ExecutorApproverCountCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x128e9be6.
 func (c *ExecutorApproverCountCaller) WithRevision(rev thorest.Revision) *ExecutorApproverCountCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &ExecutorApproverCountCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x128e9be6.
@@ -362,8 +359,7 @@ type ExecutorApproversCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x0a144391.
 func (c *ExecutorApproversCaller) WithRevision(rev thorest.Revision) *ExecutorApproversCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &ExecutorApproversCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x0a144391.
@@ -394,8 +390,7 @@ type ExecutorProposalsCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x32ed5b12.
 func (c *ExecutorProposalsCaller) WithRevision(rev thorest.Revision) *ExecutorProposalsCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &ExecutorProposalsCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x32ed5b12.
@@ -431,8 +426,7 @@ type ExecutorVotingContractsCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0xfa06792b.
 func (c *ExecutorVotingContractsCaller) WithRevision(rev thorest.Revision) *ExecutorVotingContractsCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &ExecutorVotingContractsCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0xfa06792b.

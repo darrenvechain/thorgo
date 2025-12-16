@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/darrenvechain/thorgo/blocks"
 	"github.com/darrenvechain/thorgo/contracts"
 	"github.com/darrenvechain/thorgo/crypto/tx"
 	"github.com/darrenvechain/thorgo/thorest"
@@ -31,7 +30,6 @@ var (
 	_ = hexutil.Decode
 	_ = context.Background
 	_ = tx.NewClause
-	_ = blocks.New
 	_ = time.Sleep
 	_ = transactions.New
 	_ = fmt.Errorf
@@ -210,8 +208,7 @@ type PrototypeBalanceCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x6d8c859a.
 func (c *PrototypeBalanceCaller) WithRevision(rev thorest.Revision) *PrototypeBalanceCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &PrototypeBalanceCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x6d8c859a.
@@ -244,8 +241,7 @@ type PrototypeCreditPlanCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x80df45b4.
 func (c *PrototypeCreditPlanCaller) WithRevision(rev thorest.Revision) *PrototypeCreditPlanCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &PrototypeCreditPlanCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x80df45b4.
@@ -276,8 +272,7 @@ type PrototypeCurrentSponsorCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x23d8c7db.
 func (c *PrototypeCurrentSponsorCaller) WithRevision(rev thorest.Revision) *PrototypeCurrentSponsorCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &PrototypeCurrentSponsorCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x23d8c7db.
@@ -310,8 +305,7 @@ type PrototypeEnergyCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x1e95be45.
 func (c *PrototypeEnergyCaller) WithRevision(rev thorest.Revision) *PrototypeEnergyCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &PrototypeEnergyCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x1e95be45.
@@ -344,8 +338,7 @@ type PrototypeHasCodeCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x9538c4b3.
 func (c *PrototypeHasCodeCaller) WithRevision(rev thorest.Revision) *PrototypeHasCodeCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &PrototypeHasCodeCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x9538c4b3.
@@ -378,8 +371,7 @@ type PrototypeIsSponsorCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0xd87333ac.
 func (c *PrototypeIsSponsorCaller) WithRevision(rev thorest.Revision) *PrototypeIsSponsorCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &PrototypeIsSponsorCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0xd87333ac.
@@ -412,8 +404,7 @@ type PrototypeIsUserCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x02d43dc8.
 func (c *PrototypeIsUserCaller) WithRevision(rev thorest.Revision) *PrototypeIsUserCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &PrototypeIsUserCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x02d43dc8.
@@ -446,8 +437,7 @@ type PrototypeMasterCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x9ed153c0.
 func (c *PrototypeMasterCaller) WithRevision(rev thorest.Revision) *PrototypeMasterCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &PrototypeMasterCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x9ed153c0.
@@ -480,8 +470,7 @@ type PrototypeStorageForCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0x04e7a457.
 func (c *PrototypeStorageForCaller) WithRevision(rev thorest.Revision) *PrototypeStorageForCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &PrototypeStorageForCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0x04e7a457.
@@ -514,8 +503,7 @@ type PrototypeUserCreditCaller struct {
 
 // WithRevision sets the revision for the call to the contract method 0xc9c4fc41.
 func (c *PrototypeUserCreditCaller) WithRevision(rev thorest.Revision) *PrototypeUserCreditCaller {
-	c.caller.WithRevision(rev)
-	return c
+	return &PrototypeUserCreditCaller{caller: c.caller.WithRevision(rev)}
 }
 
 // Call executes the raw call to the contract method 0xc9c4fc41.
